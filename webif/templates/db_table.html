@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta content="helly" name="author">
+    <style type="text/css">
+
+
+.dbtable table {
+  font-family: "Arial", "Helvetica", "sans-serif";
+  border-top-color: white;
+  border-right-color: white;
+  border-bottom-color: white;
+  border-left-color: white;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-radius: 0px;
+  table-layout: fixed;
+  caption-side: top;
+  border-collapse: collapse;
+  border-spacing: 0px;
+  padding: 0px;
+  empty-cells: show;
+  font-weight: normal;
+  font-style: normal;
+  color: black;
+  text-align: center;
+  font-size: small;
+  background-color: #E6E6E6;
+}
+
+.dbtable thead {
+  background-color: #404040;
+  font-weight: bold;
+  color: white;
+}
+
+.dbtable td {
+  padding: 5px 20px;
+}
+
+.dbtable tbody tr:nth-child(even) {background: #E6E6E6;}
+.dbtable tbody tr:nth-child(odd) {background: #D9D9D9;}
+
+.dbtable tbody tr:hover {
+  background-color: #BFBFBF;
+  color: black;
+}
+
+</style></head>
+  <body>
+    <div class="dbtable" style="text-align: center;">
+      <table border="1">
+        <thead>
+          <tr>
+            {% for col in cols %}
+              <td>{{ col }}</td>
+            {% endfor %}
+            {% if editable == 1 %}
+              <td>Edit<br>
+              </td>
+              <td>Del<br>
+              </td>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for datum in data %}
+            {% if (editing==1) and (datum[0]==editingid) %}
+              {% include "db_edit.html" ignore missing %}
+            {% elif (editing==2) and (datum[0]==editingid) %}
+              {% include "db_delete.html" ignore missing %} 
+            {% else %}
+              <tr>
+                {% for item in datum %}
+                  <td>{{ item }}</td>
+                {% endfor %}
+                {% if editable == 1 %}
+                  <td><a href="/database_edit/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
+                    alt="Edit" src={{ url_for('static', filename = "images/edit.png") }}></a>
+                  </td>
+                  <td><a href="/database_delete/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="delete"
+                    alt="Del" src={{ url_for('static', filename = "images/delete.png") }}></a>
+                  </td>
+                {% endif %}
+              </tr>
+            {% endif %}
+          {% endfor %}
+          {% if editable == 1 %}
+            <tr>    
+                <td colspan="100%" style="text-align: left;"><a href="/database_add/{{ tableid }}"><img style="width: 15px; height: 15px;" title="add"
+                  alt="Add" src={{ url_for('static', filename = "images/add.png") }}></a>
+                </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

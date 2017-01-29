@@ -1,0 +1,664 @@
+<!-- Edit forms for all tables -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta content="helly" name="author">
+    <style type="text/css">
+
+.dbtable tbody tr.d1 {
+	background: #808080
+}
+
+.dbtable tbody td.d1 {
+	border-bottom: none !important;border-top: none !important;
+}
+
+.dbtable td.d2 {
+  padding: 0px 20px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: left;
+}
+
+.dbtable td.d3 {
+  padding: 3px 5px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: left;
+}
+		</style>
+		<script type="text/javascript">
+			function TFChanged(id) {
+				if (document.getElementById(id).checked) {
+    			document.getElementById(id).parentNode.getElementsByTagName('span')[0].innerHTML = "True";
+    		} else {
+    			document.getElementById(id).parentNode.getElementsByTagName('span')[0].innerHTML = "False";
+    		}
+			}
+
+			function OOChanged(id) {
+				if (document.getElementById(id).checked) {
+    			document.getElementById(id).parentNode.getElementsByTagName('span')[0].innerHTML = "On";
+    		} else {
+    			document.getElementById(id).parentNode.getElementsByTagName('span')[0].innerHTML = "Off";
+    		}
+			}
+
+			function SensorTypeChanged() {
+				var e = document.getElementById("SensorType");
+				var val = e.options[e.selectedIndex].text;
+				if (val.toLowerCase() == "buffer output") {
+					document.getElementById("sSysCode").disabled = true;
+					document.getElementById("sGroupCode").disabled = true;
+					document.getElementById("sDeviceCode").disabled = true;
+					document.getElementById("sURL").disabled = true;
+					document.getElementById("sURLTag").disabled = true;
+				} else if (val.toLowerCase() == "timer output") {
+					document.getElementById("sSysCode").disabled = true;
+					document.getElementById("sGroupCode").disabled = true;
+					document.getElementById("sDeviceCode").disabled = false;
+					document.getElementById("sURL").disabled = true;
+					document.getElementById("sURLTag").disabled = true;
+				} else if (val.toLowerCase().includes("url")) {
+					document.getElementById("sSysCode").disabled = true;
+					document.getElementById("sGroupCode").disabled = true;
+					document.getElementById("sDeviceCode").disabled = true;
+					document.getElementById("sURL").disabled = false;
+					document.getElementById("sURLTag").disabled = false;
+				} else {
+					document.getElementById("sSysCode").disabled = false;
+					document.getElementById("sGroupCode").disabled = false;
+					document.getElementById("sDeviceCode").disabled = false;
+					document.getElementById("sURL").disabled = true;
+					document.getElementById("sURLTag").disabled = true;
+				}
+			}
+
+			function ActuatorTypeChanged() {
+				var e = document.getElementById("ActuatorType");
+				var val = e.options[e.selectedIndex].text;
+				if (val.toLowerCase() == "buffer output") {
+					document.getElementById("SysCode").disabled = true;
+					document.getElementById("GroupCode").disabled = true;
+					document.getElementById("DeviceCode").disabled = true;
+					document.getElementById("URL").disabled = true;
+					document.getElementById("URLTag").disabled = true;
+				} else if (val.toLowerCase() == "timer output") {
+					document.getElementById("SysCode").disabled = true;
+					document.getElementById("GroupCode").disabled = true;
+					document.getElementById("DeviceCode").disabled = false;
+					document.getElementById("URL").disabled = true;
+					document.getElementById("URLTag").disabled = true;
+				} else if (val.toLowerCase().includes("url")) {
+					document.getElementById("SysCode").disabled = true;
+					document.getElementById("GroupCode").disabled = true;
+					document.getElementById("DeviceCode").disabled = true;
+					document.getElementById("URL").disabled = false;
+					document.getElementById("URLTag").disabled = false;
+				} else {
+					document.getElementById("SysCode").disabled = false;
+					document.getElementById("GroupCode").disabled = false;
+					document.getElementById("DeviceCode").disabled = false;
+					document.getElementById("URL").disabled = true;
+					document.getElementById("URLTag").disabled = true;
+				}
+			}
+
+			function TimerMethodChanged() {
+				var e = document.getElementById("TimerMethod");
+				var val = e.options[e.selectedIndex].text;
+				if (val.toLowerCase() == "fixed") {
+					document.getElementById("Hour").disabled = false;
+					document.getElementById("Minute").disabled = false;
+					document.getElementById("MinutesOffset").disabled = true;
+				} else {
+					document.getElementById("Hour").disabled = true;
+					document.getElementById("Minute").disabled = true;
+					document.getElementById("MinutesOffset").disabled = false;
+				}
+			}
+
+			function ProcSensorChanged() {
+				var e = document.getElementById("ProcSensor");
+				var val = e.options[e.selectedIndex].text;
+				{% if tableid == "processors" %}
+					var sensors = {{ editingdata[1].items() | tojson }}; 
+					var digi = {{ editingdata[2].items() | tojson }};
+				{% else %} 
+					var sensors = []; 
+					var digi = [];
+				{% endif %}
+				
+				var IsDigital = false;
+
+				for (key in sensors) {
+					if (sensors[key][1].toLowerCase() == val.toLowerCase()) {
+						IsDigital=digi[key][1];
+					}
+				}
+
+				if (IsDigital) {
+					document.getElementById("ProcOp").hidden = true;
+					document.getElementById("ProcEq").hidden = false;
+					document.getElementById("ProcVal").hidden = true;
+					document.getElementById("ProcValTF").hidden = false;
+				} else {
+					document.getElementById("ProcOp").hidden = false;
+					document.getElementById("ProcEq").hidden = true;
+					document.getElementById("ProcVal").hidden = false;
+					document.getElementById("ProcValTF").hidden = true;
+				}
+			}
+
+			function DepActuatorChanged(index) {
+				var e = document.getElementById("DepActuator"+index);
+				var val = e.options[e.selectedIndex].text;
+				{% if tableid == "dependencies" %}
+					var actuators = {{ editingdata[0].items() | tojson }}; 
+					var digi = {{ editingdata[1].items() | tojson }};
+				{% else %} 
+					var sactuators = []; 
+					var digi = [];
+				{% endif %}
+				
+				var IsDigital = false;
+
+				for (key in actuators) {
+					if (actuators[key][1].toLowerCase() == val.toLowerCase()) {
+						IsDigital=digi[key][1];
+					}
+				}
+
+				if (IsDigital) {
+					document.getElementById("DepOp"+index).hidden = true;
+					document.getElementById("DepEq"+index).hidden = false;
+					document.getElementById("DepVal"+index).hidden = true;
+					document.getElementById("DepValTF"+index).hidden = false;
+				} else {
+					document.getElementById("DepOp"+index).hidden = false;
+					document.getElementById("DepEq"+index).hidden = true;
+					document.getElementById("DepVal"+index).hidden = false;
+					document.getElementById("DepValTF"+index).hidden = true;
+				}
+			}
+
+			function CombActuatorChanged(index) {
+				var e = document.getElementById("CombActuator"+index);
+				var val = e.options[e.selectedIndex].text;
+				{% if tableid == "combiners" %}
+					var actuators = {{ editingdata[1].items() | tojson }}; 
+					var digi = {{ editingdata[2].items() | tojson }};
+				{% else %} 
+					var sactuators = []; 
+					var digi = [];
+				{% endif %}
+				
+				var IsDigital = false;
+
+				for (key in actuators) {
+					if (actuators[key][1].toLowerCase() == val.toLowerCase()) {
+						IsDigital=digi[key][1];
+					}
+				}
+
+				if (IsDigital) {
+					document.getElementById("CombVal"+index).hidden = true;
+					document.getElementById("CombValOO"+index).hidden = false;
+				} else {
+					document.getElementById("CombVal"+index).hidden = false;
+					document.getElementById("CombValOO"+index).hidden = true;
+				}
+			}
+
+
+		</script>
+
+	</head>
+  <body>
+  	<form method="post" action="/database_edited/{{ tableid }}/{{ editingid }}">
+  		<tr class="d1">
+  			<td class="d1"> <!-- ID, fixed -->
+  				{{ datum[0] }}
+  			</td>
+  			<td class="d1"> <!-- Name -->
+  				<input type="text" size="{% if datum[1] %}{{ datum[1]|length }}{% else %} 10 {% endif %}" name="Name" value="{{ datum[1] }}">
+  			</td>
+  			<td class="d1"> <!-- Description -->
+  				<input type="text" size="{% if datum[2] %}{{ datum[2]|length }}{% else %} 10 {% endif %}" name="Description" value="{{ datum[2] }}"> 
+  			</td>
+  			<!-- here table dependent info ... -->
+  			{% if tableid == "sensors" %}
+  				<td class="d1"> <!--Type -->
+  					<select name="Type" id="SensorType" onchange="SensorTypeChanged()">
+  						{% for key, value in editingdata[0].items() %}
+        				<option value="{{key}}" {% if (value == datum[3]) %} selected="selected" {% endif %}>
+        					{{ value }}
+        				</option>
+    					{% endfor %}
+						</select>
+  				</td>
+  				<td class="d1"> <!--SysCode -->
+  					<input type="number" name="SysCode" id="sSysCode" min="0" max="255" value="{{ datum[4] }}" {% if ("url" in datum[3]|lower) or ("timer" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}>
+  				</td>
+  				<td class="d1"> <!--GroupCode -->
+  					<input type="number" name="GroupCode" id="sGroupCode" min="0" max="255" value="{{ datum[5] }}" {% if ("url" in datum[3]|lower) or ("timer" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}>
+  				</td>
+  				<td class="d1"> <!--DeviceCode -->
+  					<input type="number" name="DeviceCode" id="sDeviceCode" min="0" max="255" value="{{ datum[6] }}" {% if ("url" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}>
+  				</td>
+  				<td class="d1"> <!--URL -->
+  					<input type="text" size="10" name="URL" id="sURL" value="{{ datum[7] }}" {% if (not "url" in datum[3]|lower) or ("timer" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}> 
+  				</td>
+  				<td class="d1"> <!--URLTag -->
+  					<input type="text" size="{% if datum[8] %}{{ datum[8]|length }}{% else %} 10 {% endif %}" name="URLTag" id="sURLTag" value="{{ datum[8] }}" {% if (not "url" in datum[3]|lower) or ("timer" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}> 
+  				</td>
+  				<td class="d1"> <!-- Digital -->
+  					<label>
+  						<input type="checkbox" {% if datum[9] == "True" %} checked="checked" {% endif %} value="1" name="Digital" id="TF1" onchange="TFChanged('TF1')"><br>
+  						<span>{% if datum[9] == "True" %}True{% else %}False{% endif %}</span>
+  						<input type="hidden" value="0" name="Digital">
+  					</label>
+  				</td>
+  				<td class="d1"> <!-- Poll -->
+  					<label>
+  						<input type="checkbox" {% if datum[10] == "True" %} checked="checked" {% endif %} value="1" name="Poll" id="TF2" onchange="TFChanged('TF2')"><br>
+  						<span>{% if datum[10] == "True" %}True{% else %}False{% endif %}</span>
+  						<input type="hidden" value="0" name="Poll">
+  					</label>
+  				</td>
+  				<td class="d1"> <!-- Toggle -->
+  					<label>
+  						<input type="checkbox" {% if datum[11] == "True" %} checked="checked" {% endif %} value="1" name="Toggle" id="TF3" onchange="TFChanged('TF3')"><br>
+  						<span>{% if datum[11] == "True" %}True{% else %}False{% endif %}</span>
+  						<input type="hidden" value="0" name="Toggle">
+  					</label>
+  				</td>
+  			{% elif tableid == "actuators" %}
+  				<td class="d1"> <!--Type -->
+  					<select name="Type" id="ActuatorType" onchange="ActuatorTypeChanged()">
+  						{% for key, value in editingdata[0].items() %}
+        				<option value="{{key}}" {% if (value == datum[3]) %} selected="selected" {% endif %}>
+        					{{ value }}
+        				</option>
+    					{% endfor %}
+						</select>
+  				</td>
+  				<td class="d1"> <!--SysCode -->
+  					<input type="number" name="SysCode" id="SysCode" min="0" max="255" value="{{ datum[4] }}" {% if ("url" in datum[3]|lower) or ("timer" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}>
+  				</td>
+  				<td class="d1"> <!--GroupCode -->
+  					<input type="number" name="GroupCode" id="GroupCode" min="0" max="255" value="{{ datum[5] }}" {% if ("url" in datum[3]|lower) or ("timer" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}>
+  				</td>
+  				<td class="d1"> <!--DeviceCode -->
+  					<input type="number" name="DeviceCode" id="DeviceCode" min="0" max="255" value="{{ datum[6] }}" {% if ("url" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}>
+  				</td>
+  				<td class="d1"> <!--URL -->
+  					<input type="text" size="10" name="URL" id="URL" value="{{ datum[7] }}" {% if (not "url" in datum[3]|lower) or ("timer" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}> 
+  				</td>
+  				<td class="d1"> <!--URLTag -->
+  					<input type="text" size="{% if datum[8] %}{{ datum[8]|length }}{% else %} 10 {% endif %}" name="URLTag" id="URLTag" value="{{ datum[8] }}" {% if (not "url" in datum[3]|lower) or ("timer" in datum[3]|lower) or ("buffer" in datum[3]|lower) %} disabled {% endif %}> 
+  				</td>
+  				<td class="d1"> <!-- SetOnce -->
+  					<label>
+  						<input type="checkbox" {% if datum[9] == "True" %} checked="checked" {% endif %} value="1" name="SetOnce" id="TF4" onchange="TFChanged('TF4')"><br>
+  						<span>{% if datum[9] == "True" %}True{% else %}False{% endif %}</span>
+  						<input type="hidden" value="0" name="SetOnce">
+  					</label>
+  				</td>
+  				<td class="d1"> <!-- Repeat -->
+  					<label>
+  						<input type="checkbox" {% if datum[10] == "True" %} checked="checked" {% endif %} value="1" name="Repeat" id="TF5" onchange="TFChanged('TF5')"><br>
+  						<span>{% if datum[10] == "True" %}True{% else %}False{% endif %}</span>
+  						<input type="hidden" value="0" name="Repeat">
+  					</label>
+  				</td>
+  				<td class="d1"> <!-- Digital -->
+  					<label>
+  						<input type="checkbox" {% if datum[11] == "True" %} checked="checked" {% endif %} value="1" name="Digital" id="TF6" onchange="TFChanged('TF6')"><br>
+  						<span>{% if datum[11] == "True" %}True{% else %}False{% endif %}</span>
+  						<input type="hidden" value="0" name="Digital">
+  					</label>  				
+  				</td>
+  			{% elif tableid == "timers" %}
+  				<td class="d1"> <!--Method -->
+  				  <select name="Method" id="TimerMethod" onchange="TimerMethodChanged()">
+  						{% for key, value in editingdata[0].items() %}
+        				<option value="{{key}}" {% if (value == datum[3]) %} selected="selected" {% endif %}>
+        					{{ value }}
+        				</option>
+    					{% endfor %}
+						</select>
+  				</td>
+  				<td class="d1"> <!--Hour -->
+  					<input type="number" name="Hour" id="Hour" min="0" max="23" value="{{ datum[4] }}" {% if ("sunrise" in datum[3]|lower) or  ("sunset" in datum[3]|lower) or ("offset" in datum[3]|lower) %} disabled {% endif %}>
+  				</td>
+  				<td class="d1"> <!--Minute -->
+  					<input type="number" name="Minute" id="Minute" min="0" max="59" value="{{ datum[5] }}" {% if ("sunrise" in datum[3]|lower) or("sunset" in datum[3]|lower) or ("offset" in datum[3]|lower) %} disabled {% endif %}>
+  				</td>
+  				<td class="d1"> <!--Minutes_Offset -->
+  					<input type="number" name="Minutes_Offset" id="MinutesOffset" min="-719" max="719" value="{{ datum[6] }}" {% if ("fixed" in datum[3]|lower) %} disabled {% endif %}>
+  				</td>
+  				<td  class="d3"> <!-- Weekdays -->
+          	Select weekdays:
+        	</td>
+        {% elif tableid == "processors" %}
+        	<td  class="d3"> <!-- Dependencies -->
+          	Select dependencies:
+        	</td>
+        	<td class="d1"> <!--Combiner -->
+  				  <select name="Combiner">
+  						{% for key, value in editingdata[4].items() %}
+        				<option value="{{key}}" {% if (value == datum[4]) %} selected="selected" {% endif %}>
+        					{{ value }}
+        				</option>
+    					{% endfor %}
+						</select>
+  				</td>
+  			{% elif tableid == "dependencies" %}
+  				<td  class="d3"> <!-- Dependencies -->
+          	Select dependencies:
+        	</td>
+  			{% elif tableid == "combiners" %}
+  				<td class="d1"> <!--Dependency -->
+  				  <select name="Dependency">
+  						{% for key, value in editingdata[0].items() %}
+        				<option value="{{key}}" {% if (value == datum[3]) %} selected="selected" {% endif %}>
+        					{{ value }}
+        				</option>
+    					{% endfor %}
+						</select>
+  				</td>
+  				<td class="d1"> <!-- Invert_Dependency -->
+  					<label>
+  						<input type="checkbox" {% if datum[4] == "True" %} checked="checked" {% endif %} value="1" name="Invert_Dependency" id="TF7" onchange="TFChanged('TF7')"><br>
+  						<span>{% if datum[4] == "True" %}True{% else %}False{% endif %}</span>
+  						<input type="hidden" value="0" name="Invert_Dependency">
+  					</label>
+  				</td>
+  				<td  class="d3""> <!-- Combiners -->
+          	Select combiners:
+        	</td>
+  			{% else %}
+  				<td  class="d3" colspan="100%">
+          	This table should not be editable ...
+        	</td>
+  			{% endif %}
+  		</tr>
+  		<!-- add rows for timers (weekdays), dependencies, combiners -->
+  		{% if tableid == "timers" %}
+  			{% for key, value in editingdata[1].items() %}
+  				<tr class="d1">
+  					<!-- 7 empty columns -->
+  					{% for n in range(7) %}
+  						<td class="d3">
+  						</td>
+  					{% endfor %}
+  					<td class="d3">
+  						<input type="checkbox" {% if value in datum[7] %} checked="checked" {% endif %} value="1" name="{{ value }}">{{ value }}
+  						<input type="hidden" value="0" name="{{ value }}">
+  					</td>
+  				</tr>
+  			{% endfor %}
+  		{% elif tableid == "processors" %}	
+  			{% set tim = datum[3].split('(')[0] %}
+  			{% if tim %}
+  				{% set timer = tim.split(' or ')[0] %}
+  				{% if not timer %}
+  					{% set timer = '-' %}
+  				{% endif %}
+  			{% else %}
+  				{% set timer = '-' %}
+  			{% endif %}
+  			{% set sen = datum[3].split('(')[1] %}
+  			{% if sen %}
+  				{% set val = sen.split(')')[0] %}
+  				{% if val %}
+  					{% set sensor,operator,svalue = val.split(' ') %}
+  					{% if not sensor %}
+  						{% set sensor = '-' %}
+  					{% endif %}
+  					{% if not operator %}
+  						{% set operator = '-' %}
+  					{% endif %}
+  					{% if not svalue %}
+  						{% set svalue = '-' %}
+  					{% endif %}   									
+  				{% else %}
+  					{% set sensor = '-' %}
+  					{% set operator = '-' %}
+  					{% set svalue = '-' %}
+  				{% endif %}
+  			{% else %}
+  				{% set sensor = '-' %}
+  				{% set operator = '-' %}
+  				{% set svalue = '-' %}
+  			{% endif %}
+  			{% set vars = {'digital': 0} %}
+  			{% for key, value in editingdata[1].items() %}
+  				{% if (value == sensor|trim) %}
+  					{% if vars.update({'digital': editingdata[2][key]}) %} {% endif %}
+  				{% endif %}
+  			{% endfor %}
+  			<tr class="d1">
+  				<!-- 3 empty columns -->
+  				{% for n in range(3) %}
+  					<td class="d3">
+  					</td>
+  				{% endfor %}
+  				<td class="d3">
+  					<table>
+        				<tbody>
+          				<tr class="d1">
+          					<td class="d3">
+  										<select name="Timer">
+  											{% for key, value in editingdata[0].items() %}
+        									<option value="{{key}}" {% if (value == timer|trim ) %} selected="selected" {% endif %}>
+        										{{ value }}
+        									</option>
+    										{% endfor %}
+											</select> or
+  									</td>
+  									<td class="d3">(
+  										<select name="Sensor" id="ProcSensor" onchange="ProcSensorChanged()">
+  											{% for key, value in editingdata[1].items() %}
+        									<option value="{{key}}" {% if (value == sensor|trim ) %} selected="selected" {% endif %}>
+        										{{ value }}
+        									</option>
+    										{% endfor %}
+											</select>
+										</td>
+										<td class="d3" style="width: 40px; height: 22px;">
+											<select name="Operator" id="ProcOp" {% if vars.digital %}hidden{% endif %}>
+  											{% for key, value in editingdata[3].items() %}
+        									<option value="{{key}}" {% if (value == operator|trim ) %} selected="selected" {% endif %}>
+        										{{ value }}
+        									</option>
+    										{% endfor %}
+											</select>
+											<span id="ProcEq" {% if not vars.digital %}hidden{% endif %}>eq</span>
+										</td>
+										<td class="d3" style="width: 70px; height: 22px;">
+											<input style="width: 50px;" type="number" name="NValue" value="{{svalue|trim}}" id="ProcVal" step="0.01" {% if vars.digital %}hidden{% endif %}>
+  										<label id="ProcValTF" {% if not vars.digital %}hidden{% endif %}>
+  											<input type="checkbox" {% if svalue|trim == "True" %} checked="checked" {% endif %} value="1" name="Value" id="TF8" onchange="TFChanged('TF8')">
+  											<span>{% if svalue|trim == "True" %}True{% else %}False{% endif %}</span>
+  											<input type="hidden" value="0" name="Value">
+  										</label>)
+										</td>
+									</tr>
+								</tbody>
+							</table>
+  					</td>
+  					<td class="d3">
+  					</td>
+  				</tr>
+  		{% elif tableid == "dependencies" %}
+  			<!-- 4 possible dependencies -->
+  			{% set dep = datum[3].split('(')[1:] %}
+  			{% set vars = {'digital': 0} %}
+  			{% for i in range(4) %} 
+  				<tr class="d1">
+  					<!-- 3 empty columns -->
+  					{% for n in range(3) %}
+  						<td class="d3">
+  						</td>
+  					{% endfor %}
+  					<td class="d3">
+  						{% if dep[i] %}
+  							{% set val,comb = dep[i].split(')') %}
+  							{% if not comb %}
+  								{% set comb = '-' %}
+  							{% endif %} 
+	  						{% if val %}
+  								{% set actuator,operator,avalue = val.split(' ') %}
+  								{% if not actuator %}
+  									{% set actuator = '-' %}
+  								{% endif %}
+  								{% if not operator %}
+  									{% set operator = '-' %}
+  								{% endif %}
+  								{% if not avalue %}
+  									{% set avalue = '-' %}
+  								{% endif %}   									
+  							{% else %}
+  								{% set actuator = '-' %}
+  								{% set operator = '-' %}
+  								{% set avalue = '-' %}
+  							{% endif %}
+  						{% else %}
+  							{% set actuator = '-' %}
+  							{% set operator = '-' %}
+  							{% set avalue = '-' %}
+  							{% set comb = "-" %}
+  						{% endif %}
+  						{% if vars.update({'digital': 0}) %} {% endif %}
+  						{% for key, value in editingdata[0].items() %}
+  							{% if (value == actuator|trim) %}
+  								{% if vars.update({'digital': editingdata[1][key]}) %} {% endif %}
+  							{% endif %}
+  						{% endfor %}
+  						<table>
+        				<tbody>
+          				<tr class="d1">
+          					<td class="d3">(
+          						<select name="ActuatorId{{i}}" id="DepActuator{{i}}" onchange="DepActuatorChanged({{i}})">
+  											{% for key, value in editingdata[0].items() %}
+        									<option value="{{key}}" {% if (value == actuator|trim ) %} selected="selected" {% endif %}>
+        										{{ value }}
+        									</option>
+    										{% endfor %}
+											</select>
+          					</td>
+          					<td class="d3" style="width: 40px; height: 22px;">
+											<select name="OperatorId{{i}}" id="DepOp{{i}}" {% if vars.digital %}hidden{% endif %}>
+  											{% for key, value in editingdata[2].items() %}
+        									<option value="{{key}}" {% if (value == operator|trim ) %} selected="selected" {% endif %}>
+        										{{ value }}
+        									</option>
+    										{% endfor %}
+											</select>
+											<span id="DepEq{{i}}" {% if not vars.digital %}hidden{% endif %}>eq</span>
+										</td>
+          					<td class="d3" style="width: 70px; height: 22px;">
+											<input style="width: 50px;" type="number" name="NValue{{i}}" value="{{avalue|trim}}" id="DepVal{{i}}" step="0.01" {% if vars.digital %}hidden{% endif %}>
+  										<label id="DepValTF{{i}}" {% if not vars.digital %}hidden{% endif %}>
+  											<input type="checkbox" {% if avalue|trim == "True" %} checked="checked" {% endif %} value="1" name="Value{{i}}" id="TFd{{i}}" onchange="TFChanged('TFd{{i}}')">
+  											<span>{% if avalue|trim == "True" %}True{% else %}False{% endif %}</span>
+  											<input type="hidden" value="0" name="Value{{i}}">
+  										</label>)
+										</td>
+          					<td class="d3">
+          						<select name="CombinerId{{i}}">
+  											{% for key, value in editingdata[3].items() %}
+        									<option value="{{key}}" {% if (value == comb|trim ) %} selected="selected" {% endif %}>
+        										{{ value }}
+        									</option>
+    										{% endfor %}
+											</select>
+          					</td>
+          				</tr>
+          			</tbody>
+         			</table>
+  					</td>
+  				</tr>
+  			{% endfor %}
+  		{% elif tableid == "combiners" %}
+  			<!-- 16 possible combiners -->
+  			{% set comb = datum[5].split(',') %}
+  			{% set vars = {'digital': 0} %}
+  			{% for i in range(16) %} 
+  				<tr class="d1">
+  					<!-- 5 empty columns -->
+  					{% for n in range(5) %}
+  						<td class="d3">
+  						</td>
+  					{% endfor %}
+  					<td class="d3">
+  						{% if comb[i] %}
+	  						{% set act,avalue = comb[i].split('is') %}
+  							{% if not act %}
+  								{% set act = '-' %}
+  							{% else %}
+  								{% set act = act|trim %}
+  								{% set act = act[1:] %}
+  							{% endif %} 
+	  						{% if not avalue %}
+  								{% set avalue = '-' %}
+  							{% else %}
+  								{% set avalue = avalue[:-1] %}
+  							{% endif %} 
+	  					{% else %}
+  							{% set act = '-' %}
+  							{% set avalue = '-' %}
+  						{% endif %}	
+  						{% if vars.update({'digital': 0}) %} {% endif %}
+  						{% for key, value in editingdata[1].items() %}
+  							{% if (value == act|trim) %}
+  								{% if vars.update({'digital': editingdata[2][key]}) %} {% endif %}
+  							{% endif %}
+  						{% endfor %}
+  						<table>
+        				<tbody>
+          				<tr class="d1">
+          					<td class="d3">(
+          						<select name="ActuatorId{{i}}" id="CombActuator{{i}}" onchange="CombActuatorChanged({{i}})"> <!-- 2 TBD -->
+  											{% for key, value in editingdata[1].items() %}
+        									<option value="{{key}}" {% if (value == act|trim ) %} selected="selected" {% endif %}>
+        										{{ value }}
+        									</option>
+    										{% endfor %}
+											</select> is
+          					</td>
+          					<td class="d3" style="width: 70px; height: 22px;">
+											<input style="width: 50px;" type="number" name="NValue{{i}}" value="{{avalue|trim}}" id="CombVal{{i}}" step="0.01" {% if vars.digital %}hidden{% endif %}>
+  										<label id="CombValOO{{i}}" {% if not vars.digital %}hidden{% endif %}>
+  											<input type="checkbox" {% if avalue|trim == "On" %} checked="checked" {% endif %} value="1" name="Value{{i}}" id="OOc{{i}}" onchange="OOChanged('OOc{{i}}')">
+  											<span>{% if avalue|trim == "On" %}On{% else %}Off{% endif %}</span>
+  											<input type="hidden" value="0" name="Value{{i}}">
+  										</label>)
+										</td>
+          				</tr>
+          			</tbody>
+         			</table>
+  					</td>
+  				</tr>
+  			{% endfor %}
+  		{% endif %}
+  	  <tr class="d1">
+  	  	<td  class="d1" colspan="100%" style="text-align: left;">
+      		<table>
+        		<tbody>
+          		<tr class="d1">
+          			<td class="d2" style="width: 70%;">Store changes?
+                </td>
+            		<td class="d2" style="width: 15%;"><input name="Button" value="Ok" type="submit">
+	            	</td>
+  	          	<td class="d2" style="width: 15%;"><input name="Button" value="Cancel" type="submit">
+    	      		</td>
+      	    	</tr>
+        		</tbody>
+	      	</table>
+  	    </tr>
+  	  </td>
+  	</form>
+  </body>
+</html>

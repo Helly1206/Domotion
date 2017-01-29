@@ -1,0 +1,48 @@
+<!-- Edit forms for all tables -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta content="helly" name="author">
+    <style type="text/css">
+
+.dbtable tbody tr.d1 {
+	background: #808080
+}
+
+.dbtable tbody td.d1 {
+	border-bottom: none !important;border-top: none !important;
+}
+
+.dbtable td.d2 {
+  padding: 0px 20px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: left;
+}
+		</style></head>
+  <body>
+  	<form method="post" action="/database_deleted/{{ tableid }}/{{ editingid }}">
+  		<tr class="d1">
+  			{% for item in datum %}
+          <td class="d1">{{ item }}</td>
+        {% endfor %}
+      </tr>
+  	  <tr class="d1">
+        <td  class="d1" colspan="100%" style="text-align: left;">
+          <table>
+            <tbody>
+              <tr class="d1">
+                <td class="d2" style="width: 70%;">Are you sure to delete this item?
+                </td>
+                <td class="d2" style="width: 15%;"><input name="Button" value="Yes" type="submit">
+                </td>
+                <td class="d2" style="width: 15%;"><input name="Button" value="No" type="submit">
+                </td>
+              </tr>
+            </tbody>
+         </table>
+        </td>
+      </tr>
+  	</form>
+  </body>
+</html>

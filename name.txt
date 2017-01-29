@@ -1,0 +1,16 @@
+domotomation
+domotixcontrol
+domotixation
+xomotics
+
+mydomox
+mydomotion
+home control and automation
+domotion is still an option ...
+
+install
+sudo apt-get install sqlite3
+pip install flask
+
+
+MAKE CONNECTION SECURE !!!!!!!!!!

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>db_editor</title>
+    <meta content="helly" name="author">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/icon16.ico') }}">
+    <style type="text/css">
+
+#h1 {
+  font-size: x-large;
+  background-color: #FFFFFF;
+}
+
+</style></head>
+  <body id="h1">
+    {% include "header.html" ignore missing %} 
+    {% include "banner.html" ignore missing %} 
+    {% include "db_banner.html" ignore missing %}
+    {% include "db_table.html" ignore missing %}
+  </body>
+</html>

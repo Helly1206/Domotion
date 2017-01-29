@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html><head>
+<!-- To change this template, choose Tools | Templates and open the template in the editor. --><title></title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<form method="post" action="MenuAction.php"><big style="font-family: Arial;"><big>Helly's Home Control
+v0.1(web)</big></big><br>
+<br>
+<table style="text-align: left; width: 30%;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td>
+<big><input name="Logout" value="Logout" type="submit"><br>
+</big>
+</td>
+<td>
+<big><input name="Settings" value="Settings" type="submit"><br>
+</big>
+</td>
+<td>
+<big><input name="Timers" value="Get Timers" type="submit"><br>
+</big>
+</td>
+</tr>
+</tbody>
+</table>
+</form>
+<form method="post" action="MainAction.php">
+<table style="text-align: left; width: 80%;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="width: 50%;">
+<big><span style="font-family: Arial;">Date/
+Time:&nbsp;&nbsp;&nbsp; </span><input size="30" value="<?php echo ($DateTime); ?>" name="TextDateTime"><br style="font-family: Arial;">
+</big></td>
+<td>
+<big><span style="font-family: Arial;">Status:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input size="30" name="TextStatus" value="<?php echo ($Status); ?>"></span></big></td>
+</tr>
+<tr>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+1:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice1" onclick="submit();" <?php echo ($ValCheckBoxDevice1); ?> type="checkbox"><small><?php echo "$DeviceName1" ?>
+</small></span></big></big></td>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+9:</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice9" onclick="submit();" <?php echo ($ValCheckBoxDevice9); ?> type="checkbox"><small><?php echo "$DeviceName9" ?>
+</small></span></big></big></td>
+</tr>
+<tr>
+<td> <big><big><span style="font-family: Arial;"><small>Device
+2:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice2" onclick="submit();" <?php echo ($ValCheckBoxDevice2); ?> type="checkbox"><small><?php echo "$DeviceName2" ?>
+</small></span></big></big></td>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+10:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice10" onclick="submit();" <?php echo ($ValCheckBoxDevice10); ?> type="checkbox"><small><?php echo "$DeviceName10" ?>
+</small></span></big></big></td>
+</tr>
+<tr>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+3:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice3" onclick="submit();" <?php echo ($ValCheckBoxDevice3); ?> type="checkbox"><small><?php echo "$DeviceName3" ?>
+</small></span></big></big></td>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+11:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice11" onclick="submit();" <?php echo ($ValCheckBoxDevice11); ?> type="checkbox"><small><?php echo "$DeviceName11" ?>
+</small></span></big></big></td>
+</tr>
+<tr>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+4:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice4" onclick="submit();"<?php echo ($ValCheckBoxDevice4); ?> type="checkbox"><small><?php echo "$DeviceName4" ?>
+</small></span></big></big></td>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+12:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice12" onclick="submit();" <?php echo ($ValCheckBoxDevice12); ?> type="checkbox"><small><?php echo "$DeviceName12" ?>
+</small></span></big></big></td>
+</tr>
+<tr>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+5:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice5" onclick="submit();" <?php echo ($ValCheckBoxDevice5); ?> type="checkbox"><small><?php echo "$DeviceName5" ?>
+</small></span></big></big></td>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+13:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice13" onclick="submit();" <?php echo ($ValCheckBoxDevice13); ?> type="checkbox"><small><?php echo "$DeviceName13" ?>
+</small></span></big></big></td>
+</tr>
+<tr>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+6:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice6" onclick="submit();" <?php echo ($ValCheckBoxDevice6); ?> type="checkbox"><small><?php echo "$DeviceName6" ?>
+</small></span></big></big></td>
+<td><big><big><span style="font-family: Arial;"><small>Rolluik:</small></span></big></big><big><span style="font-family: Arial;">&nbsp;&nbsp;<input size="30" value="<?php echo ($BlindInfo); ?>" name="TextBlindInfo"></span></big></td>
+</tr>
+<tr>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+7:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice7" onclick="submit();" <?php echo ($ValCheckBoxDevice7); ?> type="checkbox"><small><?php echo "$DeviceName7" ?>
+</small></span></big></big></td>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="ButtonUp" value=" Up " type="submit"></td>
+</tr>
+<tr>
+<td>
+<big><big><span style="font-family: Arial;"><small>Device
+8:</small>&nbsp;&nbsp;&nbsp;&nbsp;<input value="1" name="CheckBoxDevice8" onclick="submit();" <?php echo ($ValCheckBoxDevice8); ?> type="checkbox"><small><?php echo "$DeviceName8" ?>
+</small></span></big></big></td>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="ButtonDown" value="Down" type="submit"></td>
+</tr>
+</tbody>
+</table>
+<big><br>
+</big>
+<table style="text-align: left; width: 80%;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="width: 50%;"><big><big><span style="font-family: Arial;"><small>Command 1:</small><input name="CheckBoxCommand1Off" value="1" onclick="submit();" <?php echo ($ValCheckBoxCommand1Off); ?> type="checkbox"><small>Off/
+On &nbsp;<input name="CheckBoxCommand1On" value="1" onclick="submit();" <?php echo ($ValCheckBoxCommand1On); ?> type="checkbox"><?php echo "$CommandName1" ?></small></span></big></big></td>
+<td></td>
+</tr>
+<tr>
+<td><big><big><span style="font-family: Arial;"><small>Command 2:</small><input name="CheckBoxCommand2Off" value="1" onclick="submit();" <?php echo ($ValCheckBoxCommand2Off); ?> type="checkbox"><small>Off/
+On &nbsp;<input name="CheckBoxCommand2On" value="1" onclick="submit();" <?php echo ($ValCheckBoxCommand2On); ?> type="checkbox"><?php echo "$CommandName2" ?></small></span></big></big>
+</td>
+<td></td>
+</tr>
+<tr>
+<td><big><big><span style="font-family: Arial;"><small>Command 3:</small><input name="CheckBoxCommand3Off" value="1" onclick="submit();" <?php echo ($ValCheckBoxCommand3Off); ?> type="checkbox"><small>Off/
+On &nbsp;<input name="CheckBoxCommand3On" value="1" onclick="submit();" <?php echo ($ValCheckBoxCommand3On); ?> type="checkbox"><?php echo "$CommandName3" ?></small></span></big></big>
+</td>
+<td></td>
+</tr>
+<tr>
+<td><big><big><span style="font-family: Arial;"><small>Command 4:</small><input name="CheckBoxCommand4Off" value="1" onclick="submit();" <?php echo ($ValCheckBoxCommand4Off); ?> type="checkbox"><small>Off/
+On &nbsp;<input name="CheckBoxCommand4On" value="1" onclick="submit();" <?php echo ($ValCheckBoxCommand4On); ?> type="checkbox"><?php echo "$CommandName4" ?></small></span></big></big>
+</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<big><br>
+</big>
+</form>
+</body></html>
