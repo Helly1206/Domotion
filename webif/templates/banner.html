@@ -37,18 +37,36 @@ a {
       <table style="width: 100%;">
         <tbody>
           <tr>
-            <!--<td style="width: 16.667%; text-align: center; vertical-align: middle;"><span
-                style="font-family: Helvetica,Arial,sans-serif;">Click here</span></td>
-            <td style="width: 16.667%; text-align: center; vertical-align: middle;"><span
-                style="font-family: Helvetica,Arial,sans-serif;">Click here</span></td>
-            <td style="text-align: center; vertical-align: middle; width: 16.667%;"><span
-                style="font-family: Helvetica,Arial,sans-serif;">Click here</span></td>
-            <td style="width: 16.667%; text-align: center; vertical-align: middle;"><span
-                style="font-family: Helvetica,Arial,sans-serif;">Click here</span></td>
-            <td style="width: 16.667%; text-align: center; vertical-align: middle;"><span
-                style="font-family: Helvetica,Arial,sans-serif;">Click here</span></td>
-            <td style="width: 16.667%; text-align: center; vertical-align: middle;"><span
-                style="font-family: Helvetica,Arial,sans-serif;">Click here</span></td>-->
+            {% if tab == "status" %}
+              <td style="background-color: #1A1A1A; width: 16.667%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">Status</span></a></td>
+            {% else %}
+              {% if editing == 0 %} 
+                <td style="width: 16.667%; text-align: center; vertical-align: middle;"><a href="/status"><span style="font-family: Helvetica,Arial,sans-serif;">Status</span></a></td>
+              {% else %}
+                <td style="width: 16.667%; text-align: center; vertical-align: middle;"><span style="font-family: Helvetica,Arial,sans-serif;">Status</span></td>
+              {% endif %}
+            {% endif %}
+            <td style="background-color: #404040; width: 16.667%; text-align: center; vertical-align: middle;"><span style="font-family: Helvetica,Arial,sans-serif;"></span></td>
+            <td style="background-color: #404040; text-align: center; vertical-align: middle; width: 16.667%;"><span style="font-family: Helvetica,Arial,sans-serif;"></span></td>
+            <td style="background-color: #404040; width: 16.667%; text-align: center; vertical-align: middle;"><span style="font-family: Helvetica,Arial,sans-serif;"></span></td>
+            {% if tab == "settings" %}
+              <td style="background-color: #1A1A1A; width: 16.667%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">Settings</span></a></td>
+            {% else %}
+              {% if editing == 0 %} 
+                <td style="width: 16.667%; text-align: center; vertical-align: middle;"><a href="/settings"><span style="font-family: Helvetica,Arial,sans-serif;">Settings</span></a></td>
+              {% else %}
+                <td style="width: 16.667%; text-align: center; vertical-align: middle;"><span style="font-family: Helvetica,Arial,sans-serif;">Settings</span></td>
+              {% endif %}
+            {% endif %}
+            {% if tab == "process" %}
+              <td style="background-color: #1A1A1A; width: 16.667%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">Process</span></a></td>
+            {% else %}
+              {% if editing == 0 %} 
+                <td style="width: 16.667%; text-align: center; vertical-align: middle;"><a href="/database"><span style="font-family: Helvetica,Arial,sans-serif;">Process</span></a></td>
+              {% else %}
+                <td style="width: 16.667%; text-align: center; vertical-align: middle;"><span style="font-family: Helvetica,Arial,sans-serif;">Process</span></td>
+              {% endif %}
+            {% endif %}
                 <td style="height: 25px;">
                 </td>
           </tr>

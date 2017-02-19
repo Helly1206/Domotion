@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-    <title>db_editor</title>
+    <title>Process</title>
     <meta content="helly" name="author">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/icon16.ico') }}">
     <style type="text/css">
@@ -15,6 +15,7 @@
 </style></head>
   <body id="h1">
     {% include "header.html" ignore missing %} 
+    {% set tab = "process" %}
     {% include "banner.html" ignore missing %} 
     {% include "db_banner.html" ignore missing %}
     {% include "db_table.html" ignore missing %}

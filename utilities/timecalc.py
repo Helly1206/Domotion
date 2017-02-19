@@ -35,7 +35,7 @@ class timecalc(object):
     def __init__(self):
         pass
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __del__(self):
         pass
 
     def SetTimeMOD(self, hour, minute):

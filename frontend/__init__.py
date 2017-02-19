@@ -1,2 +1,2 @@
-#from domoticz import domoticz
-#from tinywebdb import tinywebdb
+from domoticz_frontend import domoticz_frontend
+from basicwebaccess import basicwebaccess

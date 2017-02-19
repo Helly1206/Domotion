@@ -1,0 +1,148 @@
+    #CreateSensor
+    #http://localhost:8080/json.htm?type=createvirtualsensor&idx=2&sensorname=Ivo2&sensortype=6
+    #Sensortypes:
+    '''<option value="249" data-i18n="Air Quality">Air Quality</option>
+                    <option value="7" data-i18n="Alert">Alert</option>
+                    <option value="9" data-i18n="Ampere (3 Phase)">Ampere (3 Phase)"</option>
+                    <option value="19" data-i18n="Ampere (1 Phase)">Ampere (1 Phase)</option>
+                    <option value="11" data-i18n="Barometer">Barometer</option>
+                    <option value="113" data-i18n="Counter">Counter</option>
+                    <option value="14" data-i18n="Counter Incremental">Counter Incremental</option>
+                    <option value="1004" data-i18n="Custom Sensor">Custom Sensor</option>
+                    <option value="13" data-i18n="Distance">Distance</option>
+                    <option value="18" data-i18n="Electric (Instant+Counter)">Electric (Instant+Counter)</option>
+                    <option value="3" data-i18n="Gas">Gas</option>
+                    <option value="81" data-i18n="Humidity">Humidity</option>
+                    <option value="16" data-i18n="Leaf Wetness">Leaf Wetness</option>
+                    <option value="246" data-i18n="Lux">Lux</option>
+                    <option value="250" data-i18n="P1 Smart Meter (Electric)">P1 Smart Meter (Electric)</option>
+                    <option value="2" data-i18n="Percentage">Percentage</option>
+                    <option value="1" data-i18n="Pressure (Bar)">Pressure (Bar)</option>
+                    <option value="85" data-i18n="Rain">Rain</option>
+                    <option value="241" data-i18n="RGB Switch">RGB Switch</option>
+                    <option value="1003" data-i18n="RGBW Switch">RGBW Switch</option>
+                    <option value="1002" data-i18n="Selector Switch">Selector Switch</option>
+                    <option value="15" data-i18n="Soil Moisture">Soil Moisture</option>
+                    <option value="20" data-i18n="Solar Radiation">Solar Radiation</option>
+                    <option value="10" data-i18n="Sound Level">Sound Level</option>
+                    <option value="6" data-i18n="Switch">Switch</option>
+                    <option value="80" data-i18n="Temperature">Temperature</option>
+                    <option value="82" data-i18n="Temp+Hum">Temp+Hum</option>
+                    <option value="84" data-i18n="Temp+Hum+Baro">Temp+Hum+Baro</option>
+                    <option value="5" data-i18n="Text">Text</option>
+                    <option value="8" data-i18n="Thermostat Setpoint">Thermostat Setpoint</option>
+                    <option value="248" data-i18n="Usage (Electric)">Usage (Electric)</option>
+                    <option value="87" data-i18n="UV">UV</option>
+                    <option value="12" data-i18n="Visibility">Visibility</option>
+                    <option value="4" data-i18n="Voltage">Voltage</option>
+                    <option value="1000" data-i18n="Waterflow">Waterflow</option>
+                    <option value="86" data-i18n="Wind">Wind</option>
+                    <option value="1001" data-i18n="Wind+Temp+Chill">Wind+Temp+Chill</option>'''
+    # Change settings:
+    '''
+    url: "json.htm?type=setused&idx=" + $.devIdx +
+                            '&name=' + encodeURIComponent($("#lightcontent #devicename").val()) +
+                            '&description=' + encodeURIComponent($("#lightcontent #devicedescription").val()) +
+                            '&strparam1=' + btoa(strParam1) +
+                            '&strparam2=' + btoa(strParam2) +
+                            '&protected=' + bIsProtected +
+                            '&switchtype=' + $("#lightcontent #comboswitchtype").val() +
+                            '&customimage=' + CustomImage +
+                            '&used=true' + addjvalstr +
+                            '&options=' + btoa(encodeURIComponent(devOptionsParam.join(''))), // encode before b64 to prevent from character encoding issue
+                         async: false,
+                         dataType: 'json',
+                         success: function(data) {
+                                ShowLights();
+                         }'''
+    #where Switchtype: .. from db
+
+    #customimage: .. from db
+
+    #enter like this: http://localhost:8080/json.htm?type=setused&idx=22&name=Ivo2&switchtype=0&customimage=9&used=true
+
+
+    {u'AddjMulti2': 1.0, 
+    u'PlanID': u'0', 
+    u'YOffset': u'0', 
+    u'ShowNotifications': True, 
+    u'TypeImg': u'current', 
+    u'Type': u'General', 
+    u'AddjMulti': 1.0, 
+    u'XOffset': u'0', 
+    u'Used': 1, 
+    u'Description': u'', 
+    u'SubType': u'Voltage', 
+    u'HardwareType': u'Dummy (Does nothing, use for virtual switches only)', 
+    u'Notifications': u'false', 
+    u'Data': u'0.000 V', 
+    u'Voltage': 0.0, 
+    u'HaveTimeout': False, 
+    u'Name': u'Another', 
+    u'CustomImage': 0, 
+    u'Favorite': 0, 
+    u'AddjValue2': 0.0, 
+    u'Protected': False, 
+    u'Timers': u'false', 
+    u'HardwareName': u'Domotion', 
+    u'BatteryLevel': 255, 
+    u'ID': u'00082026', 
+    u'LastUpdate': u'2017-02-12 20:00:25', 
+    u'idx': u'26', 
+    u'HardwareTypeVal': 15, 
+    u'HardwareID': 10, 
+    u'AddjValue': 0.0, 
+    u'SignalLevel': u'-', 
+    u'PlanIDs': [0], 
+    u'Unit': 1}
+
+
+
+[{u'MaxDimLevel': 100, u'AddjMulti2': 1.0, u'PlanID': u'0', u'HaveDimmer': True, u'UsedByCamera': False, u'ShowNotifications': True, u'HaveGroupCmd': True, u'YOffset': u'0', u'StrParam1': u'', u'StrParam2': u'', u'TypeImg': u'lightbulb', u'Type': u'Light/Switch', u'AddjMulti': 1.0, u'XOffset': u'0', u'Status': u'On', u'Used': 1, u'Description': u'', u'SubType': u'Switch', u'HardwareType': u'Dummy (Does nothing, use for virtual switches only)', u'PlanIDs': [0], u'Notifications': u'false', u'LevelInt': 0, u'SwitchType': u'On/Off', u'Data': u'On', u'IsSubDevice': False, u'HaveTimeout': False, u'Name': u'test', u'Level': 0, u'CustomImage': 2, u'Favorite': 0, u'AddjValue2': 0.0, u'Protected': False, u'Timers': u'false', u'HardwareName': u'Domotion', u'BatteryLevel': 255, u'ID': u'0001405E', u'LastUpdate': u'2017-02-10 20:54:46', u'idx': u'14', u'HardwareTypeVal': 15, u'HardwareID': 10, u'AddjValue': 0.0, u'SwitchTypeVal': 0, u'SignalLevel': u'-', u'Image': u'TV', u'Unit': 1}, 
+{u'MaxDimLevel': 100, u'AddjMulti2': 1.0, u'PlanID': u'0', u'HaveDimmer': True, u'UsedByCamera': False, u'ShowNotifications': True, u'HaveGroupCmd': True, u'YOffset': u'0', u'StrParam1': u'', u'StrParam2': u'', u'TypeImg': u'lightbulb', u'Type': u'Light/Switch', u'AddjMulti': 1.0, u'XOffset': u'0', u'Status': u'Off', u'Used': 1, u'Description': u'', u'SubType': u'Switch', u'HardwareType': u'Dummy (Does nothing, use for virtual switches only)', u'PlanIDs': [0], u'Notifications': u'false', u'LevelInt': 100, u'SwitchType': u'On/Off', u'Data': u'Off', u'IsSubDevice': False, u'HaveTimeout': False, u'Name': u'TestSensor', u'Level': 100, u'CustomImage': 9, u'Favorite': 0, u'AddjValue2': 0.0, u'Protected': False, u'Timers': u'false', u'HardwareName': u'Domotion', u'BatteryLevel': 255, u'ID': u'00014069', u'LastUpdate': u'2017-02-12 20:00:25', u'idx': u'25', u'HardwareTypeVal': 15, u'HardwareID': 10, u'AddjValue': 0.0, u'SwitchTypeVal': 0, u'SignalLevel': u'-', u'Image': u'Generic', u'Unit': 1}, 
+{u'AddjMulti2': 1.0, u'PlanID': u'0', u'YOffset': u'0', u'ShowNotifications': True, u'TypeImg': u'current', u'Type': u'General', u'AddjMulti': 1.0, u'XOffset': u'0', u'Used': 1, u'Description': u'', u'SubType': u'Voltage', u'HardwareType': u'Dummy (Does nothing, use for virtual switches only)', u'Notifications': u'false', u'Data': u'0.000 V', u'Voltage': 0.0, u'HaveTimeout': True, u'Name': u'Another', u'CustomImage': 0, u'Favorite': 0, u'AddjValue2': 0.0, u'Protected': False, u'Timers': u'false', u'HardwareName': u'Domotion', u'BatteryLevel': 255, u'ID': u'00082026', u'LastUpdate': u'2017-02-12 20:00:25', u'idx': u'26', u'HardwareTypeVal': 15, u'HardwareID': 10, u'AddjValue': 0.0, u'SignalLevel': u'-', u'PlanIDs': [0], u'Unit': 1}, 
+{u'MaxDimLevel': 100, u'AddjMulti2': 1.0, u'PlanID': u'0', u'HaveDimmer': True, u'UsedByCamera': False, u'ShowNotifications': True, u'HaveGroupCmd': True, u'YOffset': u'0', u'StrParam1': u'', u'StrParam2': u'', u'TypeImg': u'lightbulb', u'Type': u'Light/Switch', u'AddjMulti': 1.0, u'XOffset': u'0', u'Status': u'Off', u'Used': 1, u'Description': u'', u'SubType': u'Switch', u'HardwareType': u'Dummy (Does nothing, use for virtual switches only)', u'PlanIDs': [0], u'Notifications': u'false', u'LevelInt': 100, u'SwitchType': u'On/Off', u'Data': u'Off', u'IsSubDevice': False, u'HaveTimeout': False, u'Name': u'lamp1', u'Level': 100, u'CustomImage': 0, u'Favorite': 0, u'AddjValue2': 0.0, u'Protected': False, u'Timers': u'false', u'HardwareName': u'Domotion', u'BatteryLevel': 255, u'ID': u'0001406B', u'LastUpdate': u'2017-02-12 20:00:25', u'idx': u'27', u'HardwareTypeVal': 15, u'HardwareID': 10, u'AddjValue': 0.0, u'SwitchTypeVal': 0, u'SignalLevel': u'-', u'Image': u'Light', u'Unit': 1}, 
+{u'MaxDimLevel': 100, u'AddjMulti2': 1.0, u'PlanID': u'0', u'HaveDimmer': True, u'UsedByCamera': False, u'ShowNotifications': True, u'HaveGroupCmd': True, u'YOffset': u'0', u'StrParam1': u'', u'StrParam2': u'', u'TypeImg': u'lightbulb', u'Type': u'Light/Switch', u'AddjMulti': 1.0, u'XOffset': u'0', u'Status': u'Off', u'Used': 1, u'Description': u'', u'SubType': u'Switch', u'HardwareType': u'Dummy (Does nothing, use for virtual switches only)', u'PlanIDs': [0], u'Notifications': u'false', u'LevelInt': 100, u'SwitchType': u'On/Off', u'Data': u'Off', u'IsSubDevice': False, u'HaveTimeout': False, u'Name': u'lamp2', u'Level': 100, u'CustomImage': 1, u'Favorite': 0, u'AddjValue2': 0.0, u'Protected': False, u'Timers': u'false', u'HardwareName': u'Domotion', u'BatteryLevel': 255, u'ID': u'0001406C', u'LastUpdate': u'2017-02-12 20:00:25', u'idx': u'28', u'HardwareTypeVal': 15, u'HardwareID': 10, u'AddjValue': 0.0, u'SwitchTypeVal': 0, u'SignalLevel': u'-', u'Image': u'WallSocket', u'Unit': 1}, 
+{u'AddjMulti2': 1.0, u'PlanID': u'0', u'YOffset': u'0', u'ShowNotifications': True, u'TypeImg': u'current', u'Type': u'General', u'AddjMulti': 1.0, u'XOffset': u'0', u'Used': 1, u'Description': u'', u'SubType': u'Voltage', u'HardwareType': u'Dummy (Does nothing, use for virtual switches only)', u'Notifications': u'false', u'Data': u'0.000 V', u'Voltage': 0.0, u'HaveTimeout': True, u'Name': u'dimmer', u'CustomImage': 0, u'Favorite': 0, u'AddjValue2': 0.0, u'Protected': False, u'Timers': u'false', u'HardwareName': u'Domotion', u'BatteryLevel': 255, u'ID': u'00082029', u'LastUpdate': u'2017-02-12 20:00:25', u'idx': u'29', u'HardwareTypeVal': 15, u'HardwareID': 10, u'AddjValue': 0.0, u'SignalLevel': u'-', u'PlanIDs': [0], u'Unit': 1}]
+
+Types:
+Key         6   0   9   Light/Switch Switch 9   On/ Off
+Voltage     4   0   0   General Voltage 0
+Percentage  2   0   0   General Percentage 0
+Current     19  0   0   General Current 0
+Pressure    1   0   0   General Pressure 0
+Temperature 80  0   0   Temp LaCrosse TX3 0
+Rain        85  0   0   Rain TFA 0
+Wind        86  0   0   Wind WTGR800 0
+Humidity    81  0   0   Humidity LaCrosse TX3 0
+
+Light       6   0   0   Light/Switch Switch 0 "SwitchTypeVal" : 0,  On/ Off
+Socket      6   0   1   Light/Switch Switch 1 "SwitchTypeVal" : 0,  On/ Off
+Blind       6   3   0   Light/Switch Switch 0 "SwitchTypeVal" : 3,  Open/ Closed (open = on)
+Doorlock    6   11  0   Light/Switch Switch 0 "SwitchTypeVal" : 11, Open/ Closed (closed = off)
+Amplifier   6   0   5   Light/Switch Switch 5                       On/ Off
+TV          6   0   2   Light/Switch Switch 2                       On/ Off
+Voltage     4   0   0   General Voltage 0
+Percentage  2   0   0   General Percentage 0
+
+
+
+test 14 Light/Switch Switch 2
+TestSensor 25 Light/Switch Switch 9
+Another 26 General Voltage 0
+lamp1 27 Light/Switch Switch 0
+lamp2 28 Light/Switch Switch 1
+dimmer 29 General Voltage 0
+Fill1 30 General Percentage 0
+Fill2 31 General Current 0
+Fill3 32 General Pressure 0
+Fill4 33 Temp LaCrosse TX3 0
+Fill5 34 Rain TFA 0
+Fill6 35 Wind WTGR800 0
+Fill7 36 Humidity LaCrosse TX3 0
+af1 37 Light/Switch Switch 0
+af2 38 Light/Switch Switch 0
+af3 39 Light/Switch Switch 5
+af4 40 Light/Switch Switch 2
+af5 41 General Voltage 0
+af6 42 General Percentage 0

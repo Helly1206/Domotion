@@ -1,0 +1,165 @@
+<!-- Edit forms for all tables -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta content="helly" name="author">
+    <style type="text/css">
+
+.sttable tbody tr.d1 {
+	background: #808080
+}
+
+.sttable tbody td.d1 {
+	border-bottom: none !important;border-top: none !important;
+}
+
+.sttable td.d2 {
+  padding: 0px 20px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: left;
+}
+
+.sttable td.d3 {
+  padding: 3px 5px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: left;
+}
+
+.sttable td.d4 {
+  padding: 3px 5px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: right;
+}
+
+	</style>
+	<script type="text/javascript">
+		function TFChanged(id) {
+			if (document.getElementById(id).checked) {
+    			document.getElementById(id).parentNode.getElementsByTagName('span')[0].innerHTML = "True";
+    		} else {
+    			document.getElementById(id).parentNode.getElementsByTagName('span')[0].innerHTML = "False";
+    		}
+		}
+
+		function TFSet(id,check) {
+			if (check.toLowerCase() == "true") {
+    			document.getElementById(id).parentNode.getElementsByTagName('span')[0].innerHTML = "True";
+    			document.getElementById(id).checked = true;
+    		} else {
+    			document.getElementById(id).parentNode.getElementsByTagName('span')[0].innerHTML = "False";
+    			document.getElementById(id).checked = false;
+    		}
+		}
+
+		function PWChanged() {
+			pw1 = document.getElementById("PW1").value;
+			pw2 = document.getElementById("PW2").value;
+    		if (pw1 == pw2) {
+    			document.getElementById("OkButton").disabled = false;
+    			document.getElementById("PW1").style.backgroundColor = "white";
+    			document.getElementById("PW2").style.backgroundColor = "white";
+    		} else {
+    			document.getElementById("OkButton").disabled = true;
+    			document.getElementById("PW1").style.backgroundColor = "red";
+    			document.getElementById("PW2").style.backgroundColor = "red";
+    		}
+		}
+
+		function OnLoadWindow() { /* do stuff on page load */ 
+			var format = "{{editingdata[datum[0]]}}";
+			if (format == "BOOL") {
+				val = "{{datum[3]}}";
+				TFSet("TFBV",val);
+			} else if (format == "PDSTRING") {
+				
+			} else if (format == "PSTRING") {
+				
+			}
+		}
+
+			window.onload = OnLoadWindow;
+		</script>
+  	</head>
+  <body>
+  	<form method="post" action="/settings_edited/{{ editingid }}">
+  		<tr class="d1">
+  			<td class="d1"> <!-- ID, fixed -->
+  				{{ datum[0] }}
+  			</td>
+  			<td class="d1"> <!-- Parameter, fixed -->
+  				{{ datum[1] }}
+  			</td>
+  			<td class="d1"> <!-- Description, fixed -->
+  				{{ datum[2] }}
+  			</td>
+  			<!-- here table dependent info ... -->
+  			<td class="d1"> <!--Value -->
+  				{% if editingdata[datum[0]] == "BOOL" %}
+  					<label>
+  						<input type="checkbox" value="1" name="BoolValue" id="TFBV" onchange="TFChanged('TFBV')"><br>
+  						<span>xxx</span>
+  						<input type="hidden" value="0" name="BoolValue">
+  					</label>
+  				{% elif editingdata[datum[0]] == "PDSTRING" or editingdata[datum[0]] == "PSTRING" %}
+  					<br>
+  				{% elif editingdata[datum[0]] == "INT" %}
+  					<input style="width: 80px;" type="number" name="IntValue" min="0" max="65535" value="{{ datum[3] }}">
+  				{% elif editingdata[datum[0]] == "INTTZ" %}
+  					<input style="width: 80px;" type="number" name="IntValue" min="-11" max="14" value="{{ datum[3] }}">
+  				{% elif editingdata[datum[0]] == "FLOATLON" %}
+  					<input style="width: 80px;" type="number" name="FloatValue" value="{{ datum[3] }}" id="ProcVal" min="-180" max="180" step="0.01">
+  				{% elif editingdata[datum[0]] == "FLOATLAT" %}
+  					<input style="width: 80px;" type="number" name="FloatValue" value="{{ datum[3] }}" id="ProcVal" min="-90" max="90" step="0.01">
+  				{% else %}
+  					<input type="text" size="{% if datum[3] %}{{ datum[3]|length }}{% else %} 10 {% endif %}" name="StringValue" value="{{ datum[3] }}">
+  				{% endif %}
+  			</td>
+  		</tr>
+  		{% if editingdata[datum[0]] == "PDSTRING"  or editingdata[datum[0]] == "PSTRING" %}
+  			<tr class="d1">
+  				<!-- 2 empty columns -->
+  				{% for n in range(2) %}
+  					<td class="d3">
+  					</td>
+  				{% endfor %}
+  				<td class="d4">
+  					Enter new password:
+  				</td>
+  				<td class="d3">
+  					<input type="password" size="10" name="PasswordValue1" id="PW1" value="" onchange="PWChanged()" onkeyup="PWChanged()">
+  				</td>
+  			</tr>
+  			<tr class="d1">
+  				<!-- 2 empty columns -->
+  				{% for n in range(2) %}
+  					<td class="d3">
+  					</td>
+  				{% endfor %}
+  				<td class="d4">
+  					Enter new password again:
+  				</td>
+  				<td class="d3">
+  					<input type="password" size="10" name="PasswordValue2" id="PW2" value="" onchange="PWChanged()" onkeyup="PWChanged()">
+  				</td>
+  			</tr>
+  		{% endif %}
+  		<tr class="d1">
+  	  	  <td  class="d1" colspan="100%" style="text-align: left;">
+      		<table>
+        		<tbody>
+          		<tr class="d1">
+          			<td class="d2" style="width: 70%;">Store changes?
+                </td>
+            		<td class="d2" style="width: 15%;"><input name="Button" value="Ok" id="OkButton" type="submit">
+	            	</td>
+  	          	<td class="d2" style="width: 15%;"><input name="Button" value="Cancel" type="submit">
+    	      		</td>
+      	    	</tr>
+        		</tbody>
+	      	</table>
+	      </td>
+  	    </tr>
+  	  </form>
+  </body>
+</html>

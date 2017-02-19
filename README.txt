@@ -1,4 +1,4 @@
-v0.0.1
+v0.0.2
 
 Non working version 
 Only git for backup work in progress

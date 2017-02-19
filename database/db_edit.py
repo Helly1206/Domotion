@@ -29,7 +29,7 @@ class db_edit(object):
     def __init__(self, dbpath):
         self.db=sqlitedb(dbpath)
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __del__(self):
         del self.db
 
     def ReadTable(self, tableid):
@@ -47,33 +47,23 @@ class db_edit(object):
             rowdict['SysCode']="0"
             rowdict['GroupCode']="0"
             rowdict['DeviceCode']="0"
-            rowdict['URL']="0"
-            rowdict['URLTag']="0"
+            rowdict['DeviceURL']="-"
+            rowdict['KeyTag']="-"
             for col in cols:
                 if col == "SysCode":
-                    if ('timer' in typename) or ('buffer' in typename) or ('url' in typename):
-                        rowdict[col]="0"
-                    else:
+                    if ('rf' in typename):
                         rowdict[col]=result[col]
                 elif col == "GroupCode":
-                    if ('timer' in typename) or ('buffer' in typename) or ('url' in typename):
-                        rowdict[col]="0"
-                    else:
+                    if ('rf' in typename):
                         rowdict[col]=result[col]
                 elif col == "DeviceCode":
-                    if ('buffer' in typename) or ('url' in typename):
-                        rowdict[col]="0"
-                    else:
+                    if ('rf' in typename) or ('domoticz' in typename):
                         rowdict[col]=result[col]
-                elif col == "URL":
-                    if ('timer' in typename) or('buffer' in typename) or (not 'url' in typename):
-                        rowdict[col]='-'
-                    else:
+                elif col == "DeviceURL":
+                    if ('url' in typename) or ('ir' in typename):
                         rowdict[col]=result[col]    
-                elif col == "URLTag":
-                    if ('timer' in typename) or('buffer' in typename) or (not 'url' in typename):
-                        rowdict[col]='-'
-                    else:
+                elif col == "KeyTag":
+                    if ('url' in typename) or('ir' in typename):
                         rowdict[col]=result[col]
                 elif not col == "Id":
                     if (result[col]):
@@ -82,36 +72,32 @@ class db_edit(object):
         elif (tableid.lower() == "actuators"):
             types=dict(self.db.SelectColumnFromTable("types", "Id,Name"))
             typename=types[int(result['Type'])].lower()
+            actuatortypes=dict(self.db.SelectColumnFromTable("actuatortypes", "Id,Name"))
+            actuatortypename=actuatortypes[int(result['ActuatorType'])].lower()
             rowdict['SysCode']="0"
             rowdict['GroupCode']="0"
             rowdict['DeviceCode']="0"
-            rowdict['URL']="0"
-            rowdict['URLTag']="0"
+            rowdict['DeviceURL']="-"
+            rowdict['KeyTag']="-"
+            rowdict['Combined']="0"
             for col in cols:
                 if col == "SysCode":
-                    if ('timer' in typename) or ('buffer' in typename) or ('url' in typename):
-                        rowdict[col]="0"
-                    else:
+                    if ('rf' in typename):
                         rowdict[col]=result[col]
                 elif col == "GroupCode":
-                    if ('timer' in typename) or ('buffer' in typename) or ('url' in typename):
-                        rowdict[col]="0"
-                    else:
+                    if ('rf' in typename):
                         rowdict[col]=result[col]
                 elif col == "DeviceCode":
-                    if ('buffer' in typename) or ('url' in typename):
-                        rowdict[col]="0"
-                    else:
+                    if ('rf' in typename) or ('timer' in typename) or ('domoticz' in typename):
                         rowdict[col]=result[col]
-                elif col == "URL":
-                    if ('timer' in typename) or('buffer' in typename) or (not 'url' in typename):
-                        rowdict[col]='-'
-                    else:
+                elif col == "DeviceURL":
+                    if ('url' in typename) or('ir' in typename):
                         rowdict[col]=result[col]    
-                elif col == "URLTag":
-                    if ('timer' in typename) or('buffer' in typename) or (not 'url' in typename):
-                        rowdict[col]='-'
-                    else:
+                elif col == "KeyTag":
+                    if ('url' in typename) or('ir' in typename):
+                        rowdict[col]=result[col]
+                elif col == "Combined":
+                    if ('blind' in actuatortypename):
                         rowdict[col]=result[col]
                 elif not col == "Id":
                     if (result[col]):
@@ -148,7 +134,6 @@ class db_edit(object):
                     rowdict[col]=result[col]
             rowdict = self._SetSensorValue(result, rowdict)
             self.db.UpdateRow(tableid, rowdict, "Id", id)
-            print tableid
         elif (tableid.lower() == "dependencies"):
             for col in cols:
                 if (col == "Name") or (col == "Description"):
@@ -176,13 +161,17 @@ class db_edit(object):
         DictList = []
         
         if (tableid.lower() == "sensors"):
-            # options: type
-            types=dict(self.db.SelectColumnFromTable("types", "Id,Name"))
+            # options: type, sensortype
+            types=self._getTypes(False)
             DictList.append(types)
+            sensortypes=dict(self.db.SelectColumnFromTable("sensortypes", "Id,Name"))
+            DictList.append(sensortypes)
         elif (tableid.lower() == "actuators"):
-            # options: type
-            types=dict(self.db.SelectColumnFromTable("types", "Id,Name"))
+            # options: type, actuatortype
+            types=self._getTypes(True)
             DictList.append(types)
+            actuatortypes=dict(self.db.SelectColumnFromTable("actuatortypes", "Id,Name"))
+            DictList.append(actuatortypes)
         elif (tableid.lower() == "timers"):
             # options: method, weekdays
             DictList.append(MethodDict)
@@ -195,7 +184,7 @@ class db_edit(object):
             sensors=dict(self.db.SelectColumnFromTable("sensors", "Id,Name"))
             sensors.update({0: "-"})
             DictList.append(sensors)
-            sendig=dict(self.db.SelectColumnFromTable("sensors", "Id,Digital"))
+            sendig=self._GetDigital("sensors")
             sendig.update({0: 0})
             DictList.append(sendig)
             DictList.append(OperatorDict)
@@ -206,7 +195,7 @@ class db_edit(object):
             actuators=dict(self.db.SelectColumnFromTable("actuators", "Id,Name"))
             actuators.update({0: "-"})
             DictList.append(actuators)
-            actdig=dict(self.db.SelectColumnFromTable("actuators", "Id,Digital"))
+            actdig=self._GetDigital("actuators")
             actdig.update({0: 0})
             DictList.append(actdig)
             DictList.append(OperatorDict)
@@ -219,15 +208,25 @@ class db_edit(object):
             actuators=dict(self.db.SelectColumnFromTable("actuators", "Id,Name"))
             actuators.update({0: "-"})
             DictList.append(actuators)
-            actdig=dict(self.db.SelectColumnFromTable("actuators", "Id,Digital"))
+            actdig=self._GetDigital("actuators")
             actdig.update({0: 0})
             DictList.append(actdig)
 
         return DictList
 
+    def _getTypes(self, IsOutput):
+        types = dict(self.db.SelectColumnFromTable("types", "Id,Name"))
+        output = dict(self.db.SelectColumnFromTable("types", "Id,IsOutput"))
+
+        for key in types.copy():
+            if (output[key] != IsOutput):
+                del types[key]
+
+        return types
+
     def _SetSensorValue(self, result, rowdict):
         if (result['Sensor'] != '0'):
-            digital=dict(self.db.SelectColumnFromTable("sensors", "Id,Digital"))
+            digital = self._GetDigital("sensors")
             IsDigital=digital[int(result['Sensor'])] 
             if (IsDigital):
                 if (result['Value']):
@@ -257,7 +256,7 @@ class db_edit(object):
         Id = 1
         HasDepComb = False 
         DepComb = '-'
-        digital = dict(self.db.SelectColumnFromTable("actuators", "Id,Digital"))
+        digital = self._GetDigital("actuators")
         # clear all
         for j in range(0,4):
             rowdict["actuator%d_id"%(j+1)] = '0'
@@ -300,7 +299,7 @@ class db_edit(object):
 
     def _SetCombinerValues(self, result, rowdict):
         Id = 1
-        digital = dict(self.db.SelectColumnFromTable("actuators", "Id,Digital"))
+        digital = self._GetDigital("actuators")
         for j in range(0,16):
             rowdict["Output%d"%(j+1)] = '0'
             rowdict["Output%d_Value"%(j+1)] = '0'
@@ -321,6 +320,18 @@ class db_edit(object):
 
         return (rowdict)
 
+    def _GetDigital(self,table):
+        digital = {}
+        if (table.lower() == "sensors"):
+            stypes = dict(self.db.SelectColumnFromTable("sensors", "Id,SensorType"))
+            types = dict(self.db.SelectColumnFromTable("sensortypes", "Id,Digital"))
+        elif (table.lower() == "actuators"):
+            stypes = dict(self.db.SelectColumnFromTable("actuators", "Id,ActuatorType"))
+            types = dict(self.db.SelectColumnFromTable("actuatortypes", "Id,Digital"))
+        for key in stypes:
+            digital[key] = types[int(stypes[key])]
+        return digital
+
     def _PrettyEditData(self, tableid):
         cols=self.db.GetColNames(tableid)
         data=self.db.ReadTable(tableid)
@@ -328,7 +339,7 @@ class db_edit(object):
         if (tableid.lower() == "sensors"):
             # Lookup types, boolean
             data = self._LookupType(cols, data)
-            data = self._LookupBoolean(cols, data, "digital")
+            data = self._LookupSensorType(cols, data)
             data = self._LookupBoolean(cols, data, "poll")
             data = self._LookupBoolean(cols, data, "toggle")
         elif (tableid.lower() == "actuators"):
@@ -336,7 +347,8 @@ class db_edit(object):
             data = self._LookupType(cols, data)
             data = self._LookupBoolean(cols, data, "setonce")
             data = self._LookupBoolean(cols, data, "repeat")
-            data = self._LookupBoolean(cols, data, "digital")
+            data = self._LookupActuatorType(cols, data)
+            data = self._LookupBoolean(cols, data, "combined")
         elif (tableid.lower() == "timers"):
             # Lookup method, weekdays
             data = self._LookupMethod(cols, data)
@@ -379,7 +391,20 @@ class db_edit(object):
     def _GetIdDigital(self,table,id):
         Digital=""
         if (id):
-            Digital=self.db.SearchValueFromColumn(table, "Digital", "Id", id, False)[0][0]
+            if (table.lower() == "sensors"):
+                TypeId=self.db.SearchValueFromColumn(table, "SensorType", "Id", id, False)[0][0]
+                if (TypeId > 0):
+                    Digital=self.db.SearchValueFromColumn("SensorTypes", "Digital", "Id", TypeId, False)[0][0]
+                else:
+                    Digital=False
+            elif (table.lower() == "actuators"):
+                TypeId=self.db.SearchValueFromColumn(table, "ActuatorType", "Id", id, False)[0][0]
+                if (TypeId > 0):
+                    Digital=self.db.SearchValueFromColumn("ActuatorTypes", "Digital", "Id", TypeId, False)[0][0]
+                else:
+                    Digital=False
+            else:
+                Digital=False        
         else:
             Digital=False
         return (Digital)
@@ -392,6 +417,24 @@ class db_edit(object):
             newrow = row[:type_col] + type + row[type_col+1:]
             newdata.append(newrow)
         return newdata
+
+    def _LookupSensorType(self, cols, data):
+        type_col = self._GetColumn(cols,"sensortype")
+        newdata = []
+        for row in data:
+            type = self._GetIdName("sensortypes", row[type_col])
+            newrow = row[:type_col] + type + row[type_col+1:]
+            newdata.append(newrow)
+        return newdata    
+
+    def _LookupActuatorType(self, cols, data):
+        type_col = self._GetColumn(cols,"actuatortype")
+        newdata = []
+        for row in data:
+            type = self._GetIdName("actuatortypes", row[type_col])
+            newrow = row[:type_col] + type + row[type_col+1:]
+            newdata.append(newrow)
+        return newdata    
 
     def _LookupCombiner(self, cols, data):
         comb_col = self._GetColumn(cols,"combiner")
@@ -513,9 +556,9 @@ class db_edit(object):
                         operator=row[i+1].lower()
                         if (Digital):
                             if (row[i+2]):
-                                value="True"
+                                value="On"
                             else:
-                                value="False"
+                                value="Off"
                         else:
                             value=str(row[i+2])
                         depdata += "("+actuator+" "+operator+" "+value+")"

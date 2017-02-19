@@ -1,2 +1,2 @@
-[B]0.0.1[/B]
+[B]0.0.2[/B]
 None release yet (backup work in progress)

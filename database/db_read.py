@@ -12,21 +12,6 @@ from sqlitedb import sqlitedb
 
 ####################### GLOBALS #########################
 
-
-## WILL BE a dict !!!!
-#class sensor:
-#	Id = 0
-#	Value = 0
-
-#class actuator:
-#	Id = 0
-#	Value = 0
-
-#class timer:
-#	Id = 0
-#	Time = 0
-#	Active = False #--> time=-1
-
 #########################################################
 # Class : db_read                                       #
 #########################################################
@@ -35,7 +20,7 @@ class db_read(object):
     def __init__(self, dbpath):
         self.db=sqlitedb(dbpath)
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __del__(self):
         del self.db
 
     def FillSensorBuffer(self,SensorDict):
@@ -44,17 +29,20 @@ class db_read(object):
 
         # Add new ones, don't update existing values
         for key in sensors:
-            if not isoutput[sensors[key]]:
-                if not key in SensorDict:
-                    SensorDict[key]=0
+            if sensors[key] != 0:
+                if not isoutput[sensors[key]]:
+                    if not key in SensorDict:
+                        SensorDict[key]=0
 
         #remove old ones
         for key in SensorDict.copy():
             if not key in sensors:
                 del SensorDict[key]
+            elif sensors[key] == 0:
+                del SensorDict[key]
             elif isoutput[sensors[key]]:
                 del SensorDict[key]
-
+                
         return SensorDict
 
     def FillActuatorBuffer(self,ActuatorDict):
@@ -63,13 +51,16 @@ class db_read(object):
 
         # Add new ones, don't update existing values
         for key in actuators:
-            if isoutput[actuators[key]]:
-                if not key in ActuatorDict:
-                    ActuatorDict[key]=0
+            if actuators[key] != 0:
+                if isoutput[actuators[key]]:
+                    if not key in ActuatorDict:
+                        ActuatorDict[key]=0
 
         #remove old ones
         for key in ActuatorDict.copy():
             if not key in actuators:
+                del ActuatorDict[key]
+            elif actuators[key] == 0:
                 del ActuatorDict[key]
             elif not isoutput[actuators[key]]:
                 del ActuatorDict[key]
@@ -92,6 +83,32 @@ class db_read(object):
 
         return TimerDict
 
+    def FillSensorNames(self, SensorDict, Names):
+        sensors=dict(self.db.SelectColumnFromTable("sensors", "Id,Name"))
+        # add new ones and update
+        for key in SensorDict:
+            Names[key]=sensors[key]
+
+        #remove old ones
+        for key in Names.copy():
+            if not key in SensorDict:
+                del Names[key]
+
+        return Names
+
+    def FillActuatorNames(self, ActuatorDict, Names):
+        actuators=dict(self.db.SelectColumnFromTable("actuators", "Id,Name"))
+        # add new ones and update
+        for key in ActuatorDict:
+            Names[key]=actuators[key]
+        
+        #remove old ones
+        for key in Names.copy():
+            if not key in ActuatorDict:
+                del Names[key]
+
+        return Names
+
     def FindSensorbyCode(self, SysCode, GroupCode, DeviceCode):
         SearchDict = {}
         SearchDict['SysCode']=str(SysCode)
@@ -113,6 +130,20 @@ class db_read(object):
         else:
             return 0
 
+    def FindSensorbyName(self, Name):
+        sensor=self.db.SearchValueFromColumn("sensors", "Id", "Name", Name, False)
+        if (sensor):
+            return sensor[0][0]
+        else:
+            return 0
+
+    def FindActuatorbyName(self, Name):
+        actuator=self.db.SearchValueFromColumn("actuators", "Id", "Name", Name, False)
+        if (actuator):
+            return actuator[0][0]
+        else:
+            return 0
+
     def GetSensorProperties(self, SensorId):
         cols=self.db.GetColNames("sensors")
         vals=self.db.SearchTable("sensors", "Id", SensorId, False)
@@ -120,7 +151,6 @@ class db_read(object):
             return dict(zip(cols, list(vals[0])))
         else:
             return None
-
 
     def GetActuatorProperties(self, ActuatorId):
         cols=self.db.GetColNames("actuators")
@@ -137,6 +167,22 @@ class db_read(object):
             return dict(zip(cols, list(vals[0])))
         else:
             return None
+
+    def GetSensorType(self, SensorId):
+        sensortype = self.db.SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)[0][0]
+        return self.db.SearchTable("sensortypes", "Id", sensortype, False)[0][4:]
+
+    def GetActuatorType(self, ActuatorId):
+        actuatortype = self.db.SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)[0][0]
+        return self.db.SearchTable("actuatortypes", "Id", actuatortype, False)[0][4:]
+
+    def GetSensorDigital(self, SensorId):
+        sensortype = self.db.SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)[0][0]
+        return self.db.SearchTable("sensortypes", "Id", sensortype, False)[0][3]
+
+    def GetActuatorDigital(self, ActuatorId):
+        actuatortype = self.db.SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)[0][0]
+        return self.db.SearchTable("actuatortypes", "Id", actuatortype, False)[0][3]
 
     def FindProcessors(self, TimerId, SensorId):
         SearchDict = {}
@@ -198,7 +244,14 @@ class db_read(object):
         if (vals):
             return dict(zip(cols, list(vals[0])))
         else:
-            return None        
+            return None  
+
+    def GetSetting(self, Setting):
+        vals=self.db.SearchTable("settings", "Parameter", Setting, False)
+        if vals:
+            return vals[0][3],vals[0][4]
+        else:
+            return None,None
 
     def _SplitDict(self, dict1, keys):
         dict2={}
@@ -243,4 +296,3 @@ class db_read(object):
                         HasDepComb = True
 
         return (rettup)
-        

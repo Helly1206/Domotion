@@ -1,14 +1,16 @@
 from flask import Flask, Blueprint, render_template, g, request, redirect
 from database import db_edit
+from engine import localaccess
+from engine import commandqueue
 
 db_webproc = Blueprint('db_webproc', __name__, template_folder='templates')
 
 def get_db():
     db = getattr(g, '_db_edit', None)
     if db is None:
-        db = g_db_edit = db_edit("../Domotion.db")
+        db = g_db_edit = db_edit(localaccess.GetDBPath())
     return db
-
+    
 @db_webproc.teardown_request
 def teardown_request(exception):
     db = getattr(g, '_db_edit', None)
@@ -19,24 +21,24 @@ def teardown_request(exception):
 def db_deleteditem(tableid,id):
     if request.method == "POST":
         result=request.form
-        print result
         if result['Button'] == 'Yes':
             get_db().DeleteTableRow(tableid, id)
+            commandqueue.callback2("process")
         return redirect('/database/%s'%(tableid))
     else:
-        return 'Bad request: Incorrect use of  this URL'
+        return 'Bad request: Incorrect use of this URL'
 
 @db_webproc.route('/database_edited/<string:tableid>/<int:id>', methods=['POST'])
 def db_editeditem(tableid,id):
     if request.method == "POST":
         result=request.form
-        print result
         # add results to db
         if result['Button'] == 'Ok':
             get_db().EditTableRow(tableid, id, result)
+            commandqueue.callback2("process")
         return redirect('/database/%s'%(tableid))
     else:
-        return 'Bad request: Incorrect use of  this URL'
+        return 'Bad request: Incorrect use of this URL'
 
 @db_webproc.route('/database_edit/<string:tableid>/<int:id>')
 def db_edititem(tableid,id):
@@ -59,3 +61,7 @@ def db_additem(tableid):
 def db_view(tableid):
     cols, data, editable = get_db().ReadTable(tableid)
     return render_template('db_editor.html', cols=cols, data=data, editable=editable, tableid=tableid, editing=0, editingid=0, editingdata=[])
+
+@db_webproc.route('/database')
+def db_viewstart():
+    return redirect('/database/sensors');
