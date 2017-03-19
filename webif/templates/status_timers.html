@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/status_timers.js') }}"></script>
+  </head>
+  <body onload='OnLoadWindow("{{tableid}}","{{editingid}}")' onunload='OnUnloadWindow()'>
+    <div class="xtable">
+      <table style="width: 100%;" border="0">
+        <tbody>
+          <tr>
+            <td class="d1">
+              <span>Time:</span>
+              <input type="text" name="time" id="time" value="00-00-0000 00:00:00" readonly>
+            </td>
+            <td class="d2">
+              <span>Sunrise:</span>
+              <input type="text" size="3" name="sunrise" id="sunrise" value="00:00" readonly>
+              <span>/ sunset:</span>
+              <input type="text" size="3" name="sunset" id="sunset" value="00:00" readonly>
+            </td>
+            <td class="d3">
+              <span>Status:</span>
+              <input type="text" name="status" id="status" value="Connecting" readonly>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="dbtable" style="text-align: center;">
+      <table border="1">
+        <thead>
+          <tr>
+            {% for col in cols %}
+              <td>{{ col }}</td>
+            {% endfor %}
+            <td>Time</td>
+            <td>Active</td>
+            {% if (editing==0) %}
+              <td>Edit</td>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for datum in data %}
+            {% if (editing==1) and (datum[0]==editingid) %}
+              {% include "timers_edit.html" ignore missing %}
+            {% else %}
+              <tr class='d1'>
+                {% for item in datum %}
+                  <td>{{ item }}</td>
+                {% endfor %}
+                <td>
+                  <label id="Time{{datum[0]}}">00:00</label>
+                </td>
+                <td>
+                  <label id="Active{{datum[0]}}">False</label>
+                </td>
+                {% if (editing==0) %}
+                  <td><a href="/status/timers_edit/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
+                    alt="Edit" src={{ url_for('static', filename = "images/edit.png") }}></a>
+                  </td>
+                {% endif %}
+              </tr>
+            {% endif %}
+          {% endfor %}
+          {% if (editing==0) %}
+            <tr class='d1'>    
+              <td colspan="100%" style="text-align: left;"><a style="color: black;" href="/status/recalc/{{ tableid }}">Recalculate <img style="width: 15px; height: 15px;" title="recalculate" alt="Recalculate" src={{ url_for('static', filename = "images/warning.png") }}></a>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    <br>
+    <p style="text-align: center;">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    </p>
+  </body>
+</html>

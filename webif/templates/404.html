@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>404</title>
+    <meta content="helly" name="author">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/icon16.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  </head>
+  <body id="h1"> 
+    {% include "header.html" ignore missing %} 
+    {% set tab = "login" %}
+    {% include "banner.html" ignore missing %} 
+    <div class="titletable">
+      <table style="width: 100%;">
+        <tbody>
+          <tr>
+            <td style="text-align: center;"><span style="font-family: Helvetica,Arial,sans-serif;">404 Not found</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="text-align: left;"><span style="font-family: Helvetica,Arial,sans-serif;"><br><br>The requested URL was not found on this server.<br></span></div>
+    <br>
+    <p style="text-align: center;">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    </p>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/submenu.css') }}">
+  </head>
+  <body>
+  <div class="utilstable">
+      <table style="width: 100%;">
+        <tbody>
+          <tr>
+            <td style="background-color: #FFFFFF; width: 83.333%; text-align: center; vertical-align: middle;"><span style="font-family:  Helvetica,Arial,sans-serif;"></span></td>
+            {% if loggedin %}
+              <td style="width: 16.667%; text-align: center; vertical-align: middle;"><a href="/logout"><span style="font-family: Helvetica ,Arial,sans-serif;">Logout</span></a></td>
+            {% else %}
+              <td style="width: 16.667%; text-align: center; vertical-align: middle;"><span style="font-family: Helvetica,Arial,sans-serif;"> Logout</span></td>
+            {% endif %}
+            <td style="height: 25px;">
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #FFFFFF; width: 83.333%; text-align: center; vertical-align: middle;"><span style="font-family:  Helvetica,Arial,sans-serif;"></span></td>
+            <td style="width: 16.667%; text-align: center; vertical-align: middle;"><a href="/restart"><span style="font-family: Helvetica ,Arial,sans-serif;">Restart</span></a></td>
+            <td style="height: 25px;">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

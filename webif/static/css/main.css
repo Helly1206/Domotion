@@ -1,0 +1,33 @@
+#h1 {
+  font-family: Helvetica,Arial,sans-serif;
+  font-size: x-large;
+  background-color: #FFFFFF;
+}
+
+#h2 {
+  font-family: Helvetica,Arial,sans-serif;
+  font-size: large;
+  background-color: #FFFFFF;
+}
+
+#h3 {
+  font-family: Helvetica,Arial,sans-serif;
+  font-size: medium;
+  background-color: #FFFFFF;
+}
+
+.titletable table { 
+  border-collapse: collapse; 
+  border-spacing: 0px; 
+}
+
+.titletable tr {
+  border: none;
+}
+
+.titletable td {
+  background-color: #1A1A1A;
+  color: white;
+  padding: 0px;
+  border: none;
+}

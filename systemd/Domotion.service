@@ -1,0 +1,16 @@
+# Domotion - Service for Domotion
+
+[Unit]
+Description=Domotion (Home control and automation)
+Wants=Pi433MHzd.service
+#After=Pi433MHzd.service
+
+[Service]
+Type=simple
+ExecStartPre=-/opt/Domotion/RetainerMove -b
+ExecStart=/opt/Domotion/Domotion
+ExecStopPost=-/opt/Domotion/RetainerMove -f
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

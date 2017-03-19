@@ -1,0 +1,135 @@
+.dbtable tbody tr.d1 {
+	background: #808080
+}
+
+.dbtable tbody td.d1 {
+	border-bottom: none !important;border-top: none !important;
+}
+
+.dbtable td.d2 {
+  padding: 0px 20px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: left;
+}
+
+.dbtable td.d3 {
+  padding: 3px 5px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: left;
+}
+
+.dbtable td.d4 {
+  padding: 3px 5px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: right;
+}
+
+.dbtable tbody tr.d5 {
+  background: #808080
+}
+
+.dbtable tbody td.d5 {
+  border-bottom: none !important;border-top: none !important;
+}
+.dbtable td.d6 {
+  padding: 0px 20px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: left;
+}
+
+.dbtable td.d7 {
+  padding: 3px 5px;
+  border-bottom: none !important;border-top: none !important;
+  text-align: left;
+}
+
+.dbtable table {
+  font-family: "Arial", "Helvetica", "sans-serif";
+  border-top-color: white;
+  border-right-color: white;
+  border-bottom-color: white;
+  border-left-color: white;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-radius: 0px;
+  table-layout: fixed;
+  caption-side: top;
+  border-collapse: collapse;
+  border-spacing: 0px;
+  padding: 0px;
+  empty-cells: show;
+  font-weight: normal;
+  font-style: normal;
+  color: black;
+  text-align: center;
+  font-size: small;
+  background-color: #E6E6E6;
+}
+
+.dbtable thead {
+  background-color: #404040;
+  font-weight: bold;
+  color: white;
+}
+
+.dbtable td {
+  padding: 5px 20px;
+}
+
+.dbtable tbody tr.d1:nth-child(even) {background: #E6E6E6;}
+.dbtable tbody tr.d1:nth-child(odd) {background: #D9D9D9;}
+
+.dbtable tbody tr.d1:hover {
+  background-color: #BFBFBF;
+  color: black;
+}
+
+.xtable table {
+  font-family: "Arial", "Helvetica", "sans-serif";
+  border-top-color: white;
+  border-right-color: white;
+  border-bottom-color: white;
+  border-left-color: white;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-radius: 0px;
+  table-layout: fixed;
+  caption-side: top;
+  border-collapse: collapse;
+  border-spacing: 0px;
+  padding: 0px;
+  empty-cells: show;
+  font-weight: normal;
+  font-style: normal;
+  color: black;
+  text-align: center;
+  font-size: medium;
+  background-color: #808080;
+}
+
+.xtable tbody td.d1 {
+  padding: 10px 20px;
+  text-align: left;
+  border-bottom: none !important;border-top: none !important;
+}
+
+.xtable tbody td.d2 {
+  padding: 10px 20px;
+  text-align: center;
+  border-bottom: none !important;border-top: none !important;
+}
+
+.xtable tbody td.d3 {
+  padding: 10px 20px;
+  text-align: right;
+  border-bottom: none !important;border-top: none !important;
+}
+
+.xtable input[type="text"], textarea {
+  background-color : #E6E6E6; 
+
+}

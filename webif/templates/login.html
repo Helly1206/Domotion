@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Login</title>
+    <meta content="helly" name="author">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/icon16.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  </head>
+  <body id="h1"> 
+    {% include "header.html" ignore missing %} 
+    {% set tab = "login" %}
+    {% include "banner.html" ignore missing %} 
+    <div class="container">
+      <h2 style="font-family: Helvetica,Arial,sans-serif;">Please login to Domotion:</h2>
+      <form action="" method="post">
+        <div>
+          <table style="width: 300px;">
+            <tbody>
+              <tr>
+                <td style="width: 150px; text-align: right;"><span style="font-family: Helvetica,Arial,sans-serif; font-size: medium;">Username:</span></td>
+                <td style="width: 150px; text-align: left;"><span style="font-family: Helvetica,Arial,sans-serif;"><input type="text" placeholder="Username" name="username" value="{{ request.form.username }}"></span></td>
+              </tr>
+              <tr>
+                <td style="width: 150px; text-align: right;"><span style="font-family: Helvetica,Arial,sans-serif; font-size: medium;">Password:</span></td>
+                <td style="width: 150px; text-align: left;"><span style="font-family: Helvetica,Arial,sans-serif;"><input type="password" placeholder="Password" name="password" value="{{ request.form.password }}"></span></td>
+              </tr>
+              <tr>
+                <td style="width: 150px; text-align: right;"><span style="font-family: Helvetica,Arial,sans-serif;"></span></td>
+                <td style="width: 150px; text-align: left;"><input type="submit" value="Login"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+      {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}
+      {% endif %}
+    </div>
+    <br>
+    <p style="text-align: center;">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    </p>
+  </body>
+</html>

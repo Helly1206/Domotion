@@ -1,0 +1,30 @@
+#wh {
+  color: white;
+}
+
+#h1 {
+  font-size: x-large;
+  background-color: #FFFFFF;
+}
+      
+a {
+  text-decoration: none;
+  color: white;
+}
+
+.headertable table { 
+  border-collapse: collapse; 
+  border-spacing: 0px; 
+}
+
+.headertable tr {
+  border: none;
+  padding: 0px;
+}
+
+.headertable td {
+  background-color: #404040;
+  color: white;
+  padding: 0px;
+  border: none;
+}

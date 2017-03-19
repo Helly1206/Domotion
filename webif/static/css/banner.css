@@ -1,0 +1,26 @@
+.bannertable table { 
+  border-collapse: collapse; 
+  border-spacing: 0px; 
+}
+
+.bannertable tr {
+  border: none;
+  padding: 0px;
+}
+
+.bannertable td {
+  background-color: #404040;
+  color: white;
+  padding: 0px;
+  border: none;
+}
+
+.bannertable td:hover {
+  background-color: #BFBFBF;
+  color: black;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+}

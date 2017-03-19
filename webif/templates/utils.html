@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Utils</title>
+    <meta content="helly" name="author">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/icon16.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  </head>
+  <body id="h1"> 
+    {% include "header.html" ignore missing %} 
+    {% set tab = "utils" %}
+    {% include "banner.html" ignore missing %} 
+    {% include "utils_menu.html" ignore missing %} 
+  </body>
+</html>
