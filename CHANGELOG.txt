@@ -1,2 +1,5 @@
+[B]0.8.0[/B]
+- First working Beta release. all functions should work but aren't tested in detail yet
+
 [B]0.0.2[/B]
-None release yet (backup work in progress)
+- None release yet (backup work in progress)

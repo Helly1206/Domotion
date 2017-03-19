@@ -109,6 +109,38 @@ class db_read(object):
 
         return Names
 
+    def FillTimerNames(self, TimerDict, Names):
+        timers=dict(self.db.SelectColumnFromTable("timers", "Id,Name"))
+        # add new ones and update
+        for key in TimerDict:
+            Names[key]=timers[key]
+        
+        #remove old ones
+        for key in Names.copy():
+            if not key in TimerDict:
+                del Names[key]
+
+        return Names
+
+    def FindSensorPollbyHardware(self, Type):
+        poll = []
+        spoll=dict(self.db.SelectColumnFromTable("sensors", "Id,Poll"))
+        stype=dict(self.db.SelectColumnFromTable("sensors", "Id,Type"))
+
+        hwlink=dict(self.db.SelectColumnFromTable("types", "Id,HWlink"))
+        isoutput=dict(self.db.SelectColumnFromTable("types", "Id,IsOutput"))
+
+        TypeId = 0
+        for key in hwlink:
+            if ((not isoutput[key]) and (hwlink[key].lower() == Type.lower())):
+                TypeId = key
+
+        for key in spoll:
+            if ((stype[key] == TypeId) and (spoll[key])):
+                poll.append(key)
+        return (poll)
+
+
     def FindSensorbyCode(self, SysCode, GroupCode, DeviceCode):
         SearchDict = {}
         SearchDict['SysCode']=str(SysCode)
@@ -122,8 +154,8 @@ class db_read(object):
 
     def FindSensorbyURL(self, URL, URLTag):
         SearchDict = {}
-        SearchDict['URL']=URL
-        SearchDict['URLTag']=URLTag
+        SearchDict['DeviceURL']=URL
+        SearchDict['KeyTag']=URLTag
         sensor=self.db.SearchTableMultiple("sensors", "Id", SearchDict, False)
         if (sensor):
             return sensor[0][0]
@@ -244,7 +276,7 @@ class db_read(object):
         if (vals):
             return dict(zip(cols, list(vals[0])))
         else:
-            return None  
+            return None
 
     def GetSetting(self, Setting):
         vals=self.db.SearchTable("settings", "Parameter", Setting, False)
@@ -265,30 +297,26 @@ class db_read(object):
         return (indict['Sensor'],indict['Operator'],indict['Value'])
 
     def _ParseCombiner(self, indict):
-        print indict
         rettup = ()
         for i in range(0,16):
-            print i
             if indict["Output%d"%(i+1)]:
-                    rettup += (indict["Output%d"%(i+1)],indict["Output%d_Value"%(i+1)])
+                    rettup += ((indict["Output%d"%(i+1)],indict["Output%d_Value"%(i+1)]),)
 
         return (rettup)
 
     def _ParseDependency(self, indict):
-        print indict
         rettup = ()
         HasDepComb = False 
         DepComb = '-'
         for i in range(0,4):
-            print i
             if (indict["actuator%d_id"%(i+1)]) and (indict["actuator%d_operator"%(i+1)]):
                 if (i>0):
                     if (HasDepComb):
                         rettup += (DepComb)
                         HasDepComb = False
                     else:
-                        rettup += ('and')
-                rettup += (indict["actuator%d_id"%(i+1)],indict["actuator%d_operator"%(i+1)],indict["actuator%d_value"%(i+1)])
+                        rettup += (('and'),)
+                rettup += ((indict["actuator%d_id"%(i+1)],indict["actuator%d_operator"%(i+1)],indict["actuator%d_value"%(i+1)]),)
             if (i<3):
                 if (indict["actuator%d%d_combiner"%(i+1,i+2)]):
                     if (indict["actuator%d%d_combiner"%(i+1,i+2)] != '-'):

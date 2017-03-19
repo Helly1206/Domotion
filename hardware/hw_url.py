@@ -74,22 +74,20 @@ class url(Thread):
 
         while (not self.term.isSet()):
             if (counter % updatecnt == 0):
-                self.mutex.acquire()
                 for sensor in self.sensors:
-                    succes, value = self._GetSensorURL(sensor)
+                    success, value = self._GetSensorURL(sensor)
                     if (success):
                         curval = localaccess.GetSensor(sensor)
                         if (curval != value):
-                            self.commandqueue.put_id("Domoticz", sensor, value, True)
+                            self.commandqueue.put_id("Url", sensor, value, True)
                     connected = success
                 for actuator in self.actuators:
-                    succes, value = self._GetActuatorURL(actuator)
+                    success, value = self._GetActuatorURL(actuator)
                     if (success):
                         curval = localaccess.GetActuator(actuator)
                         if (curval != value):
-                            self.commandqueue.put_id("Domoticz", actuator, value, False)
+                            self.commandqueue.put_id("Url", actuator, value, False)
                     connected = success
-                self.mutex.release()
                 if (connected != connectedprev):
                     if (connected):
                         self.logger.info("connection established")
@@ -164,7 +162,7 @@ class url(Thread):
         success = True
         value = None
         prop = localaccess.GetSensorProperties(key)
-        success, result = cls._httpget(prop['DeviceURL'],{"tag": prop['KeyTag']})
+        success, result = self._httpget(prop['DeviceURL'],{"tag": prop['KeyTag']})
         if (success):
             if ((result[0].lower == 'value') and (result[1] == prop['KeyTag'])):
                 value = int(result[2])
@@ -176,7 +174,7 @@ class url(Thread):
         success = True
         value = None
         prop = localaccess.GetActuatorProperties(key)
-        success, result = cls._httpget(prop['DeviceURL'],{"tag": prop['KeyTag']})
+        success, result = self._httpget(prop['DeviceURL'],{"tag": prop['KeyTag']})
         if (success):
             if ((result[0].lower == 'value') and (result[1] == prop['KeyTag'])):
                 value = int(result[2])
@@ -187,7 +185,7 @@ class url(Thread):
     def _SetSensorURL(self, key, value):
         success = True
         prop = localaccess.GetSensorProperties(key)
-        success, result = cls._httpget(prop['DeviceURL'],{"tag": prop['KeyTag'], "value": str(value)})
+        success, result = self._httpget(prop['DeviceURL'],{"tag": prop['KeyTag'], "value": str(value)})
         if (success):
             if ((result[0].lower == 'stored') and (result[1] == prop['KeyTag'])):
                 success = True
@@ -198,7 +196,7 @@ class url(Thread):
     def _SetActuatorURL(self, key, value):
         success = True
         prop = localaccess.GetActuatorProperties(key)
-        success, result = cls._httpget(prop['DeviceURL'],{"tag": prop['KeyTag'], "value": str(value)})
+        success, result = self._httpget(prop['DeviceURL'],{"tag": prop['KeyTag'], "value": str(value)})
         if (success):
             if ((result[0].lower == 'stored') and (result[1] == prop['KeyTag'])):
                 success = True

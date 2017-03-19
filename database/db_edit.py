@@ -79,7 +79,6 @@ class db_edit(object):
             rowdict['DeviceCode']="0"
             rowdict['DeviceURL']="-"
             rowdict['KeyTag']="-"
-            rowdict['Combined']="0"
             for col in cols:
                 if col == "SysCode":
                     if ('rf' in typename):
@@ -96,9 +95,6 @@ class db_edit(object):
                 elif col == "KeyTag":
                     if ('url' in typename) or('ir' in typename):
                         rowdict[col]=result[col]
-                elif col == "Combined":
-                    if ('blind' in actuatortypename):
-                        rowdict[col]=result[col]
                 elif not col == "Id":
                     if (result[col]):
                         rowdict[col]=result[col]
@@ -110,12 +106,12 @@ class db_edit(object):
             rowdict['Minutes_Offset']="0"
             for col in cols:
                 if col == "Hour":
-                    if ('sunrise' in method) or ('sunset' in method) or ('offset' in season):
+                    if ('sunrise' in method) or ('sunset' in method) or ('offset' in method):
                         rowdict[col]="0"
                     else:
                         rowdict[col]=result[col]
                 elif col == "Minute":
-                    if ('sunrise' in method) or ('sunset' in method) or ('offset' in season):
+                    if ('sunrise' in method) or ('sunset' in method) or ('offset' in method):
                         rowdict[col]="0"
                     else:
                         rowdict[col]=result[col]
@@ -341,17 +337,17 @@ class db_edit(object):
             data = self._LookupType(cols, data)
             data = self._LookupSensorType(cols, data)
             data = self._LookupBoolean(cols, data, "poll")
-            data = self._LookupBoolean(cols, data, "toggle")
+            data = self._LookupBoolean(cols, data, "switchmode")
         elif (tableid.lower() == "actuators"):
             # Lookup types, boolean
             data = self._LookupType(cols, data)
             data = self._LookupBoolean(cols, data, "setonce")
             data = self._LookupBoolean(cols, data, "repeat")
             data = self._LookupActuatorType(cols, data)
-            data = self._LookupBoolean(cols, data, "combined")
         elif (tableid.lower() == "timers"):
             # Lookup method, weekdays
             data = self._LookupMethod(cols, data)
+            cols, data = self._LookupTime(cols, data)
             cols, data = self._LookupWeekdays(cols, data)
         elif (tableid.lower() == "processors"):    
             # Lookup arithmic, combiner
@@ -482,6 +478,18 @@ class db_edit(object):
             newdata.append(newrow)
         return newdata
 
+    def _LookupTime(self, cols, data):
+        # Modify columns
+        Offset_col = self._GetColumn(cols,"Method")
+        newcols = cols[:Offset_col+1] + ["Time"] + cols[Offset_col+3:]
+        # Modify data
+        newdata = []
+        for row in data:
+            newrow = row[:Offset_col+1] + ('{:02d}:{:02d}'.format(row[Offset_col+1],row[Offset_col+2]),) + row[Offset_col+3:]
+            newdata.append(newrow)
+
+        return newcols, newdata   
+
     def _LookupWeekdays(self, cols, data):
         # Modify columns
         Offset_col = self._GetColumn(cols,"Minutes_Offset")
@@ -562,7 +570,7 @@ class db_edit(object):
                         else:
                             value=str(row[i+2])
                         depdata += "("+actuator+" "+operator+" "+value+")"
-                        if (row[i+3]):
+                        if (len(row) > i+3):
                             if (row[i+3] != '-'):
                                 depdata += " "+row[i+3].lower()+" "
                                 i+=4

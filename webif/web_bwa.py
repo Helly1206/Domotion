@@ -1,4 +1,5 @@
 from flask import Flask, Blueprint, render_template, g, request
+from flask_login import login_required
 from frontend import basicwebaccess
 
 web_bwa = Blueprint('web_bwa', __name__, template_folder='templates')
@@ -16,6 +17,7 @@ def teardown_request(exception):
         del bwa
 
 @web_bwa.route('/get', methods=['GET'])
+@login_required
 def bwa_get():
     if request.method == "GET":
         tag=request.args.get('tag')
@@ -24,6 +26,7 @@ def bwa_get():
         return 'Bad request: Incorrect use of  this URL'
 
 @web_bwa.route('/set', methods=['GET'])
+@login_required
 def bwa_set():
     if request.method == "GET":
         tag=request.args.get('tag')

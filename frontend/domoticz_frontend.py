@@ -14,7 +14,7 @@ import logging
 from time import sleep
 from engine import localaccess
 from engine import commandqueue
-from utilities import domoticz_api
+from domoticz_api import domoticz_api
 #########################################################
 
 ####################### GLOBALS #########################
@@ -187,6 +187,16 @@ class domoticz_frontend(Thread):
                     if not ActiveDev[idx]:
                         if (idx != self.MessageIDx):
                             success = self._DelDevice(devices,idx)
+        if (success):
+            success = self._writeInitialValues()
+        return success
+
+    def _writeInitialValues(self):
+        success = True
+        for Id in localaccess.GetSensorValues():
+            self._SetSensorDevice(Id,localaccess.GetSensor(Id))
+        for Id in localaccess.GetActuatorValues():
+            self._SetActuatorDevice(Id,localaccess.GetActuator(Id))    
         return success
 
     def _UpdateIDx(self,devices,sensors,actuators):

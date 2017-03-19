@@ -5,42 +5,11 @@
     <title>Settings</title>
     <meta content="helly" name="author">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/icon16.ico') }}">
-    <style type="text/css">
-#h1 {
-  font-size: x-large;
-  background-color: #FFFFFF;
-}
-
-.titletable table { 
-  border-collapse: collapse; 
-  border-spacing: 0px; 
-}
-
-.titletable tr {
-  border: none;
-}
-
-.titletable td {
-  background-color: #1A1A1A;
-  color: white;
-  padding: 0px;
-  border: none;
-}
-
-</style></head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <body id="h1"> 
     {% include "header.html" ignore missing %} 
     {% set tab = "settings" %}
     {% include "banner.html" ignore missing %} 
-    <div class="titletable">
-      <table style="width: 100%;">
-        <tbody>
-          <tr>
-            <td style="text-align: center;"><span style="font-family: Helvetica,Arial,sans-serif;">Settings</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
     {% include "settings_table.html" ignore missing %}
   </body>
 </html>

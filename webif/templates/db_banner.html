@@ -2,94 +2,42 @@
 <html>
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-    <style type="text/css">
-
-a {
-  text-decoration: none;
-  color: white;
-}
-
-.dbbannertable table { 
-  border-collapse: collapse; 
-  border-spacing: 0px; 
-}
-
-.dbbannertable tr {
-  border: none;
-}
-
-.dbbannertable td {
-  background-color: #404040;
-  color: white;
-  padding: 0px;
-  border: none;
-}
-
-.dbbannertable td:hover {
-  background-color: #BFBFBF;
-  color: black;
-}
-
-.dbtitletable table { 
-  border-collapse: collapse; 
-  border-spacing: 0px; 
-}
-
-.dbtitletable tr {
-  border: none;
-}
-
-.dbtitletable td {
-  background-color: #1A1A1A;
-  color: white;
-  padding: 0px;
-  border: none;
-}
-
-</style> </head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/banner.css') }}">
+  </head>
   <body>
-    <div class="dbtitletable">
-      <table style="width: 100%;">
-        <tbody>
-          <tr>
-            <td style="text-align: center;"><span style="font-family: Helvetica,Arial,sans-serif;">Edit Process</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="dbbannertable">
+    <div class="bannertable">
       <table style="width: 100%; height: 27px;">
         <tbody>
           <tr style="border-color: white; border-radius: 0px; border-width: 0px; border-style: solid;">
             {% if tableid == "sensors" %}
-              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">sensors</span></a></td>
+              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family:   Helvetica,Arial,sans-serif;">sensors</span></a></td>
             {% else %}
               {% if editing == 0 %} 
-                <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/sensors"><span style="font-family: Helvetica,Arial,sans-serif;">sensors</span></a></td>
+                <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/sensors"><span style="font-family:   Helvetica,Arial,sans-serif;">sensors</span></a></td>
               {% else %}
                 <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">sensors</span></a></td>
               {% endif %}
             {% endif %}
             {% if tableid == "actuators" %}
-              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">actuators</span></a></td>
+              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family:   Helvetica,Arial,sans-serif;">actuators</span></a></td>
             {% else %}
               {% if editing == 0 %} 
-                <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/actuators"><span style="font-family: Helvetica,Arial,sans-serif;">actuators</span></a></td>
+                <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/actuators"><span style="font-family  : Helvetica,Arial,sans-serif;">actuators</span></a></td>
               {% else %}
                 <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">actuators</span></a></td>
               {% endif %}
             {% endif %}
             {% if tableid == "timers" %}
-              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">timers</span></a></td>
+              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family:   Helvetica,Arial,sans-serif;">timers</span></a></td>
             {% else %}
               {% if editing == 0 %} 
-                <td style="text-align: center; vertical-align: middle; width: 14.286%;"><a href="/database/timers"><span style="font-family: Helvetica,Arial,sans-serif;">timers</span></a></td>
+                <td style="text-align: center; vertical-align: middle; width: 14.286%;"><a href="/database/timers"><span style="font-family:   Helvetica,Arial,sans-serif;">timers</span></a></td>
               {% else %}
                 <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">timers</span></a></td>
               {% endif %}
             {% endif %}
             {% if tableid == "processors" %}
-              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">processors</span></a></td>
+              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family:   Helvetica,Arial,sans-serif;">processors</span></a></td>
             {% else %}
               {% if editing == 0 %} 
                 <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/processors"><span style="font-family: Helvetica,Arial,sans-serif;">processors</span></a></td>
@@ -98,7 +46,7 @@ a {
               {% endif %}
             {% endif %}
             {% if tableid == "dependencies" %}
-              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">dependencies</span></a></td>
+              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family:   Helvetica,Arial,sans-serif;">dependencies</span></a></td>
             {% else %}
               {% if editing == 0 %} 
                 <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/dependencies"><span style="font-family: Helvetica,Arial,sans-serif;">dependencies</span></a></td>
@@ -107,19 +55,19 @@ a {
               {% endif %}
             {% endif %}
             {% if tableid == "combiners" %}
-              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">combiners</span></a></td>
+              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family:   Helvetica,Arial,sans-serif;">combiners</span></a></td>
             {% else %}
               {% if editing == 0 %} 
-                <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/combiners"><span style="font-family: Helvetica,Arial,sans-serif;">combiners</span></a></td>
+                <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/combiners"><span style="font-family  : Helvetica,Arial,sans-serif;">combiners</span></a></td>
               {% else %}
                 <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">combiners</span></a></td>
               {% endif %}
             {% endif %}
             {% if tableid == "types" %}
-              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">types</span></a></td>
+              <td style="background-color: #1A1A1A; width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family:   Helvetica,Arial,sans-serif;">types</span></a></td>
             {% else %}
               {% if editing == 0 %} 
-                <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/types"><span style="font-family: Helvetica,Arial,sans-serif;">types</span></a></td>
+                <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a href="/database/types"><span style="font-family:   Helvetica,Arial,sans-serif;">types</span></a></td>
               {% else %}
                 <td style="width: 14.286%; text-align: center; vertical-align: middle;"><a><span style="font-family: Helvetica,Arial,sans-serif;">types</span></a></td>
               {% endif %}

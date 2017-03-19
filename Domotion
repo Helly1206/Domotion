@@ -1,1 +1,5 @@
-python ./Domotion.py
+#!/bin/bash
+
+SOURCE="${BASH_SOURCE[0]}"
+SRCDIR=$(dirname $SOURCE)
+/usr/bin/python $SRCDIR/Domotion.py $@

@@ -104,6 +104,7 @@ class pi433MHz(Thread):
         return self.Pi433MHzrunning
 
     def send(self, syscode, groupcode, devicecode, value):
+        res = -1
         if (self._IsPi433MHz()):
             array = self._code2array(syscode, groupcode, devicecode, value)
             res = self.client.WriteMessage(array, len(array))

@@ -5,14 +5,8 @@
     <title>Process</title>
     <meta content="helly" name="author">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/icon16.ico') }}">
-    <style type="text/css">
-
-#h1 {
-  font-size: x-large;
-  background-color: #FFFFFF;
-}
-
-</style></head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  </head>
   <body id="h1">
     {% include "header.html" ignore missing %} 
     {% set tab = "process" %}

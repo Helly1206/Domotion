@@ -10,6 +10,12 @@
 from database import db_read
 from threading import Lock
 from engine import commandqueue
+from hashlib import sha256
+from re import match
+import signal
+import logging
+from time import sleep, localtime, strftime
+from os import urandom
 #########################################################
 
 ## WILL BE a dict !!!!
@@ -24,9 +30,35 @@ from engine import commandqueue
 #class timer:
 #   Id = 0
 #   Time = 0
-#   Active = False #--> time=-1
+#   Active = False #--> Time=-1
 
 ####################### GLOBALS #########################
+
+#########################################################
+# Class : AppKiller                                     #
+#########################################################
+class AppKiller(object):
+    kill_now = False
+    restart = True
+    def __init__(self):
+        signal.signal(signal.SIGINT, self.exit_app)
+        signal.signal(signal.SIGTERM, self.exit_app)
+        self.reset_app()
+
+    @classmethod
+    def reset_app(cls):
+        cls.kill_now = False 
+        cls.restart = False
+
+    @classmethod
+    def exit_app(cls, signum, frame):
+        cls.kill_now = True 
+        cls.restart = False
+
+    @classmethod
+    def restart_app(cls):
+        cls.kill_now = True 
+        cls.restart = True    
 
 #########################################################
 # Class : localaccess                                   #
@@ -37,14 +69,19 @@ class localaccess(db_read):
     ActuatorValues = { }
     ActuatorNames = { }
     TimerValues = { }
+    TimerNames = { }
     mutex = None
     dbpath = ""
     instance = None
+    sessionpassword = None
+    secret_key = "@%^&123_domotion_$%#!@"
+    sunriseset = (0,0)
 
     def __init__(self, idbpath):
         self._initmutex()
         self.SetDBPath(idbpath)
         self._SetInstance(self)
+        self._MakeSessionPassword()
         db_read.__init__(self, idbpath)
 
     def __del__(self):
@@ -60,8 +97,16 @@ class localaccess(db_read):
         self.TimerValues = db_read.FillTimerBuffer(self, self.TimerValues)
         self.SensorNames = db_read.FillSensorNames(self, self.SensorValues, self.SensorNames)
         self.ActuatorNames = db_read.FillActuatorNames(self, self.ActuatorValues, self.ActuatorNames)
+        self.TimerNames = db_read.FillTimerNames(self, self.TimerValues, self.TimerNames)
         self._release()
         return
+
+    def GetSensorPoll(self, stype):
+        retkey = None
+        if (self._acquire()):
+            retkey = db_read.FindSensorPollbyHardware(self, stype)
+            self._release()
+        return retkey
 
     @classmethod
     def _initmutex(cls):
@@ -112,12 +157,22 @@ class localaccess(db_read):
         cls._release()
         return retval
 
+    # Get/ set from DB
+
     @classmethod
     def GetSensor(cls, sensor):
         retval = None
         if (cls._acquire()):
             if sensor in cls.SensorValues:
                 retval = cls.SensorValues[sensor]
+            cls._release()
+        return retval
+
+    @classmethod
+    def GetSensorValues(cls):
+        retval = None
+        if (cls._acquire()):
+            retval = cls.SensorValues
             cls._release()
         return retval
 
@@ -141,6 +196,14 @@ class localaccess(db_read):
         return retval
 
     @classmethod
+    def GetActuatorValues(cls):
+        retval = None
+        if (cls._acquire()):
+            retval = cls.ActuatorValues
+            cls._release()
+        return retval
+
+    @classmethod
     def SetActuator(cls, actuator, value):
         retval = None
         if (cls._acquire()):
@@ -156,6 +219,22 @@ class localaccess(db_read):
         if (cls._acquire()):
             if timer in cls.TimerValues:
                 retval = cls.TimerValues[timer]
+            cls._release()
+        return retval
+
+    @classmethod
+    def GetTimerValues(cls):
+        retval = None
+        if (cls._acquire()):
+            retval = cls.TimerValues
+            cls._release()
+        return retval
+
+    @classmethod
+    def GetTimerIds(cls):
+        retval = None
+        if (cls._acquire()):
+            retval = list(cls.TimerValues.keys())
             cls._release()
         return retval
 
@@ -200,10 +279,34 @@ class localaccess(db_read):
         return retkey
 
     @classmethod
+    def GetSensorName(cls, key):
+        retkey = None
+        if (cls._acquire()):
+            retkey = cls.SensorNames[key]
+            cls._release()
+        return retkey
+
+    @classmethod
     def GetActuatorNames(cls):
         retkey = None
         if (cls._acquire()):
             retkey = cls.ActuatorNames
+            cls._release()
+        return retkey
+
+    @classmethod
+    def GetActuatorName(cls, key):
+        retkey = None
+        if (cls._acquire()):
+            retkey = cls.ActuatorNames[key]
+            cls._release()
+        return retkey
+
+    @classmethod
+    def GetTimerName(cls, key):
+        retkey = None
+        if (cls._acquire()):
+            retkey = cls.TimerNames[key]
             cls._release()
         return retkey
 
@@ -214,15 +317,6 @@ class localaccess(db_read):
     @classmethod
     def GetActuatorProperties(cls, key):
         return db_read.GetActuatorProperties(cls.instance, key)
-
-    @classmethod
-    def GetSettingFormat(cls, Setting):
-        return db_read.GetSetting(cls.instance, Setting)
-
-    @classmethod
-    def GetSetting(cls, Setting):
-        Value, Format =  db_read.GetSetting(cls.instance, Setting)
-        return Value
 
     @classmethod
     def GetSensorType(cls, key):
@@ -239,3 +333,112 @@ class localaccess(db_read):
     @classmethod
     def GetActuatorDigital(cls, key):
         return db_read.GetActuatorDigital(cls.instance, key)
+
+    @classmethod
+    def GetTimerProperties(cls, key):
+        return db_read.GetTimerProperties(cls.instance, key)
+
+    # Settings
+
+    @classmethod
+    def GetSettingFormat(cls, Setting):
+        return db_read.GetSetting(cls.instance, Setting)
+
+    @classmethod
+    def GetSetting(cls, Setting):
+        Value, Format =  db_read.GetSetting(cls.instance, Setting)
+        return Value
+
+    # Password 
+
+    @classmethod 
+    def get_key(cls):
+        return cls.secret_key
+
+    @classmethod 
+    def hash_pass(cls, password):
+        salted_password = password + cls.secret_key
+        return sha256(salted_password).hexdigest()
+
+    @classmethod
+    def ispassword(cls, password):
+        result = None
+        if (len(password)==64):
+            try: result = match(r"([a-fA-F\d]{64})", password).group(0)
+            except: pass
+        return result is not None
+
+    @classmethod
+    def _MakeSessionPassword(cls):
+        if (cls.sessionpassword == None):
+            cls.sessionpassword = cls.hash_pass(urandom(32))
+
+    @classmethod
+    def GetSessionPassword(cls):
+        if (cls.sessionpassword == None):
+            cls._MakeSessionPassword()
+        return cls.sessionpassword
+
+    # Domotion statsu
+
+    @classmethod
+    def GetStatus(cls, status=0):
+        Status = "Unknown"
+        if (cls.instance != None): 
+            if (status == 1):
+                Status = "Set value"
+            else:
+                Status = "Running"
+        else:
+            Status = "Finished"
+        return Status
+
+    # Date/ time
+
+    @classmethod
+    def GetAscTime(cls):
+        return strftime("%d-%m-%Y %H:%M:%S", localtime())
+
+    @classmethod
+    def GetModTime(cls):
+        tm = localtime()
+        return (tm.tm_hour*60+tm.tm_min)
+
+    @classmethod
+    def GetDateDMY(cls):
+        tm = localtime()
+        return (tm.tm_mday, tm.tm_mon, tm.tm_year)
+
+    @classmethod
+    def GetWeekday(cls):
+        return strftime("%A", localtime())        
+
+    @classmethod
+    def Mod2Asc(cls, Mod):
+        retval = ()
+        for md in Mod:
+            h = md/60
+            m = md%60
+            retval=retval+('{:02d}:{:02d}'.format(h,m),)
+        return retval
+
+    @classmethod
+    def Asc2Mod(cls, asc):
+        retval = ()
+        spl = asc.split(":")
+        return int(spl[0])*60+int(spl[1])
+
+    @classmethod
+    def GetSunRiseSetMod(cls):
+        retval = None
+        if (cls._acquire()):
+            retval = cls.sunriseset
+            cls._release()
+        return retval
+
+    @classmethod
+    def SetSunRiseSetMod(cls,srise,sset):
+        if (cls._acquire()):
+            cls.sunriseset = (srise,sset)
+            cls._release()
+        return 

@@ -8,8 +8,8 @@
 
 ####################### IMPORTS #########################
 from sqlitedb import sqlitedb
+from engine import localaccess
 from base64 import b64encode
-from hashlib import md5
 
 #########################################################
 
@@ -32,6 +32,7 @@ class db_settings(object):
     def EditSettings(self, id, result):
         value = {}
         Format=self.db.SearchValueFromColumn("settings", "format", "Id", id, False)[0][0]
+        Restart=self.db.SearchValueFromColumn("settings", "restart", "Id", id, False)[0][0]
         if (Format == 'BOOL'):
             if ((result['BoolValue'].lower() ==  'true') or (result['BoolValue'] == "1")):
                 value['Value']="1"
@@ -44,17 +45,21 @@ class db_settings(object):
         elif (Format == 'PSTRING'):
             if (result['PasswordValue1'] == result['PasswordValue2']):
                 value['Value']=b64encode(result['PasswordValue1'])
+            else:
+                value['Value']=""
         elif (Format == 'PDSTRING'):
             if (result['PasswordValue1'] == result['PasswordValue2']):
                 if (len(result['PasswordValue1'])>0):
-                    value['Value']=md5(result['PasswordValue1'].encode("utf")).hexdigest()
+                    value['Value']=localaccess.hash_pass(result['PasswordValue1'].encode("utf"))
                 else:
                     value['Value']=""
+            else:
+                value['Value']=""
         else:
             value['Value']=result['StringValue']
         if (value):
             self.db.UpdateRow("settings", value, "Id", id)
-        return
+        return Restart
 
     def BuildFormatDict(self):
         return dict(self.db.SelectColumnFromTable("settings", "Id,Format"))

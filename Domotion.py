@@ -6,48 +6,41 @@
 #########################################################
 
 ####################### IMPORTS #########################
-import os
 import logging
 import logging.handlers
-import signal
-import sys
-import time
+from time import sleep
 from webif import webapp
 from engine import commandqueue
 from engine import engine
 from engine import localaccess
+from engine import AppKiller
 from hardware import lirc
 from hardware import pi433MHz
 from hardware import domoticz_if
 from hardware import url
 from frontend import domoticz_frontend
-from utilities import domoticz_api
+from frontend import domoticz_api
+
+import sys
+import os
+import psutil
 
 ####################### GLOBALS #########################
 LOG_FILENAME = 'Domotion.log'
 LOG_MAXSIZE = 100*1024*1024
-
-#########################################################
-# Class : AppKiller                                     #
-#########################################################
-class AppKiller(object):
-    kill_now = False
-    def __init__(self):
-        signal.signal(signal.SIGINT, self.exit_app)
-        signal.signal(signal.SIGTERM, self.exit_app)
-
-    def exit_app(self,signum, frame):
-        self.kill_now = True 
+DB_FILENAME = "Domotion.db"
+VERSION = "0.01"
+LoopTime = 0.1
 
 #########################################################
 # Class : Domotion                                      #
 #########################################################
 class Domotion(object):
-    def __init__(self):
+    def __init__(self, Debug):
         self.logger = logging.getLogger('Domotion')
         self.logger.setLevel(logging.INFO)
         # create file handler which logs even debug messages
-        fh = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=LOG_MAXSIZE, backupCount=5)
+        fh = logging.handlers.RotatingFileHandler(self.GetLogger(), maxBytes=LOG_MAXSIZE, backupCount=5)
         # create console handler with a higher log level
         ch = logging.StreamHandler()
         # create formatter and add it to the handlers
@@ -63,7 +56,7 @@ class Domotion(object):
 
         #start queue and engine
         self.commandqueue=commandqueue()
-        self.engine = engine(self.commandqueue,"./Domotion.db")
+        self.engine = engine(self.commandqueue, self.GetDB(), LoopTime)
 
         #start domoticz api (even when no domoticz connection is made)
         self.domoticz_api = domoticz_api()
@@ -106,7 +99,7 @@ class Domotion(object):
             self.domoticz_frontend = None
     
         #start webapp
-        self.webapp = webapp()
+        self.webapp = webapp(Debug)
         self.webapp.setDaemon(True)
         self.webapp.start()
 
@@ -117,33 +110,36 @@ class Domotion(object):
         self.engine.DomoticzMessenger("Domotion Finished")
 
         #stop webapp
-        del self.webapp
+        if (self.webapp != None):
+            self.webapp.terminate()
+            self.webapp.join(5)
+            del self.webapp
     
         #stop frontend
         if (self.domoticz_frontend != None):
             self.domoticz_frontend.terminate()
-            self.domoticz_frontend.join()
+            self.domoticz_frontend.join(5)
             del self.domoticz_frontend
     
         #stop hardware
         if (self.url != None):
             self.url.terminate()
-            self.url.join()
+            self.url.join(5)
             del self.url
 
         if (self.domoticz_if != None):
             self.domoticz_if.terminate()
-            self.domoticz_if.join()
+            self.domoticz_if.join(5)
             del self.domoticz_if
 
         if (self.lirc != None):
             self.lirc.terminate()
-            self.lirc.join()
+            self.lirc.join(5)
             del self.lirc
     
         if (self.pi433MHz != None):
             self.pi433MHz.terminate()
-            self.pi433MHz.join()
+            self.pi433MHz.join(5)
             del self.pi433MHz
     
         # stop domoticz_api, queue and engine
@@ -156,12 +152,84 @@ class Domotion(object):
     def run(self):
         while(True):
             if (not self.engine.loop()):
-                time.sleep(0.1)
+                sleep(LoopTime)
             if self.killer.kill_now:
                 break   
+        return self.killer.restart
+
+    def GetLogger(self):
+        logpath = "/var/log"
+        LoggerPath = ""
+        # first look in log path
+        if os.path.exists(logpath):
+            if os.access(logpath, os.W_OK):
+                LoggerPath = os.path.join(logpath,LOG_FILENAME)
+        if (not LoggerPath):
+            # then look in home folder
+            if os.access(os.path.expanduser('~'), os.W_OK):
+                LoggerPath = os.path.join(os.path.expanduser('~'),LOG_FILENAME)
+            else:
+                print("Error opening logger, exit")
+                exit(1) 
+        return (LoggerPath)
+
+    def GetDB(self):
+        etcpath = "/etc/Domotion/"
+        DBpath = ""
+        # first look in etc
+        if os.path.isfile(os.path.join(etcpath,DB_FILENAME)):
+            DBpath = os.path.join(etcpath,DB_FILENAME)
+        else:
+            # then look in home folder
+            if os.path.isfile(os.path.join(os.path.expanduser('~'),DB_FILENAME)):
+                DBpath = os.path.join(os.path.expanduser('~'),DB_FILENAME)
+            else:
+                # look in local folder, hope we may write
+                if os.path.isfile(os.path.join(".",DB_FILENAME)):
+                    if os.access(os.path.join(".",DB_FILENAME), os.W_OK):
+                        DBpath = os.path.join(".",DB_FILENAME)
+                    else: 
+                        self.logger.critical("No write access to DB file, exit")
+                        exit(1)
+                else:
+                    self.logger.critical("No DB file found, exit")
+                    exit(1)
+        return (DBpath)
 
 #########################################################
 # Main function                                         #
 #########################################################
 if __name__ == '__main__':
-    Domotion().run()
+    Debug = 0
+    if (len(sys.argv)>1):
+        if ("-h" in sys.argv):
+            print "Domotion Home control and automation"
+            print "Version: " + VERSION
+            print ""
+            print "Usage:"
+            print "         Domotion <args>"
+            print "         -h: help: this help file"
+            print "         -d: default: run on port 5000 with no login (for debugging)"
+            print "         -n: no-login: run with no login (for forgotten password)"
+            print "         -v: version: print version information"
+            exit(1)
+        elif ('-v' in sys.argv):
+            print "Version: " + VERSION
+            exit(1)
+        else:
+            if  ('-n' in sys.argv):
+                print "Option: no-login detected, running with no login"
+                Debug = 1
+            if  ('-d' in sys.argv):
+                print "Option: default detected, running on port 5000 with no login"
+                Debug = 2
+    while (Domotion(Debug).run()):
+        try:
+            p = psutil.Process(os.getpid())
+            for handler in p.get_open_files() + p.connections():
+                os.close(handler.fd)
+        except Exception, e:
+            pass
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
+    

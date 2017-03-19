@@ -17,7 +17,7 @@ from Queue import Queue
 # Class : commandqueue                                  #
 #########################################################
 class commandqueue(object):
-    _hardware = {0: "None", 1: "Pi433MHz", 2: "Lirc", 3: "Url", 4: "Domoticz", 999: "Callback"}
+    _hardware = {0: "None", 1: "Pi433MHz", 2: "Lirc", 3: "Url", 4: "Domoticz", 99: "Timer", 999: "Callback"}
     _queue = None
     def __init__(self):
         self.queue = Queue()
@@ -109,8 +109,13 @@ class commandqueue(object):
 
     @classmethod
     def put_id2(cls, hardware, id, value, sensor = True):
+        ivalue = 0
+        try:
+            ivalue = int(value)
+        except ValueError:
+            ivalue = float(value)
         if (cls._queue):
-            cls._queue.put((cls.getkey(hardware), 0, 0, id, "", "", int(value), sensor))
+            cls._queue.put((cls.getkey(hardware), 0, 0, id, "", "", ivalue, sensor))
             return value
         else:
             return None

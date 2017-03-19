@@ -4,22 +4,8 @@
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
     <meta content="helly" name="author">
-    <style type="text/css">
-
-.dbtable tbody tr.d1 {
-	background: #808080
-}
-
-.dbtable tbody td.d1 {
-	border-bottom: none !important;border-top: none !important;
-}
-
-.dbtable td.d2 {
-  padding: 0px 20px;
-  border-bottom: none !important;border-top: none !important;
-  text-align: left;
-}
-		</style></head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
+  </head>
   <body>
   	<form method="post" action="/database_deleted/{{ tableid }}/{{ editingid }}">
   		<tr class="d1">

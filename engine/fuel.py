@@ -14,12 +14,195 @@
 ####################### GLOBALS #########################
 
 #########################################################
-# Class : fuel                                        #
+# Class : fuel                                          #
 #########################################################
 class fuel(object):
     def __init__(self):
-        #print "Give me fuel ..."
+        self.ActuatorRepeats = { }
+        self.InitRepeats()
         pass
 
     def __del__(self):
         pass
+
+    def InitRepeats(self):
+        for key in self.localaccess.GetActuatorValues():
+            self.ActuatorRepeats[key]=0
+        return
+
+    def process(self, timer, sensor, value):
+        if (sensor):
+            self.domoticz_frontend.SetSensor(sensor, value)
+            self.localaccess.SetSensor(sensor, value)
+            self.valueretainer.SetDevices()
+            self.logger.info("Sensor: %s, value: %f", self.localaccess.GetSensorName(sensor), value)
+        if (timer):
+            self.logger.info("Timer: %s, fired", self.localaccess.GetTimerName(timer))
+        procs=self.localaccess.FindProcessors(timer, sensor)
+        for proc in procs:
+            procprop = self.localaccess.GetProcessorProperties(proc)
+            if ((self._arithmic(procprop['SensorProcessor'], sensor, value)) or ((procprop['Timer'] == timer) and (timer))):
+                self._combine(procprop['Combiner'])
+        #finally when everything is set, switch sensor off if not switchmode
+        if (sensor):
+            if ((not self.localaccess.GetSensorProperties(sensor)['SwitchMode']) and (self.localaccess.GetSensorDigital(sensor)) and (value)):  
+                self.commandqueue.put_id("None", sensor, 0)
+        return
+
+    def _combine(self, Id):
+        combprop = None
+        if (Id > 0):
+            combprop = self.localaccess.GetCombinerProperties(Id)
+        if (combprop):
+            if (self._depend(combprop['Dependency'],combprop['Invert_Dependency'])):
+                for combiner in combprop['Combiner']:
+                    self._actuate(combiner[0],combiner[1])
+            else:
+                self.logger.info("Dependency failed, no action")
+        return
+
+    def _depend(self, Id, invert):
+        retval = True
+        depprop = None
+        if (Id > 0):
+            depprop = self.localaccess.GetDependencyProperties(Id)
+        if (depprop):
+            vals = []
+            combs = []
+            for dependency in depprop['Dependency']:
+                if isinstance(dependency, tuple):
+                    # Read sensor value and test
+                    value = self.localaccess.GetActuator(dependency[0])
+                    vals.append(self._arithmic(dependency, dependency[0], value))
+                else:
+                    # Dependency combiner
+                    combs.append(dependency)
+            retval = self._logiccombine(combs,vals)
+        if (invert):
+            retval = (not retval) 
+
+        return (retval)
+
+    def _actuate(self, Id, value):
+        # actuator command in queue
+        self.commandqueue.put_id("None", Id, value, False)
+        return
+
+    def _arithmic(self, process, Id, value):
+        retval = False
+        if ((Id) and (Id == process[0])):
+            if (process[1] == 'eq'):
+                retval = (process[2] == value)
+            elif (process[1] == 'ne'):
+                retval = (process[2] != value)
+            elif (process[1] == 'gt'):
+                retval = (process[2] > value)
+            elif (process[1] == 'ge'):
+                retval = (process[2] >= value)
+            elif (process[1] == 'lt'):
+                retval = (process[2] < value)
+            elif (process[1] == 'le'):
+                retval = (process[2] <= value)
+        return (retval)
+
+    def _logiccombine(self, combs, vals):
+        retval = True
+        for i in range(0, len(vals)-1):
+            if (i<len(combs)):
+                retval = self._logic(vals[i], combs[i], vals[i+1])
+            else:
+                retval = vals[i]
+            vals[i+1] = retval
+
+        return (retval)
+
+    def _logic(self,val1, comb, val2):
+        retval = False
+        if (comb == 'and'):
+            retval = (val1 and val2)
+        elif (comb == 'nand'):
+            retval = (not (val1 and val2))
+        elif (comb == 'or'):
+            retval = (val1 or val2)
+        elif (comb == 'nor'):
+            retval = (not (val1 or val2))
+        elif (comb == 'xor'):
+            retval = (val1 != val2)
+        elif (comb == 'xnor'):
+            retval = (val1 == val2)
+
+        return (retval)
+
+    def GetSensorId(self, queueresult):
+        Id = 0
+        if (self.commandqueue.hardware(queueresult) ==  "Pi433MHz"):
+            Id = self.localacces.FindSensorbyCode(self.commandqueue.syscode(queueresult), self.commandqueue.groupcode(queueresult), self.commandqueue.devicecode(queueresult))
+        elif (self.commandqueue.hardware(queueresult) ==  "Lirc"):
+            Id = self.localaccess.FindSensorbyURL(self.commandqueue.device(queueresult), self.commandqueue.tag(queueresult))
+        else: # None, Url or Domoticz
+            Id = self.commandqueue.devicecode(queueresult)
+
+        return (Id)
+
+    def SetActuator(self, Id, value, RepeatAction = 0):
+        props=self.localaccess.GetActuatorProperties(Id)
+        if ((props['SetOnce']) and (self.localaccess.GetActuator(Id) == value)):
+            self.logger.info("Actuator: %s not set; SetOnce active, value: %f", props['Name'], value)
+        else:
+            if (self._DoSetActuator(props, value)):
+                if ((not RepeatAction) and (props['Repeat'])):
+                    self._SetRepeats(Id)
+                    self.logger.info("Actuator: %s, value: %f <repeat 0>", props['Name'], value)
+                else:
+                    if (RepeatAction):
+                        self.logger.info("Actuator: %s, value: %f <repeat %d>", props['Name'], value, RepeatAction)
+                    else:
+                        self.logger.info("Actuator: %s, value: %f", props['Name'], value)
+
+        return
+
+    def _DoSetActuator(self, props, value):
+        retval = False
+        if (props['Type'] == 2): # RF Output
+            if (self.pi433MHz):
+                retval = (self.pi433MHz.send(props['SysCode'], props['GroupCode'], props['DeviceCode'], value) > 0)
+        elif (props['Type'] == 4): # IR Output
+            if (self.lirc):
+                retval = self.lirc.send(props['DeviceURL'], props['KeyTag'])
+        elif (props['Type'] == 6): # URL output
+            if (self.url):
+                retval = self.url.SetActuator(props['Id'], value)
+        elif (props['Type'] == 10): # Domoticz output
+            if (self.domoticz_if):
+                retval = self.domoticz_if.SetActuator(props['Id'], value)
+        elif (props['Type'] == 7): # Buffer
+            retval = True
+        elif (props['Type'] == 8): # Timer
+            retval = False # Do not handle as output, only set timer
+            self.timer.UpdateOffsetTimer(props['DeviceCode'])
+            self.logger.info("Actuator: %s, Timer set: %s", self.localaccess.GetActuatorName(props['Id']), self.localaccess.GetTimerName(props['DeviceCode']))
+
+        if (props['Type'] != 8):
+            self.domoticz_frontend.SetActuator(props['Id'], value)
+            self.localaccess.SetActuator(props['Id'], value)
+            self.valueretainer.SetDevices()
+        if (not retval):
+                self.logger.warning("Actuator: %s, value: %f not set, hardware error", props['Name'], value)
+        return (retval)
+
+    def _SetRepeats(self, Id):
+        self.ActuatorRepeats[Id]=self.localaccess.GetSetting('Repeat_amount')
+
+    def _DecRepeats(self, Id):
+        self.ActuatorRepeats[Id]=(self.ActuatorRepeats[Id]-1)
+
+    def GetActuatorId(self, queueresult):
+        # Actuators cannot be set directly from Pi433MHz or Lirc
+        return (self.commandqueue.devicecode(queueresult))
+
+    def HandleRepeats(self):
+        for rep in self.ActuatorRepeats:
+            if (self.ActuatorRepeats[rep] > 0):
+                self._DecRepeats(rep) 
+                self.SetActuator(rep, self.localaccess.GetActuator(rep), (self.localaccess.GetSetting('Repeat_amount')-self.ActuatorRepeats[rep]))
+        return

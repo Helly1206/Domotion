@@ -11,7 +11,7 @@ import logging
 from time import sleep
 from engine import localaccess
 from engine import commandqueue
-from utilities import domoticz_api
+from frontend import domoticz_api
 #########################################################
 
 ####################### GLOBALS #########################
