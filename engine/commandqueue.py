@@ -17,7 +17,7 @@ from Queue import Queue
 # Class : commandqueue                                  #
 #########################################################
 class commandqueue(object):
-    _hardware = {0: "None", 1: "Pi433MHz", 2: "Lirc", 3: "Url", 4: "Domoticz", 99: "Timer", 999: "Callback"}
+    _hardware = {0: "None", 1: "Pi433MHz", 2: "Lirc", 3: "Url", 4: "Domoticz", 5: "GPIO", 99: "Timer", 999: "Callback"}
     _queue = None
     def __init__(self):
         self.queue = Queue()
@@ -61,7 +61,7 @@ class commandqueue(object):
         return (self.getkey(hardware), syscode, groupcode, devicecode, "", "", value, sensor)  
 
     def build_device(self, hardware, URL, Tag, value, sensor = True):
-        return (self.getkey(hardware), 0, 0, 0, URL, Tag, value)
+        return (self.getkey(hardware), 0, 0, 0, URL, Tag, value, sensor)
 
     def join(self):
         return self.queue.task_done()
@@ -79,6 +79,9 @@ class commandqueue(object):
         return (format[2])
 
     def devicecode(self, format):
+        return (format[3])
+
+    def id(self, format):
         return (format[3])
 
     def device(self, format): # URL

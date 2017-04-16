@@ -127,24 +127,49 @@ class db_read(object):
         spoll=dict(self.db.SelectColumnFromTable("sensors", "Id,Poll"))
         stype=dict(self.db.SelectColumnFromTable("sensors", "Id,Type"))
 
-        hwlink=dict(self.db.SelectColumnFromTable("types", "Id,HWlink"))
-        isoutput=dict(self.db.SelectColumnFromTable("types", "Id,IsOutput"))
-
-        TypeId = 0
-        for key in hwlink:
-            if ((not isoutput[key]) and (hwlink[key].lower() == Type.lower())):
-                TypeId = key
+        TypeId = self._GetTypeId(Type, False)
 
         for key in spoll:
             if ((stype[key] == TypeId) and (spoll[key])):
                 poll.append(key)
         return (poll)
 
+    def FindGPIOSensors(self):
+        fsensors = []
+        stype=dict(self.db.SelectColumnFromTable("sensors", "Id,Type"))
+        scode=dict(self.db.SelectColumnFromTable("sensors", "Id,DeviceCode"))
+
+        TypeId = self._GetTypeId("pigpio", False)
+
+        for key in stype:
+            if (stype[key] == TypeId):
+                fsensors.append(scode[key])
+        return (fsensors)
+
+    def _GetTypeId(self, Type, OutputType):
+        hwlink=dict(self.db.SelectColumnFromTable("types", "Id,HWlink"))
+        isoutput=dict(self.db.SelectColumnFromTable("types", "Id,IsOutput"))
+
+        TypeId = 0
+        for key in hwlink:
+            if ((isoutput[key] == OutputType) and (hwlink[key].lower() == Type.lower())):
+                TypeId = key
+        return (TypeId)
 
     def FindSensorbyCode(self, SysCode, GroupCode, DeviceCode):
         SearchDict = {}
         SearchDict['SysCode']=str(SysCode)
         SearchDict['GroupCode']=str(GroupCode)
+        SearchDict['DeviceCode']=str(DeviceCode)
+        sensor=self.db.SearchTableMultiple("sensors", "Id", SearchDict, False)
+        if (sensor):
+            return sensor[0][0]
+        else:
+            return 0
+
+    def FindGPIOSensorbyCode(self, DeviceCode):
+        SearchDict = {}
+        SearchDict['Type']=str(self._GetTypeId("pigpio", False))
         SearchDict['DeviceCode']=str(DeviceCode)
         sensor=self.db.SearchTableMultiple("sensors", "Id", SearchDict, False)
         if (sensor):
@@ -168,6 +193,18 @@ class db_read(object):
             return sensor[0][0]
         else:
             return 0
+
+    def FindGPIOActuators(self):
+        factuators = []
+        stype=dict(self.db.SelectColumnFromTable("actuators", "Id,Type"))
+        scode=dict(self.db.SelectColumnFromTable("actuators", "Id,DeviceCode"))
+
+        TypeId = self._GetTypeId("pigpio", True)
+
+        for key in stype:
+            if (stype[key] == TypeId):
+                factuators.append(scode[key])
+        return (factuators)
 
     def FindActuatorbyName(self, Name):
         actuator=self.db.SearchValueFromColumn("actuators", "Id", "Name", Name, False)
@@ -201,20 +238,56 @@ class db_read(object):
             return None
 
     def GetSensorType(self, SensorId):
-        sensortype = self.db.SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)[0][0]
-        return self.db.SearchTable("sensortypes", "Id", sensortype, False)[0][4:]
+        result = self.db.SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)
+        if (result):
+            sensortype = result[0][0]
+        else:
+            sensortype = 0
+        result = self.db.SearchTable("sensortypes", "Id", sensortype, False)
+        if (result):
+            retval = result[0][4:]
+        else:
+            retval = None
+        return retval
 
     def GetActuatorType(self, ActuatorId):
-        actuatortype = self.db.SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)[0][0]
-        return self.db.SearchTable("actuatortypes", "Id", actuatortype, False)[0][4:]
+        result = self.db.SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)
+        if (result):
+            actuatortype = result[0][0]
+        else:
+            actuatortype = 0
+        result = self.db.SearchTable("actuatortypes", "Id", actuatortype, False)
+        if (result):
+            retval = result[0][4:]
+        else:
+            retval = None
+        return retval
 
     def GetSensorDigital(self, SensorId):
-        sensortype = self.db.SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)[0][0]
-        return self.db.SearchTable("sensortypes", "Id", sensortype, False)[0][3]
+        result = self.db.SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)
+        if (result):
+            sensortype = result[0][0]
+        else:
+            sensortype = 0
+        result = self.db.SearchTable("sensortypes", "Id", sensortype, False)
+        if (result):
+            retval = result[0][3]
+        else:
+            retval = False
+        return retval
 
     def GetActuatorDigital(self, ActuatorId):
-        actuatortype = self.db.SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)[0][0]
-        return self.db.SearchTable("actuatortypes", "Id", actuatortype, False)[0][3]
+        result = self.db.SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)
+        if (result):
+            actuatortype = result[0][0]
+        else:
+            actuatortype = 0
+        result = self.db.SearchTable("actuatortypes", "Id", actuatortype, False)
+        if (result):
+            retval = result[0][3]
+        else:
+            retval = False
+        return retval
 
     def FindProcessors(self, TimerId, SensorId):
         SearchDict = {}

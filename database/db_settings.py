@@ -31,8 +31,16 @@ class db_settings(object):
 
     def EditSettings(self, id, result):
         value = {}
-        Format=self.db.SearchValueFromColumn("settings", "format", "Id", id, False)[0][0]
-        Restart=self.db.SearchValueFromColumn("settings", "restart", "Id", id, False)[0][0]
+        result=self.db.SearchValueFromColumn("settings", "format", "Id", id, False)
+        if (result):
+            Format = result[0][0]
+        else:
+            Format = ''
+        result=self.db.SearchValueFromColumn("settings", "restart", "Id", id, False)
+        if (result):
+            Restart = result[0][0]
+        else:
+            Restart = False
         if (Format == 'BOOL'):
             if ((result['BoolValue'].lower() ==  'true') or (result['BoolValue'] == "1")):
                 value['Value']="1"

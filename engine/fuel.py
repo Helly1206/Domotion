@@ -19,6 +19,7 @@
 class fuel(object):
     def __init__(self):
         self.ActuatorRepeats = { }
+        self.Flash50 = 0
         self.InitRepeats()
         pass
 
@@ -32,6 +33,7 @@ class fuel(object):
 
     def process(self, timer, sensor, value):
         if (sensor):
+            value = self._CheckToggle(sensor, value)
             self.domoticz_frontend.SetSensor(sensor, value)
             self.localaccess.SetSensor(sensor, value)
             self.valueretainer.SetDevices()
@@ -43,10 +45,6 @@ class fuel(object):
             procprop = self.localaccess.GetProcessorProperties(proc)
             if ((self._arithmic(procprop['SensorProcessor'], sensor, value)) or ((procprop['Timer'] == timer) and (timer))):
                 self._combine(procprop['Combiner'])
-        #finally when everything is set, switch sensor off if not switchmode
-        if (sensor):
-            if ((not self.localaccess.GetSensorProperties(sensor)['SwitchMode']) and (self.localaccess.GetSensorDigital(sensor)) and (value)):  
-                self.commandqueue.put_id("None", sensor, 0)
         return
 
     def _combine(self, Id):
@@ -78,8 +76,8 @@ class fuel(object):
                     # Dependency combiner
                     combs.append(dependency)
             retval = self._logiccombine(combs,vals)
-        if (invert):
-            retval = (not retval) 
+            if (invert):
+                retval = (not retval) 
 
         return (retval)
 
@@ -130,21 +128,44 @@ class fuel(object):
             retval = (val1 != val2)
         elif (comb == 'xnor'):
             retval = (val1 == val2)
-
         return (retval)
+
+    def HandleRepeats(self):
+        for rep in self.ActuatorRepeats:
+            if (self.ActuatorRepeats[rep] > 0):
+                self._DecRepeats(rep) 
+                self.SetActuator(rep, self.localaccess.GetActuator(rep), (self.localaccess.GetSetting('Repeat_amount')-self.ActuatorRepeats[rep]))
+        return
+
+    def CheckFlash50(self):
+        return (self.Flash50 > 0)
 
     def GetSensorId(self, queueresult):
         Id = 0
         if (self.commandqueue.hardware(queueresult) ==  "Pi433MHz"):
-            Id = self.localacces.FindSensorbyCode(self.commandqueue.syscode(queueresult), self.commandqueue.groupcode(queueresult), self.commandqueue.devicecode(queueresult))
+            Id = self.localaccess.FindSensorbyCode(self.commandqueue.syscode(queueresult), self.commandqueue.groupcode(queueresult), self.commandqueue.devicecode(queueresult))
+            if (Id == 0):
+                self.logger.info("Received unknown input from Pi433MHz: syscode: %d, groupcode: %d, devicecode: %d", self.commandqueue.syscode(queueresult), self.commandqueue.groupcode(queueresult), self.commandqueue.devicecode(queueresult))
         elif (self.commandqueue.hardware(queueresult) ==  "Lirc"):
             Id = self.localaccess.FindSensorbyURL(self.commandqueue.device(queueresult), self.commandqueue.tag(queueresult))
+            if (Id == 0):
+                self.logger.info("Received unknown input from Lirc: device: %s, tag: %s", self.commandqueue.device(queueresult), self.commandqueue.tag(queueresult))
+        elif (self.commandqueue.hardware(queueresult) ==  "GPIO"):
+            Id = self.localacces.FindGPIOSensorbyCode(self.commandqueue.id(queueresult))
+            if (Id == 0):
+                self.logger.info("Received unknown GPIO input: %d", self.commandqueue.id(queueresult))
         else: # None, Url or Domoticz
-            Id = self.commandqueue.devicecode(queueresult)
-
+            Id = self.commandqueue.id(queueresult)
+            if (Id == 0):
+                self.logger.info("Received unknown input: %d", self.commandqueue.id(queueresult))
         return (Id)
 
+    def GetActuatorId(self, queueresult):
+        # Actuators cannot be set directly from Pi433MHz or Lirc
+        return (self.commandqueue.id(queueresult))
+
     def SetActuator(self, Id, value, RepeatAction = 0):
+        retval = False
         props=self.localaccess.GetActuatorProperties(Id)
         if ((props['SetOnce']) and (self.localaccess.GetActuator(Id) == value)):
             self.logger.info("Actuator: %s not set; SetOnce active, value: %f", props['Name'], value)
@@ -153,13 +174,19 @@ class fuel(object):
                 if ((not RepeatAction) and (props['Repeat'])):
                     self._SetRepeats(Id)
                     self.logger.info("Actuator: %s, value: %f <repeat 0>", props['Name'], value)
+                    self._UpdateFlash50(props, value)
                 else:
                     if (RepeatAction):
                         self.logger.info("Actuator: %s, value: %f <repeat %d>", props['Name'], value, RepeatAction)
                     else:
                         self.logger.info("Actuator: %s, value: %f", props['Name'], value)
+                        self._UpdateFlash50(props, value)
+                retval = True
+            else:
+                if (props['Type'] == 8): # Timer
+                    retval = True
 
-        return
+        return (retval)
 
     def _DoSetActuator(self, props, value):
         retval = False
@@ -175,6 +202,9 @@ class fuel(object):
         elif (props['Type'] == 10): # Domoticz output
             if (self.domoticz_if):
                 retval = self.domoticz_if.SetActuator(props['Id'], value)
+        elif (props['Type'] == 12): # GPIO output
+            if (self.domoticz_if):
+                retval = self.gpio.SetActuator(props['DeviceCode'], value)
         elif (props['Type'] == 7): # Buffer
             retval = True
         elif (props['Type'] == 8): # Timer
@@ -186,7 +216,7 @@ class fuel(object):
             self.domoticz_frontend.SetActuator(props['Id'], value)
             self.localaccess.SetActuator(props['Id'], value)
             self.valueretainer.SetDevices()
-        if (not retval):
+            if (not retval):
                 self.logger.warning("Actuator: %s, value: %f not set, hardware error", props['Name'], value)
         return (retval)
 
@@ -196,13 +226,21 @@ class fuel(object):
     def _DecRepeats(self, Id):
         self.ActuatorRepeats[Id]=(self.ActuatorRepeats[Id]-1)
 
-    def GetActuatorId(self, queueresult):
-        # Actuators cannot be set directly from Pi433MHz or Lirc
-        return (self.commandqueue.devicecode(queueresult))
+    def _CheckToggle(self, sensor, value):
+        newval = value
+        if ((self.localaccess.GetSensorProperties(sensor)['Toggle']) and (self.localaccess.GetSensorDigital(sensor))):
+            curval = self.localaccess.GetSensor(sensor)
+            if (curval == value):
+                newval = (not value)
+        return (newval)
 
-    def HandleRepeats(self):
-        for rep in self.ActuatorRepeats:
-            if (self.ActuatorRepeats[rep] > 0):
-                self._DecRepeats(rep) 
-                self.SetActuator(rep, self.localaccess.GetActuator(rep), (self.localaccess.GetSetting('Repeat_amount')-self.ActuatorRepeats[rep]))
-        return
+    def _UpdateFlash50(self, props, value):
+        if (props['StatusLightFlash']):
+            curval = (self.localaccess.GetActuator(props['Id'])>0)
+            newval = (value>0)
+            if ((newval) and (not curval)):
+                self.Flash50 += 1
+            if ((not newval) and (curval)):
+                if (self.Flash50 > 0):
+                    self.Flash50 -= 1
+        pass

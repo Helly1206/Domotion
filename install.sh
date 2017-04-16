@@ -16,7 +16,7 @@ DAEMON="$NAME"
 
 if [ "$EUID" -ne 0 ]
 then 
-	echo "Please execute as root ('sudo install.sh' or 'sudo make install')"
+	echo "Please execute as root ('sudo install.sh')"
 	exit
 fi
 
@@ -51,7 +51,7 @@ else
 	echo "Installing $DB_NAME"
 	if [ ! -d "$ETCLOC" ]; then 
 		mkdir "$ETCLOC" 
-		chmod 777 "$ETCSLOC"
+		chmod 777 "$ETCLOC"
 	fi
 	if [ ! -e "$ETCLOC/$DB_NAME" ]; then 
 		$INSTALL_DATA "./$EMPTY_DB_NAME" "$ETCLOC/$DB_NAME"
@@ -65,23 +65,29 @@ else
 	fi
 
 	echo "Installing required python packages"
-	PKG_OK=$(pip freeze| grep -i "Flask==")
+	PKG_OK=$(sudo -H pip freeze| grep -i "Enum==")
+	echo Checking for Enum: $PKG_OK
+	if [ "" == "$PKG_OK" ]; then
+  		echo "No Enum. Setting up Enum."
+		sudo -H pip install enum
+	fi
+	PKG_OK=$(sudo -H pip freeze| grep -i "Flask==")
 	echo Checking for Flask: $PKG_OK
 	if [ "" == "$PKG_OK" ]; then
   		echo "No Flask. Setting up Flask."
-		pip install flask
+		sudo -H pip install flask
 	fi
-	PKG_OK=$(pip freeze| grep -i "Flask-Login==")
+	PKG_OK=$(sudo -H pip freeze| grep -i "Flask-Login==")
 	echo Checking for Flask-Login: $PKG_OK
 	if [ "" == "$PKG_OK" ]; then
   		echo "No Flask-Login. Setting up Flask-Login."
-		pip install flask-login
+		sudo -H pip install flask-login
 	fi
-	PKG_OK=$(pip freeze| grep -i "psutil==")
+	PKG_OK=$(sudo -H pip freeze| grep -i "psutil==")
 	echo Checking for psutil: $PKG_OK
 	if [ "" == "$PKG_OK" ]; then
   		echo "No psutil. Setting up psutil."
-		pip install psutil
+		sudo -H pip install psutil
 	fi
 
 	echo "Installing daemon $NAME"

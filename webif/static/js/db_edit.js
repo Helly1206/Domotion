@@ -38,6 +38,7 @@ function SensorTypeChanged() {
 	var e = document.getElementById("SensorType");
 	var val = e.options[e.selectedIndex].text;
 	SensorDisableByType(val);
+	SensorDefaultToggleByType(val);
 }
 
 function dSensorTypeChanged() {
@@ -55,13 +56,7 @@ function SensorDisableBydType(val) {
 }
 
 function SensorDisableByType(val) {
-	if (val.toLowerCase() == "buffer output") {
-		document.getElementById("sSysCode").disabled = true;
-		document.getElementById("sGroupCode").disabled = true;
-		document.getElementById("sDeviceCode").disabled = true;
-		document.getElementById("sURL").disabled = true;
-		document.getElementById("sTag").disabled = true;
-	} else if ((val.toLowerCase() == "timer output") || (val.toLowerCase().includes("domoticz"))) {
+	if ((val.toLowerCase().includes("domoticz")) || (val.toLowerCase().includes("gpio"))) {
 		document.getElementById("sSysCode").disabled = true;
 		document.getElementById("sGroupCode").disabled = true;
 		document.getElementById("sDeviceCode").disabled = false;
@@ -82,6 +77,14 @@ function SensorDisableByType(val) {
 	}
 }
 
+function SensorDefaultToggleByType(val) {
+	if (val.toLowerCase().includes("ir")) {
+		TFSet("TF3", "true")
+	} else {
+		TFSet("TF3", "false")
+	}
+}
+
 function ActuatorTypeChanged() {
 	var e = document.getElementById("ActuatorType");
 	var val = e.options[e.selectedIndex].text;
@@ -95,7 +98,7 @@ function ActuatorDisableByType(val) {
 		document.getElementById("DeviceCode").disabled = true;
 		document.getElementById("URL").disabled = true;
 		document.getElementById("Tag").disabled = true;
-	} else if ((val.toLowerCase() == "timer output") || (val.toLowerCase().includes("domoticz"))) {
+	} else if ((val.toLowerCase() == "timer output") || (val.toLowerCase().includes("domoticz")) || (val.toLowerCase().includes("gpio"))) {
 		document.getElementById("SysCode").disabled = true;
 		document.getElementById("GroupCode").disabled = true;
 		document.getElementById("DeviceCode").disabled = false;
@@ -218,6 +221,7 @@ function OnLoadWindow(id,datum) { /* do stuff on page load */
 		ActuatorDisableByType(datum[3]);
 		TFSet("TF4",datum[9]);
 		TFSet("TF5",datum[10]);
+		TFSet("TF6",datum[12]);
 	} else if (id == "timers") {
 		TimerDisableByMethod(datum[3]);
 		TimerSetTime(datum[4]);

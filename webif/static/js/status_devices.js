@@ -108,27 +108,17 @@ function SOOSet(id, value) {
   }
 }
 
-function SButtonClicked(id) {
-  var iid='SButtond'+id;
-  var value = 0;
-  var curval = document.getElementById(iid).innerHTML;
-  if (curval== "Off") {
-    document.getElementById(iid).innerHTML="On";
-    var value = 1;
-  } else {
-    document.getElementById(iid).innerHTML="Off";
-    var value = 0;
-  }
-  
+function SButtonClicked(id, value) {
+  SButtonSet(id, value);
   setValue(id, value);
 }
 
 function SButtonSet(id, value) {
   var iid='SButtond'+id;
   if (value) {
-    document.getElementById(iid).innerHTML="On";
+    document.getElementById(iid).getElementsByTagName('span')[0].innerHTML="On";
   } else {
-    document.getElementById(iid).innerHTML="Off";
+    document.getElementById(iid).getElementsByTagName('span')[0].innerHTML="Off";
   }
 }      
 

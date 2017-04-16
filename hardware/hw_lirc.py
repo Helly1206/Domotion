@@ -52,7 +52,7 @@ class lirc(Thread):
             self.logger.warning("lircd not running, retrying")
         while (not self.term.isSet() and (testretries>0)):
             if (not testing):
-                sockerror,device,key,repeat = self.lircif.ReadKey(device)
+                sockerror,device,key,repeat = self.lircif.ReadKey()
                 if sockerror:
                     if (not self._TestLirc(True)):
                         testing = True
@@ -60,7 +60,7 @@ class lirc(Thread):
                         testretries = retries 
                 elif (key):
                     if (not repeat and self.commandqueue):
-                        self.commandqueue.put_device("lirc",device,key,0)
+                        self.commandqueue.put_device("lirc",device,key,1)
                 else:
                     sleep(sleeptime)
             if (testing):
@@ -84,7 +84,12 @@ class lirc(Thread):
     def _TestLirc(self, reset = False):
         self.mutex.acquire()
         if (not self.lircrunning or reset):
-           self.lircrunning = self.term.isSet()
+            if (self.lircif.test()):               
+                self.lircif.close()
+                self.lircrunning = self.lircif.init(1)
+            else:
+                self.lircrunning = False
+            print self.lircrunning 
         self.mutex.release()
         return self.lircrunning
 

@@ -61,11 +61,11 @@
   						<input type="hidden" value="0" name="Poll">
   					</label>
   				</td>
-  				<td class="d5"> <!-- SwitchMode -->
+  				<td class="d5"> <!-- Toggle -->
   					<label>
-  						<input type="checkbox" value="1" name="SwitchMode" id="TF3" onchange="TFChanged('TF3')"><br>
+  						<input type="checkbox" value="1" name="Toggle" id="TF3" onchange="TFChanged('TF3')"><br>
   						<span>xxx</span>
-  						<input type="hidden" value="0" name="SwitchMode">
+  						<input type="hidden" value="0" name="Toggle">
   					</label>
   				</td>
   			{% elif tableid == "actuators" %}
@@ -116,6 +116,13 @@
     					{% endfor %}
 					</select>
   				</td>
+          <td class="d5"> <!-- Repeat -->
+            <label>
+              <input type="checkbox" value="1" name="StatusLightFlash" id="TF6" onchange="TFChanged('TF6')"><br>
+              <span>xxx</span>
+              <input type="hidden" value="0" name="StatusLightFlash">
+            </label>
+          </td>
   			{% elif tableid == "timers" %}
   				<td class="d5"> <!--Method -->
   					<select name="Method" id="TimerMethod" onchange="TimerMethodChanged()">

@@ -57,7 +57,7 @@ class db_edit(object):
                     if ('rf' in typename):
                         rowdict[col]=result[col]
                 elif col == "DeviceCode":
-                    if ('rf' in typename) or ('domoticz' in typename):
+                    if ('rf' in typename) or ('domoticz' in typename) or ('gpio' in typename):
                         rowdict[col]=result[col]
                 elif col == "DeviceURL":
                     if ('url' in typename) or ('ir' in typename):
@@ -87,7 +87,7 @@ class db_edit(object):
                     if ('rf' in typename):
                         rowdict[col]=result[col]
                 elif col == "DeviceCode":
-                    if ('rf' in typename) or ('timer' in typename) or ('domoticz' in typename):
+                    if ('rf' in typename) or ('timer' in typename) or ('domoticz' in typename) or ('gpio' in typename):
                         rowdict[col]=result[col]
                 elif col == "DeviceURL":
                     if ('url' in typename) or('ir' in typename):
@@ -337,13 +337,14 @@ class db_edit(object):
             data = self._LookupType(cols, data)
             data = self._LookupSensorType(cols, data)
             data = self._LookupBoolean(cols, data, "poll")
-            data = self._LookupBoolean(cols, data, "switchmode")
+            data = self._LookupBoolean(cols, data, "toggle")
         elif (tableid.lower() == "actuators"):
             # Lookup types, boolean
             data = self._LookupType(cols, data)
             data = self._LookupBoolean(cols, data, "setonce")
             data = self._LookupBoolean(cols, data, "repeat")
             data = self._LookupActuatorType(cols, data)
+            data = self._LookupBoolean(cols, data, "statuslightflash")
         elif (tableid.lower() == "timers"):
             # Lookup method, weekdays
             data = self._LookupMethod(cols, data)
@@ -377,26 +378,42 @@ class db_edit(object):
         return retcol
 
     def _GetIdName(self,table,id):
-        Name=""
+        Name=("-",)
         if (id):
-            Name=self.db.SearchValueFromColumn(table, "Name", "Id", id, False)[0]
-        else:
-            Name=("-",)
+            result=self.db.SearchValueFromColumn(table, "Name", "Id", id, False)
+            if (result):
+                Name = result[0]
         return (Name)
 
     def _GetIdDigital(self,table,id):
         Digital=""
         if (id):
             if (table.lower() == "sensors"):
-                TypeId=self.db.SearchValueFromColumn(table, "SensorType", "Id", id, False)[0][0]
+                result=self.db.SearchValueFromColumn(table, "SensorType", "Id", id, False)
+                if (result):
+                    TypeId = result[0][0]
+                else:
+                    TypeId = 0
                 if (TypeId > 0):
-                    Digital=self.db.SearchValueFromColumn("SensorTypes", "Digital", "Id", TypeId, False)[0][0]
+                    result=self.db.SearchValueFromColumn("SensorTypes", "Digital", "Id", TypeId, False)
+                    if (result):
+                        Digital=result[0][0]
+                    else:
+                        Digital=False
                 else:
                     Digital=False
             elif (table.lower() == "actuators"):
-                TypeId=self.db.SearchValueFromColumn(table, "ActuatorType", "Id", id, False)[0][0]
+                result=self.db.SearchValueFromColumn(table, "ActuatorType", "Id", id, False)
+                if (result):
+                    TypeId = result[0][0]
+                else:
+                    TypeId = 0
                 if (TypeId > 0):
-                    Digital=self.db.SearchValueFromColumn("ActuatorTypes", "Digital", "Id", TypeId, False)[0][0]
+                    result=self.db.SearchValueFromColumn("ActuatorTypes", "Digital", "Id", TypeId, False)
+                    if (result):
+                        Digital=result[0][0]
+                    else:
+                        Digital=False
                 else:
                     Digital=False
             else:

@@ -12,6 +12,7 @@ from localaccess import localaccess
 from timer import timer
 from fuel import fuel
 from valueretainer import valueretainer
+from statuslight import statuslight
 #########################################################
 
 ####################### GLOBALS #########################
@@ -30,6 +31,7 @@ class engine(fuel):
         self.valueretainer = valueretainer()
         self.domoticz_api = None
         self.domoticz_frontend = None
+        self.gpio = None
         self.url = None
         self.domoticz_if = None
         self.lirc = None
@@ -39,35 +41,48 @@ class engine(fuel):
         self.messagetext = ""
         self.message = localaccess.GetSetting('Domoticz_message')
         self.resend = False
+        self.statuslight = statuslight()
+        self.statuslight.start()
         super(engine, self).__init__()
         self.UpdateSensorsPoll()
+        self.UpdateSensorsActuatorsGPIO()
         self.loopcnt = 0
         self.repeattime = 0
+        self.success = True
 
     def __del__(self):
         super(engine, self).__del__()
+        if (self.statuslight != None):
+            self.statuslight.terminate()
+            self.statuslight.join(5)
+            del self.statuslight
+        del self.valueretainer
         if (self.timer != None):
             self.timer.terminate()
-            self.timer.join()
+            self.timer.join(5)
             del self.timer
         del self.localaccess
         self.domoticz_api = None
         self.domoticz_frontend = None
+        self.gpio = None
         self.url = None
         self.domoticz_if = None
         self.lirc = None
         self.pi433MHz = None
         self.logger.info("finished")
 
-    def instances(self, domoticz_api, domoticz_frontend, url, domoticz_if, lirc, pi433MHz):
+    def instances(self, domoticz_api, domoticz_frontend, gpio, url, domoticz_if, lirc, pi433MHz):
         self.domoticz_api = domoticz_api
         self.domoticz_frontend = domoticz_frontend
+        self.gpio = gpio
         self.url = url
         self.domoticz_if = domoticz_if
         self.lirc = lirc
         self.pi433MHz = pi433MHz
         self.timer.instances(domoticz_api)
+        self.statuslight.instances(gpio)
         self.UpdateSensorsPoll()
+        self.UpdateSensorsActuatorsGPIO()
         self.UpdateRepeat()
 
     def loop(self):
@@ -80,10 +95,14 @@ class engine(fuel):
                 self.HandleRepeats()
             else:
                 self.loopcnt += 1
+        if (self.statuslight):
+            self.statuslight.SetFlash50(self.CheckFlash50())
         if (self.commandqueue):
             result = self.commandqueue.get()
         if (result):
             # Test for callback on changes in process or settings
+            if (self.statuslight):
+                self.statuslight.Busy()
             if (self.commandqueue.hardware(result) ==  "Callback"):
                 retval = self.commandqueue.device(result).lower()
                 if (retval ==  "process"):
@@ -92,6 +111,7 @@ class engine(fuel):
                         if (self.domoticz_frontend.updatesensorsactuators()):
                             self.logger.info("Sensors and actuators updated to Domoticz frontend")
                     self.UpdateSensorsPoll()
+                    self.UpdateSensorsActuatorsGPIO()
                     self.UpdateRepeat()
                     self.InitRepeats()
                     self.timer.UpdateAll()
@@ -107,6 +127,7 @@ class engine(fuel):
                         self.url.updatesettings()
                     self.timer.UpdateAll()
                     self.UpdateRepeat()
+                    self.UpdateSensorsActuatorsGPIO()
                     self.valueretainer.Update()
                     self.logger.info("Settings updated")
                     pass
@@ -114,13 +135,21 @@ class engine(fuel):
                     self.timer.UpdateAll()
             elif (self.commandqueue.hardware(result) ==  "Timer"):
                 if (self.commandqueue.value(result)):
-                    self.process(self.commandqueue.devicecode(result), 0, 0)
+                    self.process(self.commandqueue.id(result), 0, 0)
             else: # sensor or actuator set
+                if (self.statuslight):
+                    self.statuslight.SetDeviceSet()
                 if self.commandqueue.issensor(result):
                     self.process(0, self.GetSensorId(result), self.commandqueue.value(result))
                 else:
-                    self.SetActuator(self.GetActuatorId(result), self.commandqueue.value(result))
+                    self.success = self.SetActuator(self.GetActuatorId(result), self.commandqueue.value(result))
                 #self.logger.info(result)
+        else:
+            if (self.statuslight):
+                if (self.success):
+                    self.statuslight.Ok()
+                else:
+                    self.statuslight.Error()
         return result
 
     #def Check sensors poll ..... (for domo_if and URL)
@@ -130,6 +159,12 @@ class engine(fuel):
         if (self.domoticz_if):
             self.domoticz_if.UpdateDevices(self.localaccess.GetSensorPoll("Domoticz"),[])
         return
+
+    def UpdateSensorsActuatorsGPIO(self):
+        if (self.gpio):
+            self.gpio.UpdateDevices(self.localaccess.FindGPIOSensors(),self.statuslight.AddStatusActuators(self.localaccess.FindGPIOActuators()))
+        return
+
 
     def UpdateRepeat(self):
         self.repeattime = int(float(self.localaccess.GetSetting('Repeat_time')) / self.looptime)

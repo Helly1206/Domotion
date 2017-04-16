@@ -48,7 +48,11 @@
                   </label>
                 {% else %}
                   <input style="width: 50px;" type="number" name="NValue{{datum[0]}}" value="0" id="StatVal{{datum[0]}}" step="0.01" {% if digital[datum[0]] %}hidden{% endif %} disabled onchange="SNChanged({{datum[0]}})">
-                  <button type="button" value="0" name="Value{{datum[0]}}" id="SButtond{{datum[0]}}"{% if not digital[datum[0]] %}hidden{% endif %} onclick="SButtonClicked({{datum[0]}})">Off</button>
+                  <button type="button" value="0" name="ValueOn{{datum[0]}}" id="SButtonOnd{{datum[0]}}"{% if not digital[datum[0]] %}hidden{% endif %} onclick="SButtonClicked({{datum[0]}}, 1)">On</button>
+                  <button type="button" value="0" name="ValueOff{{datum[0]}}" id="SButtonOffd{{datum[0]}}"{% if not digital[datum[0]] %}hidden{% endif %} onclick="SButtonClicked({{datum[0]}}, 0)">Off</button>
+                  <label id="SButtond{{datum[0]}}"  {% if not digital[datum[0]] %}hidden{% endif %}>
+                    <span>Off</span>
+                  </label>
                 {% endif %}
               </td>
             </tr>

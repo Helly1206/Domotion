@@ -127,6 +127,10 @@ def page_not_found(e):
 def page_not_found(e):
     return render_template('404.html'), 404
 
+@app.errorhandler(500)
+def page_not_found(e):
+    return render_template('500.html'), 500
+
 @app.route('/shutdown')
 @login_required
 def shutdown():
@@ -213,6 +217,6 @@ class webapp(Thread):
     def run(self):
         self.logger.info("running")
         if (self.ssl):
-            app.run(debug=False, use_reloader=False, port=self.port, ssl_context=context)
+            app.run(host="0.0.0.0", debug=False, use_reloader=False, port=self.port, ssl_context=context)
         else:
-            app.run(debug=False, use_reloader=False, port=self.port)
+            app.run(host="0.0.0.0", debug=False, use_reloader=False, port=self.port)

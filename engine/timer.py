@@ -60,14 +60,18 @@ class timer(Thread):
                     UpdateDone = self.UpdateSunRiseSet()
                     if (UpdateDone):
                         UpdateDone = self.UpdateTimers()
+                    if (UpdateDone):
+                        Modd = localaccess.GetModTime() - 1 # Stating point for first update
                 else:
                     Mod = localaccess.GetModTime()
-                    if (Mod != Modd):
+                    ModAbsDiff = abs(Mod-Modd)
+                    if (ModAbsDiff):
                         self.mutex.acquire()
-                        if (Mod == 0): # A brand new day
+                        if ((Mod == 0) or (ModAbsDiff>1)): # A brand new day or DST switch, recalc
                             UpdateDone = False
                         self._CheckTimersNow(Mod)
                         self.mutex.release()
+                        Modd = Mod
                 counter = updatecnt
             sleep(sleeptime)
             counter -= 1
@@ -102,7 +106,7 @@ class timer(Thread):
         lon = localaccess.GetSetting('Longitude')
         lat = localaccess.GetSetting('Latitude')
         zone = localaccess.GetSetting('Timezone')
-        return timecalc().SunRiseSet(date[2], date[1], date[0], lon, lat, zone)
+        return timecalc().SunRiseSet(date[2], date[1], date[0], lon, lat, zone, date[3])
 
     def UpdateTimers(self):
         retval = True

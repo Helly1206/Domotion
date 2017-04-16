@@ -85,7 +85,7 @@ class pi433MHz(Thread):
                     elif (res>0):
                         if (self.commandqueue):
                             syscode, groupcode, devicecode, value = self._array2code(array)
-                            self.commandqueue.put_code("Pi433HMz", syscode, groupcode, devicecode, value)
+                            self.commandqueue.put_code("Pi433MHz", syscode, groupcode, devicecode, value)
                     else:
                         sleep(sleeptime)     
             	
@@ -119,7 +119,7 @@ class pi433MHz(Thread):
         if (groupcode>0):
             array.append(groupcode)
         array.append(devicecode)
-        array.append(value)
+        array.append(int(value))
 
         return array
 

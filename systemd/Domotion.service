@@ -3,7 +3,7 @@
 [Unit]
 Description=Domotion (Home control and automation)
 Wants=Pi433MHzd.service
-#After=Pi433MHzd.service
+After=Pi433MHzd.service
 
 [Service]
 Type=simple

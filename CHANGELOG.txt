@@ -1,5 +1,19 @@
+[B]0.9.0[/B]
+- (Almost there, lots of testing and bugfixing) Everything is tested, but some only with simulated hardware and no endurance test is done yet
+- Added GPIO hardware (Pigpio)
+- Added statuslight to be controlled by GPIO
+- Fixed daylight saving time mismatch on local sunrise/ sunset
+- Fixed remote webserver access
+- Fixed typos in Lirc module
+- Fixed http 500 when deleting required link in process
+- Web interface changed visual color and hover action Ok/ Cancel field on Delete option
+- Added availibility to toggle sensor value (auto set to true for lirc, when digital) and removed SwitchMode as it doesn't make sense anymore
+- Changed controls web interface (On/ Off/ current value, release button after issueing)
+- Added logging for unknown sensor and actuator input
+- Fixed some bugs in 433 MHz interface
+
 [B]0.8.0[/B]
-- First working Beta release. all functions should work but aren't tested in detail yet
+- First working Beta release. All functions should work but aren't tested in detail yet
 
 [B]0.0.2[/B]
 - None release yet (backup work in progress)

@@ -1,6 +1,3 @@
-# TBD Check settings !!!!!!!!!!!!!!!!!!!!!! and update accordingly
-# Fix statemachine in loop
-
 # -*- coding: utf-8 -*-
 #########################################################
 # SERVICE : domoticz_fromtend.py                        #

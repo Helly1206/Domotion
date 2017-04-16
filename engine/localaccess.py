@@ -407,7 +407,7 @@ class localaccess(db_read):
     @classmethod
     def GetDateDMY(cls):
         tm = localtime()
-        return (tm.tm_mday, tm.tm_mon, tm.tm_year)
+        return (tm.tm_mday, tm.tm_mon, tm.tm_year, tm.tm_isdst)
 
     @classmethod
     def GetWeekday(cls):

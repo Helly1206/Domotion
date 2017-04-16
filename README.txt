@@ -1,4 +1,4 @@
-Domotion v0.8.0
+Domotion v0.9.0
 
 Domotion Home Control and Automation
 
@@ -16,11 +16,6 @@ Flows (called processes in domotion) can be desgined without programming. So you
 - Combiner: A combiner checks whether the dependency passes (or failes) and sets u to 16 outputs. 
 
 Domotion has a domoticz interface to be able to interact with domoticz (and use Domotion for interfaces where domoticz doesn't have a solution for), so the domoticz user interface can be used to control Domotion. Sensors and Actuators that are changed in Domotion are automatically updated in domoticz when there is a connection.
-
-TBD:
-- Make service better ... (refer to system V init.d script)
-- GPIO interface for Raspberry PI (PiGPIO) 
-- Using GPIO interface for status light
 
 Installation:
 - Browse to: https://github.com/Helly1206/Domotion

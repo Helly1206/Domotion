@@ -45,11 +45,12 @@ class lircif(object):
             self.logger.error("Socket connection error: %s"%e)
             self.sock = None
             sockerror = True
-        return sockerror
+        return (not sockerror)
 
     def close(self):
         if (self.sock):
-            close(self.sock)
+            self.sock.close()
+            self.sock = None
         return
 
     def ReadKey(self):
@@ -95,7 +96,7 @@ class lircif(object):
         return sockerror,success
 
     def _DecodeBuf(self,buf):
-        spbuf = buf.split(' ')
+        spbuf = buf.strip().split(' ')
         if int(spbuf[1])>0:
             repeat = True
         else:

@@ -8,21 +8,21 @@
   </head>
   <body>
   	<form method="post" action="/database_deleted/{{ tableid }}/{{ editingid }}">
-  		<tr class="d1">
+  		<tr class="d5">
   			{% for item in datum %}
-          <td class="d1">{{ item }}</td>
+          <td class="d5">{{ item }}</td>
         {% endfor %}
       </tr>
-  	  <tr class="d1">
-        <td  class="d1" colspan="100%" style="text-align: left;">
+  	  <tr class="d5">
+        <td  class="d5" colspan="100%" style="text-align: left;">
           <table>
             <tbody>
-              <tr class="d1">
-                <td class="d2" style="width: 70%;">Are you sure to delete this item?
+              <tr class="d5">
+                <td class="d6" style="width: 70%;">Are you sure to delete this item?
                 </td>
-                <td class="d2" style="width: 15%;"><input name="Button" value="Yes" type="submit">
+                <td class="d6" style="width: 15%;"><input name="Button" value="Yes" type="submit">
                 </td>
-                <td class="d2" style="width: 15%;"><input name="Button" value="No" type="submit">
+                <td class="d6" style="width: 15%;"><input name="Button" value="No" type="submit">
                 </td>
               </tr>
             </tbody>

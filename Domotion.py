@@ -18,6 +18,7 @@ from hardware import lirc
 from hardware import pi433MHz
 from hardware import domoticz_if
 from hardware import url
+from hardware import gpio
 from frontend import domoticz_frontend
 from frontend import domoticz_api
 
@@ -90,6 +91,13 @@ class Domotion(object):
             self.logger.info("URL interface disabled")
             self.url = None
     
+        if (localaccess.GetSetting('GPIO')):
+            self.gpio = gpio(self.commandqueue)
+            self.gpio.start()
+        else:
+            self.logger.info("PiGPIO interface disabled")
+            self.gpio = None
+
         #start frontend
         if (localaccess.GetSetting('Domoticz_frontend')):
             self.domoticz_frontend = domoticz_frontend(self.commandqueue)
@@ -103,7 +111,7 @@ class Domotion(object):
         self.webapp.setDaemon(True)
         self.webapp.start()
 
-        self.engine.instances(self.domoticz_api, self.domoticz_frontend, self.url, self.domoticz_if, self.lirc, self.pi433MHz)
+        self.engine.instances(self.domoticz_api, self.domoticz_frontend, self.gpio, self.url, self.domoticz_if, self.lirc, self.pi433MHz)
         self.engine.DomoticzMessenger("Domotion Running")
 
     def __del__(self):
@@ -122,6 +130,11 @@ class Domotion(object):
             del self.domoticz_frontend
     
         #stop hardware
+        if (self.gpio != None):
+            self.gpio.terminate()
+            self.gpio.join(5)
+            del self.gpio
+
         if (self.url != None):
             self.url.terminate()
             self.url.join(5)

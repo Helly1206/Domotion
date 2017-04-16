@@ -42,19 +42,23 @@ class timecalc(object):
     def GetTimeMOD(self, time):
         return (time/60,time%60)
 
-    def SunRiseSet(self, y, m, d, lon, lat, zone):
+    def SunRiseSet(self, y, m, d, lon, lat, zone, isdst):
         ret,drise,dset=self.__sunriset(y, m, d, lon, lat, -35.0/60.0, 1)
         if (ret == 0):
-           srise=self._showMOD(drise, zone)
-           sset=self._showMOD(dset, zone)
+            srise=self._showMOD(drise, zone)
+            if (isdst):
+                srise += 60
+            sset=self._showMOD(dset, zone)
+            if (isdst):
+                sset += 60
         else:
-           srise = 30*60 #never
-           sset = 30*60 #never
+            srise = 30*60 #never
+            sset = 30*60 #never
 
         return srise,sset
 
 
-    #***************************************************************************/
+    #**********************************************************************/
     #* Note: year,month,date = calendar date, 1801-2099 only.             */
     #*       Eastern longitude positive, Western longitude negative       */
     #*       Northern latitude positive, Southern latitude negative       */
