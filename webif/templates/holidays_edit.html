@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta content="helly" name="author">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pikaday.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/pikaday.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/status_holidays.js') }}"></script>
+  </head>
+  <body>
+    <form method="post" action="/holidays_edited/{{ editingid }}">
+      <tr class='d5'>
+        <td class="d5"> <!-- Type -->
+          <select name="Type">
+            {% for key, value in editingdata[0].items() %}
+              <option value="{{key}}" {% if (value == datum[1]) %} selected="selected" {% endif %}>
+                {{ value }}
+              </option>
+            {% endfor %}
+          </select>
+        </td>
+        <td class="d5"> <!-- Start -->
+          <input type="text" autocomplete="off" name="Start" id="Start" onchange="DateChanged()">
+        </td>
+        <td class="d5"> <!-- End -->
+          <input type="text" autocomplete="off" name="End" id="End" onchange="DateChanged()">
+        </td>
+        <td class="d5"> <!-- Today, only displayed if not editing -->
+          
+        </td>
+      </tr>
+      <tr class="d5">
+        <td  class="d5" colspan="100%" style="text-align: left;">
+          <table>
+            <tbody>
+              <tr class="d5">
+                <td class="d6" style="width: 70%;">Store changes?
+                </td>
+                <td class="d6" style="width: 15%;"><input name="Button" value="Ok" type="submit">
+                </td>
+                <td class="d6" style="width: 15%;"><input name="Button" value="Cancel" type="submit">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </form>
+    <script>
+      LoadPicker({{datum|tojson|safe}},"{{format}}");
+    </script>
+  </body>
+</html>

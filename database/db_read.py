@@ -358,6 +358,11 @@ class db_read(object):
         else:
             return None,None
 
+    def GetHolidays(self):
+        data=[seq[:4] for seq in self.db.ReadTable("holidays")]
+
+        return (data)
+
     def _SplitDict(self, dict1, keys):
         dict2={}
         for key in keys:

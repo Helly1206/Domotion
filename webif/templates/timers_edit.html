@@ -4,43 +4,46 @@
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
     <meta content="helly" name="author">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pikatime.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/pikatime.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/status_timers.js') }}"></script>
   </head>
   <body>
-    <tr class='d5'>
-      {% for item in datum %}
-        <td>{{ item }}</td>
-      {% endfor %}
-      <td>
-        <p style="background-color: #FFFFFF;">
-          <input type="number" style="width: 2.5em;" name="Hour" id="Hour" min="0" max="23" value="0">
-          :
-          <input type="number" style="width: 2.5em;" name="Minute" id="Minute" min="0" max="59" value="0">
-        </p>
-      </td>
-      <td>
-        <label id="StatActive">
-          <input type="checkbox" value="1" name="ValActive" id="ValActive" onchange="ActiveChanged()">
-          <span>False</span>
-          <input type="hidden" value="0" name="ValActive">
-        </label>
-      </td>
-    </tr>
-    <tr class="d5">
-      <td  class="d5" colspan="100%" style="text-align: left;">
-        <table>
-          <tbody>
-            <tr class="d5">
-              <td class="d6" style="width: 70%;">Store changes?
-              </td>
-              <td class="d6" style="width: 15%;"><input name="Button" value="Ok" type="submit" onclick="OkClicked()">
-              </td>
-              <td class="d6" style="width: 15%;"><input name="Button" value="Cancel" type="submit" onclick="CancelClicked()">
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </td>
-    </tr>
+    <form method="post" action="/timers_edited/{{ editingid }}">
+      <tr class='d5'>
+        {% for item in datum[:3] %}
+          <td  class="d7">{{ item }}</td>
+        {% endfor %}
+        <td  class="d7">
+          <input type="text" style="width: 6em;" autocomplete="off" name="Time" id="Time">
+        </td>
+        <td  class="d7">
+          <label id="StatActive">
+            <input type="checkbox" value="1" name="ValActive" id="ValActive" onchange="ActiveChanged()">
+            <span>False</span>
+            <input type="hidden" value="0" name="ValActive">
+          </label>
+        </td>
+      </tr>
+      <tr class="d5">
+        <td  class="d5" colspan="100%" style="text-align: left;">
+          <table>
+            <tbody>
+              <tr class="d5">
+                <td class="d6" style="width: 70%;">Store changes?
+                </td>
+                <td class="d6" style="width: 15%;"><input name="Button" value="Ok" type="submit">
+                </td>
+                <td class="d6" style="width: 15%;"><input name="Button" value="Cancel" type="submit">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </form>
+    <script>
+      LoadPicker({{datum|tojson|safe}},"{{format}}");
+    </script>
   </body>
 </html>

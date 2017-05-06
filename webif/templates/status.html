@@ -14,6 +14,8 @@
     {% include "status_banner.html" ignore missing %} 
     {% if tableid == "timers" %}
       {% include "status_timers.html" ignore missing %}
+    {% elif tableid == "holidays" %}
+      {% include "status_holidays.html" ignore missing %}
     {% else %}
       {% include "status_devices.html" ignore missing %}
     {% endif %}

@@ -3,7 +3,7 @@ from flask_login import login_required
 from engine import commandqueue
 from engine import localaccess
 from database import db_status
-#from frontend import basicwebaccess
+from utilities import localformat
 
 web_status = Blueprint('web_status', __name__, template_folder='templates')
 
@@ -33,7 +33,7 @@ def _getvalues(tableid):
             status = 0
             if (tableid == "devices"):
                 val = localaccess.GetActuatorValues()
-            else:
+            elif (tableid == "controls"):
                 val = localaccess.GetSensorValues()
         tm = localaccess.GetAscTime()
         st = localaccess.GetStatus(status)
@@ -41,51 +41,117 @@ def _getvalues(tableid):
     else:
         return render_template("401.html"), 401
 
-@web_status.route('/status/_gettimers/<string:tableid>', methods=['GET'])
+@web_status.route('/status/_gettimers', methods=['GET'])
 @login_required
-def _gettimers(tableid):
+def _gettimers():
     if request.method == "GET":
-        val = None
-        key=request.args.get('Id')
-        ivalue=request.args.get('Value')
-        if ((key != None) and (ivalue != None)):
-            status = 1
-            localaccess.SetTimer(int(key), int(ivalue))
-        else:
-            status = 0
-            val = localaccess.GetTimerValues()
         tm = localaccess.GetAscTime()
         st = localaccess.GetStatus(status)
-        sr = localaccess.Mod2Asc(localaccess.GetSunRiseSetMod())
-        return jsonify(time=tm, riseset=sr, status=st, values=val)
+        sr = localformat.Mod2Asc(localaccess.GetSunRiseSetMod())
+        return jsonify(time=tm, riseset=sr, status=st)
+    else:
+        return render_template("401.html"), 401
+
+@web_status.route('/status/_getholidays', methods=['GET'])
+@login_required
+def _getholidays():
+    if request.method == "GET":
+        tm = localaccess.GetAscTime()
+        st = localaccess.GetStatus(0)
+        td = get_db().GetTodayString()
+        return jsonify(time=tm, status=st, today=td)
     else:
         return render_template("401.html"), 401
 
 @web_status.route('/status/timers_edit/<string:tableid>/<int:id>')
 @login_required
-def status_edit(tableid, id):
-    if (tableid != "timers"):
-        cols, data, digital = get_db().GetDevices(tableid)
-    else:
-        cols, data = get_db().GetTimers()
-        digital = None
-    return render_template('status.html', editing=1, tableid=tableid, cols=cols, data=data, digital=digital, editingid=id)
+def timers_edit(tableid, id):
+    cols, data = get_db().GetTimers()
+    fmt = localformat.timenosec()
+    return render_template('status.html', editing=1, tableid=tableid, cols=cols, data=data, editingdata=None, digital=None, editingid=id, format=fmt)
 
-@web_status.route('/status/recalc/<string:tableid>')
+@web_status.route('/timers_edited/<int:id>', methods=['POST'])
 @login_required
-def statusrecalc(tableid):
+def timers_editeditem(id):
+    if request.method == "POST":
+        result=request.form
+        # add results to db
+        if result['Button'] == 'Ok':
+            value = -1
+            if (int(result['ValActive'])):
+                value = localformat.Asc2Mod(result['Time'])
+            localaccess.SetTimer(id, value)
+        return redirect('/status/timers')
+    else:
+        return render_template("401.html"), 401
+
+@web_status.route('/status/holidays_edit/<int:id>')
+@login_required
+def holidays_edit(id):
+    cols, data = get_db().GetHolidays()
+    fmt = localformat.date()
+    edata = get_db().BuildOptionsDicts("holidays")
+    return render_template('status.html', editing=1, tableid="holidays", cols=cols, data=data, editingdata=edata, digital=None, editingid=id, format=fmt)
+
+@web_status.route('/status/holidays_delete/<int:id>')
+@login_required
+def holidays_deleteitem(id):
+    cols, data = get_db().GetHolidays()
+    fmt = localformat.date()
+    return render_template('status.html', editing=2, tableid="holidays", cols=cols, data=data, editingdata=None, digital=None, editingid=id, format=fmt)
+
+
+@web_status.route('/holidays_deleted/<int:id>', methods=['POST'])
+@login_required
+def holidays_deleteditem(id):
+    if request.method == "POST":
+        result=request.form
+        if result['Button'] == 'Yes':
+            get_db().DeleteHolidaysRow(id)
+            commandqueue.callback2("timerrecalc")
+        return redirect('/status/holidays')
+    else:
+        return render_template("401.html"), 401
+
+@web_status.route('/holidays_edited/<int:id>', methods=['POST'])
+@login_required
+def holidays_editeditem(id):
+    if request.method == "POST":
+        result=request.form
+        # add results to db
+        if result['Button'] == 'Ok':
+            get_db().EditHolidaysRow(id, result)
+            commandqueue.callback2("timerrecalc")
+        return redirect('/status/holidays')
+    else:
+        return render_template("401.html"), 401
+
+@web_status.route('/status/holidays_add')
+@login_required
+def holidays_additem():
+    id = get_db().AddHolidaysRow()
+    return redirect('/status/holidays_edit/%d'%(id))
+
+@web_status.route('/status/timers_recalc')
+@login_required
+def statusrecalc():
     commandqueue.callback2("timerrecalc")
-    return redirect('/status/'+tableid)
+    return redirect('/status/timers')
 
 @web_status.route('/status/<string:tableid>')
 @login_required
 def status(tableid):
-    if (tableid != "timers"):
-        cols, data, digital = get_db().GetDevices(tableid)
-    else:
+    fmt=None
+    if (tableid == "timers"):
         cols, data = get_db().GetTimers()
         digital = None
-    return render_template('status.html', editing=0, tableid=tableid, cols=cols, data=data, digital=digital, editingid=0)
+    elif (tableid == "holidays"):
+        get_db().DeleteOldHolidays()
+        cols, data = get_db().GetHolidays()
+        digital = None
+    else:
+        cols, data, digital = get_db().GetDevices(tableid)
+    return render_template('status.html', editing=0, tableid=tableid, cols=cols, data=data, editingdata=None, digital=digital, editingid=0, format=fmt)
 
 @web_status.route('/status')
 @login_required

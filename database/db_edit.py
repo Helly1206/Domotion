@@ -7,6 +7,7 @@
 
 ####################### IMPORTS #########################
 from sqlitedb import sqlitedb
+from utilities import localformat
 import random
 
 #########################################################
@@ -14,7 +15,8 @@ import random
 ####################### GLOBALS #########################
 
 MethodDict = {0: "Fixed", 1: "Sunrise", 2: "Sunset", 3: "Offset"}
-WeekDayDict = {0: "Sunday", 1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday"}
+#WeekDayDict = {0: "Sunday", 1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday"}
+ActiveDict = {0: "-", 1: "Active", 2: "Inactive"}
 OperatorDict = {0: "-", 1: "eq", 2: "ne", 3: "gt", 4: "ge", 5: "lt", 6: "le"}
 DepCombDict = {0: "-", 1: "and", 2: "nand", 3: "or", 4: "nor", 5: "xor", 6: "xnor"}
 #SensorValDict = {0: "-", 1: "False", 2: "True", 3: "0.0", 4: "1.0", 5: "2.0", 6: "3.0", 7: "4.0", 9: "5.0"}
@@ -101,20 +103,14 @@ class db_edit(object):
             self.db.UpdateRow(tableid, rowdict, "Id", id)
         elif (tableid.lower() == "timers"):
             method=MethodDict[int(result['Method'])].lower()
-            rowdict['Hour']="0"
-            rowdict['Minute']="0"
+            rowdict['Time']="0"
             rowdict['Minutes_Offset']="0"
             for col in cols:
-                if col == "Hour":
+                if col == "Time":
                     if ('sunrise' in method) or ('sunset' in method) or ('offset' in method):
                         rowdict[col]="0"
                     else:
-                        rowdict[col]=result[col]
-                elif col == "Minute":
-                    if ('sunrise' in method) or ('sunset' in method) or ('offset' in method):
-                        rowdict[col]="0"
-                    else:
-                        rowdict[col]=result[col]
+                        rowdict[col]= str(localformat.Asc2Mod(result['Time']))
                 elif col == "Minutes_Offset":
                     if ('fixed' in method):
                         rowdict[col]="0"
@@ -171,7 +167,8 @@ class db_edit(object):
         elif (tableid.lower() == "timers"):
             # options: method, weekdays
             DictList.append(MethodDict)
-            DictList.append(WeekDayDict)
+            DictList.append(localformat.GetWeekdayDict())
+            DictList.append(ActiveDict)
         elif (tableid.lower() == "processors"):
             # options: timers, sensors, digital, operator, sensorval, combiners
             timers=dict(self.db.SelectColumnFromTable("timers", "Id,Name"))
@@ -350,6 +347,8 @@ class db_edit(object):
             data = self._LookupMethod(cols, data)
             cols, data = self._LookupTime(cols, data)
             cols, data = self._LookupWeekdays(cols, data)
+            data = self._LookupHomeTrip(cols, data, "home")
+            data = self._LookupHomeTrip(cols, data, "trip")
         elif (tableid.lower() == "processors"):    
             # Lookup arithmic, combiner
             cols,data = self._LookupProcessorsArithmic(cols,data)
@@ -495,14 +494,28 @@ class db_edit(object):
             newdata.append(newrow)
         return newdata
 
+    def _LookupHomeTrip(self, cols, data, column):
+        ht_col = self._GetColumn(cols,column)
+        newdata = []
+        for row in data:
+            if row[ht_col] == 1:
+                ht = ("Active",)  
+            elif row[ht_col] == 2:
+                ht = ("Inactive",)    
+            else:
+                ht = ("-",)
+            newrow = row[:ht_col] + ht + row[ht_col+1:]
+            newdata.append(newrow)
+        return newdata
+
     def _LookupTime(self, cols, data):
         # Modify columns
         Offset_col = self._GetColumn(cols,"Method")
-        newcols = cols[:Offset_col+1] + ["Time"] + cols[Offset_col+3:]
+        newcols = cols[:Offset_col+1] + ["Time"] + cols[Offset_col+2:]
         # Modify data
         newdata = []
         for row in data:
-            newrow = row[:Offset_col+1] + ('{:02d}:{:02d}'.format(row[Offset_col+1],row[Offset_col+2]),) + row[Offset_col+3:]
+            newrow = row[:Offset_col+1] + (localformat.Mod2Asc((row[Offset_col+1],)),)[0] + row[Offset_col+2:]
             newdata.append(newrow)
 
         return newcols, newdata   
@@ -510,14 +523,15 @@ class db_edit(object):
     def _LookupWeekdays(self, cols, data):
         # Modify columns
         Offset_col = self._GetColumn(cols,"Minutes_Offset")
-        newcols = cols[:Offset_col+1] + ["Weekdays"]
+        Offset_col2 = self._GetColumn(cols,"Saturday")
+        newcols = cols[:Offset_col+1] + ["Weekdays"] + cols[Offset_col2+1:]
         # Modify data
         newdata = []
         for row in data:
             hadday = False
             weekdata = ""
             i = Offset_col+1
-            for col in cols[Offset_col+1:]:
+            for col in cols[Offset_col+1:Offset_col2+1]:
                 if (row[i]):
                     if (hadday):
                         weekdata += ", "+col
@@ -527,7 +541,7 @@ class db_edit(object):
                 i += 1
             if (not hadday):
                 weekdata = "-"
-            newrow = row[:Offset_col+1] + (weekdata,)
+            newrow = row[:Offset_col+1] + (weekdata,) + row[Offset_col2+1:]
             newdata.append(newrow)
 
         return newcols, newdata   

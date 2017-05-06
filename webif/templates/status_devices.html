@@ -12,7 +12,7 @@
           <tr>
             <td class="d1">
               <span>Time:</span>
-              <input type="text" name="time" id="time" value="00-00-0000 00:00:00" readonly>
+              <input type="text" size="25" name="now" id="now" value="00-00-0000 00:00:00" readonly>
             </td>
             <td class="d3">
               <span>Status:</span>
@@ -29,29 +29,28 @@
             {% for col in cols %}
               <td>{{ col }}</td>
             {% endfor %}
-            <td>Value</td>
           </tr>
         </thead>
         <tbody>
           {% for datum in data %}
             <tr class='d1'>
-              {% for item in datum %}
+              {% for item in datum[:3] %}
                 <td>{{ item }}</td>
               {% endfor %}
               <td>
                 {% if tableid == "devices" %}
-                  <input style="width: 50px;" type="number" name="NValue{{datum[0]}}" value="0" id="StatVal{{datum[0]}}" step="0.01" {% if digital[datum[0]] %}hidden{% endif %} onchange="SNChanged({{datum[0]}})">
+                  <input style="width: 50px;" type="number" name="NValue{{datum[0]}}" value="{{datum[3]}}" id="StatVal{{datum[0]}}" step="0.01" {% if digital[datum[0]] %}hidden{% endif %} onchange="SNChanged({{datum[0]}})">
                   <label id="StatValOO{{datum[0]}}"  {% if not digital[datum[0]] %}hidden{% endif %}>
-                    <input type="checkbox" value="1" name="Value{{datum[0]}}" id="SOOd{{datum[0]}}" onchange="SOOChanged({{datum[0]}})">
-                    <span>Off</span>
+                    <input type="checkbox" value="1" name="Value{{datum[0]}}" id="SOOd{{datum[0]}}" onchange="SOOChanged({{datum[0]}})" {% if datum[3] %} checked {% endif %}>
+                    <span>{% if datum[3] %}On{% else %}Off{% endif %}</span>
                     <input type="hidden" value="0" name="Value{{datum[0]}}">
                   </label>
                 {% else %}
-                  <input style="width: 50px;" type="number" name="NValue{{datum[0]}}" value="0" id="StatVal{{datum[0]}}" step="0.01" {% if digital[datum[0]] %}hidden{% endif %} disabled onchange="SNChanged({{datum[0]}})">
+                  <input style="width: 50px;" type="number" name="NValue{{datum[0]}}" value="{{datum[3]}}" id="StatVal{{datum[0]}}" step="0.01" {% if digital[datum[0]] %}hidden{% endif %} disabled onchange="SNChanged({{datum[0]}})">
                   <button type="button" value="0" name="ValueOn{{datum[0]}}" id="SButtonOnd{{datum[0]}}"{% if not digital[datum[0]] %}hidden{% endif %} onclick="SButtonClicked({{datum[0]}}, 1)">On</button>
                   <button type="button" value="0" name="ValueOff{{datum[0]}}" id="SButtonOffd{{datum[0]}}"{% if not digital[datum[0]] %}hidden{% endif %} onclick="SButtonClicked({{datum[0]}}, 0)">Off</button>
                   <label id="SButtond{{datum[0]}}"  {% if not digital[datum[0]] %}hidden{% endif %}>
-                    <span>Off</span>
+                    <span>{% if datum[3] %}On{% else %}Off{% endif %}</span>
                   </label>
                 {% endif %}
               </td>

@@ -243,4 +243,3 @@ class fuel(object):
             if ((not newval) and (curval)):
                 if (self.Flash50 > 0):
                     self.Flash50 -= 1
-        pass

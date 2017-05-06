@@ -5,6 +5,8 @@
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
     <meta content="helly" name="author">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pikatime.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/pikatime.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/db_edit.js') }}"></script>
 	</head>
   <body onload='OnLoadWindow("{{tableid}}",{{datum|tojson|safe}});'>
@@ -114,7 +116,7 @@
         					{{ value }}
         				</option>
     					{% endfor %}
-					</select>
+					  </select>
   				</td>
           <td class="d5"> <!-- Repeat -->
             <label>
@@ -131,14 +133,10 @@
         					{{ value }}
         				</option>
     					{% endfor %}
-					</select>
+					  </select>
   				</td>
   				<td class="d5"> <!--Time -->
-            <p style="background-color: #FFFFFF;">
-  					  <input type="number" style="width: 2.5em;" name="Hour" id="Hour" min="0" max="23" value="0">
-              :
-              <input type="number" style="width: 2.5em;" name="Minute" id="Minute" min="0" max="59" value="0">
-            </p>
+            <input type="text" style="width: 6em;" autocomplete="off" name="Time" id="Time">
   				</td>
   				<td class="d5"> <!--Minutes_Offset -->
   					<input type="number" name="Minutes_Offset" id="MinutesOffset" min="-719" max="719" value="{{ datum[5] }}">
@@ -146,6 +144,24 @@
   				<td  class="d7"> <!-- Weekdays -->
           	Select weekdays:
         	</td>
+          <td class="d5"> <!--Home -->
+            <select name="Home" id="TimerHome">
+              {% for key, value in editingdata[2].items() %}
+                <option value="{{key}}" {% if (value == datum[7]) %} selected="selected" {% endif %}>
+                  {{ value }}
+                </option>
+              {% endfor %}
+            </select>
+          </td>
+          <td class="d5"> <!--Trip -->
+            <select name="Trip" id="TimerTrip">
+              {% for key, value in editingdata[2].items() %}
+                <option value="{{key}}" {% if (value == datum[8]) %} selected="selected" {% endif %}>
+                  {{ value }}
+                </option>
+              {% endfor %}
+            </select>
+          </td>
         {% elif tableid == "processors" %}
         	<td  class="d7"> <!-- Dependencies -->
           	Select dependencies:
@@ -193,7 +209,7 @@
   		{% if tableid == "timers" %}
   			{% for key, value in editingdata[1].items() %}
   				<tr class="d5">
-  					<!-- 7 empty columns -->
+  					<!-- 6 empty columns -->
   					{% for n in range(6) %}
   						<td class="d7">
   						</td>
@@ -202,6 +218,11 @@
   						<input type="checkbox" {% if value in datum[6] %} checked="checked" {% endif %} value="1" name="{{ value }}">{{ value }}
   						<input type="hidden" value="0" name="{{ value }}">
   					</td>
+            <!-- 2 empty columns -->
+            {% for n in range(2) %}
+              <td class="d7">
+              </td>
+            {% endfor %}
   				</tr>
   			{% endfor %}
   		{% elif tableid == "processors" %}	
@@ -466,5 +487,8 @@
 	      </td>
   	    </tr>
   	</form>
+    <script>
+      LoadPicker("{{tableid}}",{{datum|tojson|safe}},"{{format}}");
+    </script>
   </body>
 </html>

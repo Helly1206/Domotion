@@ -1,0 +1,129 @@
+@charset "UTF-8";
+
+/*!
+ * Pikaday
+ * Copyright © 2014 David Bushell | BSD & MIT license | http://dbushell.com/
+ * Pikatime (c) 2017 Helly as derivation for Domotion
+ */
+
+ .pikt-single {
+    z-index: 9999;
+    display: block;
+    position: relative;
+    color: #333;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-bottom-color: #bbb;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/*
+clear child float (pika-lendar), using the famous micro clearfix hack
+http://nicolasgallagher.com/micro-clearfix-hack/
+*/
+.pikt-single:before,
+.pikt-single:after {
+    content: " ";
+    display: table;
+}
+.pikt-single:after { clear: both }
+.pikt-single { *zoom: 1 }
+
+.pikt-single.is-hidden {
+    display: none;
+}
+
+.pikt-single.is-bound {
+    position: absolute;
+    box-shadow: 0 5px 15px -5px rgba(0,0,0,.5);
+}
+
+.pikt-time {
+    float: left;
+    margin: 8px;
+}
+
+.pikt-label {
+    display: inline-block;
+    *display: inline;
+    position: relative;
+    z-index: 9999;
+    overflow: hidden;
+    margin: 0;
+    padding: 0px 3px;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: bold;
+    background-color: #fff;
+}
+
+.pikt-incr,
+.pikt-decr {
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    border: 0;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    /* hide text using text-indent trick, using width value (it's enough) */
+    text-indent: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    background-color: transparent;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 75% 75%;
+    opacity: .5;
+}
+
+.pikt-incr:hover,
+.pikt-decr:hover {
+    opacity: 1;
+}
+
+.pikt-decr {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QQeBgYhSjQvgQAAAEBJREFUOMtjYBgFyICRHLXomv6TagATmoQ9EZrtCClIgroEG04k1o89WDR3kRqoW5A0byI3Zi4wMDCcG02gNAYA79cSVHAU23YAAAAASUVORK5CYII=');
+}
+
+.pikt-incr {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QQeBgUniHrZdwAAAEZJREFUOMtjYBgFNAfnGRgYLpCreTMDA8N/KN5CquZuJM0w3EOs5iQsmmE4iZBmOzyaYdgOWQMjmgH/iXQlI9GCpBgwUgEAmvsaTdYVSbMAAAAASUVORK5CYII=');
+}
+
+.pikt-incr.is-disabled,
+.pikt-decr.is-disabled {
+    cursor: default;
+    opacity: .2;
+}
+
+.pikt-select {
+    display: inline-block;
+    *display: inline;
+}
+
+.pikt-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 0;
+    text-align: center;
+    font-size: small;
+    padding: 0px 5px;
+}
+
+.pikt-table select {
+    cursor: pointer;
+    position: absolute;
+    z-index: 9998;
+    margin: 0;
+    left: 0;
+    top: 0px;
+    filter: alpha(opacity=0);
+    opacity: 0;
+}
+
+/* styling for abbr */
+.pikt-table abbr {
+    border-bottom: none;
+    cursor: help;
+}

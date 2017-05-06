@@ -9,8 +9,16 @@
   </head>
   <body id="h1"> 
     {% include "header.html" ignore missing %} 
-    {% set tab = "utils" %}
+    {% if log %}
+      {% set tab = "utilslog" %}
+    {% else %}
+      {% set tab = "utils" %}
+    {% endif %}
     {% include "banner.html" ignore missing %} 
-    {% include "utils_menu.html" ignore missing %} 
+    {% if log %}
+      {% include "utils_log.html" ignore missing %} 
+    {% else %}
+      {% include "utils_menu.html" ignore missing %}  
+    {% endif %}
   </body>
 </html>

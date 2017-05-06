@@ -10,6 +10,7 @@ from base64 import b64decode
 import requests
 from threading import Lock
 from engine import localaccess
+from utilities import localformat
 #########################################################
 
 ####################### GLOBALS #########################
@@ -140,8 +141,8 @@ class domoticz_api(object):
     def getSunRiseSet(cls):
         success, result = cls._httpget({"type": "command", "param": "getSunRiseSet"})
         if success:
-            sunrise = localaccess.Asc2Mod(result['Sunrise'])
-            sunset = localaccess.Asc2Mod(result['Sunset'])
+            sunrise = localformat.Asc2Mod(result['Sunrise'], True)
+            sunset = localformat.Asc2Mod(result['Sunset'], True)
         else:
             sunrise = 0
             sunset = 0

@@ -6,15 +6,18 @@ function getValues() {
   loadJSON('/status/_getvalues/'+TableId, handleValues);
 }
 
+function getHeaderValues() {
+  loadJSON('/status/_getvalues/Header', handleValues);
+}
+
 function setValue(id,value) {
-  Timer(0);
   var uri='/status/_getvalues/'+TableId+BuildGetRequest(id,value);
   loadJSON(uri, handleValues);
 }
 
 function handleValues(resp) {
   var values = JSON.parse(resp);
-  document.getElementById('time').value=values.time;
+  document.getElementById('now').value=values.time;
   document.getElementById('status').value=values.status;
 
   for (key in values.values) {
@@ -27,9 +30,6 @@ function handleValues(resp) {
         SButtonSet(key,values.values[key]);
       }
     }
-  }
-  if (TimerOn < 2) {
-    Timer(TimerOn+1);
   }
 }
 
@@ -55,7 +55,7 @@ function Timer(Value) {
     TimerOn = 0;
   } else if (Value == 1) {
     clearInterval(nIntervId);
-    nIntervId = setInterval(getValues, 2000);
+    nIntervId = setInterval(getValues, 1000);
     TimerOn = 1;
   } else {
     clearInterval(nIntervId);
@@ -123,7 +123,8 @@ function SButtonSet(id, value) {
 }      
 
 function OnLoadWindow(tid) {
-  Timer(2);
+  getHeaderValues();
+  Timer(1);
   TableId=tid;
 }
 

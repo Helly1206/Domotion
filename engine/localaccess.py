@@ -5,16 +5,18 @@
 #                    and db access                      #
 #           I. Helwegen 2017                            #
 #########################################################
-# Make reading static, but thread prototected
+# Make reading static, but thread prottected
 ####################### IMPORTS #########################
 from database import db_read
 from threading import Lock
-from engine import commandqueue
+from commandqueue import commandqueue
+from utilities import localformat
 from hashlib import sha256
 from re import match
 import signal
 import logging
 from time import sleep, localtime, strftime
+from datetime import date, datetime
 from os import urandom
 #########################################################
 
@@ -58,7 +60,7 @@ class AppKiller(object):
     @classmethod
     def restart_app(cls):
         cls.kill_now = True 
-        cls.restart = True    
+        cls.restart = True  
 
 #########################################################
 # Class : localaccess                                   #
@@ -76,6 +78,7 @@ class localaccess(db_read):
     sessionpassword = None
     secret_key = "@%^&123_domotion_$%#!@"
     sunriseset = (0,0)
+    todaytype = 0
 
     def __init__(self, idbpath):
         self._initmutex()
@@ -379,7 +382,7 @@ class localaccess(db_read):
             cls._MakeSessionPassword()
         return cls.sessionpassword
 
-    # Domotion statsu
+    # Domotion status
 
     @classmethod
     def GetStatus(cls, status=0):
@@ -397,7 +400,7 @@ class localaccess(db_read):
 
     @classmethod
     def GetAscTime(cls):
-        return strftime("%d-%m-%Y %H:%M:%S", localtime())
+        return strftime(localformat.datetime(), localtime())
 
     @classmethod
     def GetModTime(cls):
@@ -410,23 +413,22 @@ class localaccess(db_read):
         return (tm.tm_mday, tm.tm_mon, tm.tm_year, tm.tm_isdst)
 
     @classmethod
+    def GetDateOrd(cls, mydate=None):
+        if (mydate):
+            dt=datetime.strptime(mydate,localformat.date())
+        else:
+            d,m,y,dst = cls.GetDateDMY();
+            dt=date(year=y, month=m, day=d)
+        return dt.toordinal()
+
+    @classmethod
+    def DateOrd2Asc(cls, dord):
+        dt = date.fromordinal(dord)
+        return dt.strftime(localformat.date())
+
+    @classmethod
     def GetWeekday(cls):
-        return strftime("%A", localtime())        
-
-    @classmethod
-    def Mod2Asc(cls, Mod):
-        retval = ()
-        for md in Mod:
-            h = md/60
-            m = md%60
-            retval=retval+('{:02d}:{:02d}'.format(h,m),)
-        return retval
-
-    @classmethod
-    def Asc2Mod(cls, asc):
-        retval = ()
-        spl = asc.split(":")
-        return int(spl[0])*60+int(spl[1])
+        return localformat.GetWeekday(int(strftime("%w", localtime())))  
 
     @classmethod
     def GetSunRiseSetMod(cls):
@@ -442,3 +444,34 @@ class localaccess(db_read):
             cls.sunriseset = (srise,sset)
             cls._release()
         return 
+
+    @classmethod
+    def GetToday(cls):
+        retval = None
+        if (cls._acquire()):
+            retval = cls.todaytype
+            cls._release()
+        return retval    
+
+    @classmethod
+    def UpdateToday(cls):
+        retval = None
+        if (cls._acquire()):
+            retval = cls._UpdateToday()
+            cls.todaytype = retval
+            cls._release()
+        return retval   
+
+    @classmethod
+    def _UpdateToday(cls):
+        data = db_read.GetHolidays(cls.instance)
+        today_ord = cls.GetDateOrd()
+        today = 0
+        for row in data:
+            if ((today_ord >= row[2]) and (today_ord <= row[3])):
+                if (row[1] == 0):
+                    if (today < 2):
+                        today = 1
+                else:
+                    today = 2
+        return today

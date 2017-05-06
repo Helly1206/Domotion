@@ -59,6 +59,7 @@ class timer(Thread):
                 if (not UpdateDone):
                     UpdateDone = self.UpdateSunRiseSet()
                     if (UpdateDone):
+                        localaccess.UpdateToday()
                         UpdateDone = self.UpdateTimers()
                     if (UpdateDone):
                         Modd = localaccess.GetModTime() - 1 # Stating point for first update
@@ -81,6 +82,7 @@ class timer(Thread):
     def UpdateAll(self):
         retval = self.UpdateSunRiseSet()
         if (retval):
+            localaccess.UpdateToday()
             self.UpdateTimers()
         return (retval)
 
@@ -127,7 +129,7 @@ class timer(Thread):
         props=localaccess.GetTimerProperties(Id)
         if (self._TimerToday(props)):
             if (props['Method'] == 0): # Fixed
-                localaccess.SetTimer(Id,props['Hour']*60+props['Minute'])
+                localaccess.SetTimer(Id,props['Time'])
             elif (props['Method'] == 1): # Sunrise
                 localaccess.SetTimer(Id,localaccess.GetSunRiseSetMod()[0]+props['Minutes_Offset'])
             elif (props['Method'] == 2): # Sunset
@@ -139,12 +141,35 @@ class timer(Thread):
                     localaccess.SetTimer(Id, -1)        
         else:
             localaccess.SetTimer(Id, -1)
-
         return
 
+    #ActiveDict = {0: "-", 1: "Active", 2: "Inactive"}
+    #DaytypeDict = {0: "Normal day", 1: "Home day", 2: "Trip day"}
+    def _TimerCheckHoliday(self, home, trip):
+        retval = True
+        Today = localaccess.GetToday()
+        if (Today == 0): #normal day
+            if ((home == 1) or (trip == 1)): # active during home or trip, then inactive during normal day
+                retval = False
+        elif (Today == 1): #home day
+            if (home == 2): #inactive during home
+                retval = False
+            elif (trip == 1): # active during trip, then inactive during home day
+                retval = False
+        else: #trip day
+            if (trip == 2): #inactive during trip
+                retval = False
+            elif (home == 1): # active during home, then inactive during trip day
+                retval = False
+
+        return retval
+
     def _TimerToday(self, props):
-        day = localaccess.GetWeekday()
-        return (props[day])
+        retval = False
+        if self._TimerCheckHoliday(props['Home'],props['Trip']):
+            day = localaccess.GetWeekday()
+            retval = props[day]
+        return (retval)
 
     def _CheckTimersNow(self, Mod):
         TimerValues = localaccess.GetTimerValues()

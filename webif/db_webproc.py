@@ -3,6 +3,7 @@ from flask_login import login_required
 from database import db_edit
 from engine import localaccess
 from engine import commandqueue
+from utilities import localformat
 
 db_webproc = Blueprint('db_webproc', __name__, template_folder='templates')
 
@@ -47,15 +48,18 @@ def db_editeditem(tableid,id):
 @login_required
 def db_edititem(tableid,id):
     # generate editingdata (depending on tableid)
+    fmt = None
+    if (tableid == "timers"):
+        fmt = localformat.timenosec()
     cols, data, editable = get_db().ReadTable(tableid)
     editingdata = get_db().BuildOptionsDicts(tableid)
-    return render_template('db_editor.html', cols=cols, data=data, editable=0, tableid=tableid, editing=1, editingid=id, editingdata=editingdata)
+    return render_template('db_editor.html', cols=cols, data=data, editable=0, tableid=tableid, editing=1, editingid=id, editingdata=editingdata, format=fmt)
 
 @db_webproc.route('/database_delete/<string:tableid>/<int:id>')
 @login_required
 def db_deleteitem(tableid,id):
     cols, data, editable = get_db().ReadTable(tableid)
-    return render_template('db_editor.html', cols=cols, data=data, editable=0, tableid=tableid, editing=2, editingid=id, editingdata=[])
+    return render_template('db_editor.html', cols=cols, data=data, editable=0, tableid=tableid, editing=2, editingid=id, editingdata=[], format=None)
 
 @db_webproc.route('/database_add/<string:tableid>')
 @login_required
@@ -67,7 +71,7 @@ def db_additem(tableid):
 @login_required
 def db_view(tableid):
     cols, data, editable = get_db().ReadTable(tableid)
-    return render_template('db_editor.html', cols=cols, data=data, editable=editable, tableid=tableid, editing=0, editingid=0, editingdata=[])
+    return render_template('db_editor.html', cols=cols, data=data, editable=editable, tableid=tableid, editing=0, editingid=0, editingdata=[], format=None)
 
 @db_webproc.route('/database')
 @login_required

@@ -1,3 +1,12 @@
+[B]0.9.5[/B]
+- Minor change to timers status view
+- Added home and trip days to program different timers when you are at home all day or away
+- Added date/ time in localized format for printing
+- Modified date and time input boxes to local format
+- Changed date and time input boxes look and feel
+- Added log window to display logging in web server (maximum of 100 latest log lines to save memory)
+- Updated messaging to domoticz
+
 [B]0.9.0[/B]
 - (Almost there, lots of testing and bugfixing) Everything is tested, but some only with simulated hardware and no endurance test is done yet
 - Added GPIO hardware (Pigpio)

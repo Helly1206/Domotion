@@ -16,6 +16,19 @@ from statuslight import statuslight
 #########################################################
 
 ####################### GLOBALS #########################
+message = { 0: "Domotion Finished", 
+            1: "Domotion Running", 
+            2: "Domotion Error", 
+            3: "Domotion Finished", 
+            4: "Domotion Running",
+            5: "Domotion Error", 
+            6: "Domotion Running (Normal day)", 
+            7: "Domotion Running (Home day)", 
+            8: "Domotion Running (Trip day)", 
+            9: "Domotion Running (Normal day) [Master]", 
+            10: "Domotion Running (Home day) [Master]", 
+            11: "Domotion Running (Trip day) [Master]"}
+test = False
 
 #########################################################
 # Class : engine                                        #
@@ -38,7 +51,7 @@ class engine(fuel):
         self.pi433MHz = None
         self.timer = timer(self.commandqueue)
         self.timer.start()
-        self.messagetext = ""
+        self.messageid = 2
         self.message = localaccess.GetSetting('Domoticz_message')
         self.resend = False
         self.statuslight = statuslight()
@@ -49,6 +62,7 @@ class engine(fuel):
         self.loopcnt = 0
         self.repeattime = 0
         self.success = True
+        self.testcnt=0
 
     def __del__(self):
         super(engine, self).__del__()
@@ -86,9 +100,13 @@ class engine(fuel):
         self.UpdateRepeat()
 
     def loop(self):
+        if (test):
+            if ((self.testcnt%10)==0):
+                self.logger.info("Line of testing loop: %d"%(self.testcnt/10))
+            self.testcnt+=1
         result = None
         if (self.resend):
-            self.DomoticzMessenger(self.messagetext)
+            self.DomoticzMessenger(self.messageid)
         if (self.repeattime):
             if (self.loopcnt >= self.repeattime):
                 self.loopcnt = 0
@@ -117,7 +135,6 @@ class engine(fuel):
                     self.timer.UpdateAll()
                     self.valueretainer.Update()
                     self.logger.info("Process updated")
-                    pass
                 elif (retval ==  "settings"):
                     if (self.domoticz_api):
                         self.domoticz_api.updatesettings()
@@ -130,7 +147,6 @@ class engine(fuel):
                     self.UpdateSensorsActuatorsGPIO()
                     self.valueretainer.Update()
                     self.logger.info("Settings updated")
-                    pass
                 elif (retval == "timerrecalc"):
                     self.timer.UpdateAll()
             elif (self.commandqueue.hardware(result) ==  "Timer"):
@@ -150,6 +166,10 @@ class engine(fuel):
                     self.statuslight.Ok()
                 else:
                     self.statuslight.Error()
+            if (not self.success):
+                self.DomoticzMessenger(2)
+            else:
+                self.UpdateMessage()
         return result
 
     #def Check sensors poll ..... (for domo_if and URL)
@@ -170,15 +190,23 @@ class engine(fuel):
         self.repeattime = int(float(self.localaccess.GetSetting('Repeat_time')) / self.looptime)
         return
 
-    def DomoticzMessenger(self, message):
+    def DomoticzMessenger(self, messageid):
         success = False
         if ((self.domoticz_frontend) and (self.message)):
-            success = self.domoticz_frontend.SendMessage(message)
+            success = self.domoticz_frontend.SendMessage(message[messageid])
+            self.messageid = messageid
             if (not success):
                 self.resend = True     
-                self.messagetext = message
             else:
                 self.resend = False
-                self.messagetext = ""   
+                self.messageid = 2   
 
         return success
+
+    def UpdateMessage(self):
+        messageid = 6 + localaccess.GetToday()
+        if (self.CheckFlash50()):
+            messageid += 3
+        if (messageid != self.messageid):
+            self.DomoticzMessenger(messageid)
+        return

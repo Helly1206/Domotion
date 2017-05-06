@@ -3,7 +3,7 @@
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
-    <script type="text/javascript" src="{{ url_for('static', filename='js/status_timers.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/status_holidays.js') }}"></script>
   </head>
   <body onload='OnLoadWindow()' onunload='OnUnloadWindow()'>
     <div class="xtable">
@@ -15,10 +15,8 @@
               <input type="text" size="25" name="now" id="now" value="00-00-0000 00:00:00" readonly>
             </td>
             <td class="d2">
-              <span>Sunrise:</span>
-              <input type="text" size="10" name="sunrise" id="sunrise" value="00:00" readonly>
-              <span>/ sunset:</span>
-              <input type="text" size="10" name="sunset" id="sunset" value="00:00" readonly>
+              <span>Today:</span>
+              <input type="text" name="today" id="today" value="-" readonly>
             </td>
             <td class="d3">
               <span>Status:</span>
@@ -32,32 +30,32 @@
       <table border="1">
         <thead>
           <tr>
-            {% for col in cols %}
+            {% for col in cols[1:] %}
               <td>{{ col }}</td>
             {% endfor %}
             {% if (editing==0) %}
               <td>Edit</td>
+              <td>Del</td>
             {% endif %}
           </tr>
         </thead>
         <tbody>
           {% for datum in data %}
             {% if (editing==1) and (datum[0]==editingid) %}
-              {% include "timers_edit.html" ignore missing %}
+              {% include "holidays_edit.html" ignore missing %}
+            {% elif (editing==2) and (datum[0]==editingid) %}
+              {% include "holidays_delete.html" ignore missing %} 
             {% else %}
               <tr class='d1'>
-                {% for item in datum[:3] %}
+                {% for item in datum[1:] %}
                   <td>{{ item }}</td>
                 {% endfor %}
-                <td>
-                  <label id="Time{{datum[0]}}">{{datum[3]}}</label>
-                </td>
-                <td>
-                  <label id="Active{{datum[0]}}">{{datum[4]}}</label>
-                </td>
                 {% if (editing==0) %}
-                  <td><a href="/status/timers_edit/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
+                  <td><a href="/status/holidays_edit/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
                     alt="Edit" src={{ url_for('static', filename = "images/edit.png") }}></a>
+                  </td>
+                  <td><a href="/status/holidays_delete/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="delete"
+                    alt="Del" src={{ url_for('static', filename = "images/delete.png") }}></a>
                   </td>
                 {% endif %}
               </tr>
@@ -65,8 +63,9 @@
           {% endfor %}
           {% if (editing==0) %}
             <tr class='d1'>    
-              <td colspan="100%" style="text-align: left;"><a style="color: black;" href="/status/timers_recalc">Recalculate <img style="width: 15px; height: 15px;" title="recalculate" alt="Recalculate" src={{ url_for('static', filename = "images/warning.png") }}></a>
-              </td>
+                <td colspan="100%" style="text-align: left;"><a href="/status/holidays_add"><img style="width: 15px; height: 15px;" title="add"
+                  alt="Add" src={{ url_for('static', filename = "images/add.png") }}></a>
+                </td>
             </tr>
           {% endif %}
         </tbody>

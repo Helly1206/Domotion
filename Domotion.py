@@ -14,6 +14,8 @@ from engine import commandqueue
 from engine import engine
 from engine import localaccess
 from engine import AppKiller
+from utilities import memorylog
+from utilities import localformat
 from hardware import lirc
 from hardware import pi433MHz
 from hardware import domoticz_if
@@ -21,7 +23,6 @@ from hardware import url
 from hardware import gpio
 from frontend import domoticz_frontend
 from frontend import domoticz_api
-
 import sys
 import os
 import psutil
@@ -32,25 +33,32 @@ LOG_MAXSIZE = 100*1024*1024
 DB_FILENAME = "Domotion.db"
 VERSION = "0.01"
 LoopTime = 0.1
+LogMemory = 100
 
 #########################################################
 # Class : Domotion                                      #
 #########################################################
 class Domotion(object):
     def __init__(self, Debug):
+        localformat.init()
         self.logger = logging.getLogger('Domotion')
         self.logger.setLevel(logging.INFO)
         # create file handler which logs even debug messages
         fh = logging.handlers.RotatingFileHandler(self.GetLogger(), maxBytes=LOG_MAXSIZE, backupCount=5)
         # create console handler with a higher log level
-        ch = logging.StreamHandler()
+        ch = logging.StreamHandler(sys.stdout)
+        # create memory handler for printing in web interfaceset to 10 kB > 1000 lines
+        mh = logging.StreamHandler(memorylog(LogMemory)) #logging.handlers.MemoryHandler(1024*10,logging.INFO,LogStream.set())
+        ########## Add memory handler  : logging.handlers.MemoryHandler
         # create formatter and add it to the handlers
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s', localformat.datetime())
         fh.setFormatter(formatter)
         ch.setFormatter(formatter)
+        mh.setFormatter(formatter)
         # add the handlers to the logger
         self.logger.addHandler(fh)
         self.logger.addHandler(ch)
+        self.logger.addHandler(mh)
         logging.captureWarnings(True)
         self.logger.info("Starting Domotion")
         self.killer = AppKiller()
@@ -112,10 +120,10 @@ class Domotion(object):
         self.webapp.start()
 
         self.engine.instances(self.domoticz_api, self.domoticz_frontend, self.gpio, self.url, self.domoticz_if, self.lirc, self.pi433MHz)
-        self.engine.DomoticzMessenger("Domotion Running")
+        self.engine.DomoticzMessenger(1)
 
     def __del__(self):
-        self.engine.DomoticzMessenger("Domotion Finished")
+        self.engine.DomoticzMessenger(0)
 
         #stop webapp
         if (self.webapp != None):

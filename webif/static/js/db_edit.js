@@ -1,3 +1,5 @@
+var TimePicker = null;
+
 function TFChanged(id) {
 	if (document.getElementById(id).checked) {
 		document.getElementById(id).parentNode.getElementsByTagName('span')[0].innerHTML = "True";
@@ -127,20 +129,12 @@ function TimerMethodChanged() {
 
 function TimerDisableByMethod(val) {
 	if (val.toLowerCase() == "fixed") {
-		document.getElementById("Hour").disabled = false;
-		document.getElementById("Minute").disabled = false;
+		document.getElementById("Time").disabled = false;
 		document.getElementById("MinutesOffset").disabled = true;
 	} else {
-		document.getElementById("Hour").disabled = true;
-		document.getElementById("Minute").disabled = true;
+		document.getElementById("Time").disabled = true;
 		document.getElementById("MinutesOffset").disabled = false;
 	}
-}
-
-function TimerSetTime(time) {
-	res = time.split(":");
-	document.getElementById("Hour").value = res[0];
-	document.getElementById("Minute").value = res[1];
 }
 
 function ProcSensorChanged(sensors, digi) {
@@ -224,8 +218,19 @@ function OnLoadWindow(id,datum) { /* do stuff on page load */
 		TFSet("TF6",datum[12]);
 	} else if (id == "timers") {
 		TimerDisableByMethod(datum[3]);
-		TimerSetTime(datum[4]);
 	} else if (id == "combiners") {
 		TFSet("TF7",datum[4]);
 	}
+}
+
+function LoadPicker(id, datum, format) {
+	if (id == "timers") {
+
+  		TimePicker = new Pikatime(
+  		{
+    		field: document.getElementById('Time'),
+    		format: format
+  		});
+  		TimePicker.setTimeFmt(datum[4]);
+  	}
 }
