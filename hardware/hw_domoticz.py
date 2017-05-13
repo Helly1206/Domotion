@@ -57,42 +57,45 @@ class domoticz_if(Thread):
             self.term.set()
 
     def run(self):
-        counter = 0
-        connected = False
-        connectedprev = False
-        self.logger.info("running")
+        try:
+            counter = 0
+            connected = False
+            connectedprev = False
+            self.logger.info("running")
 
-        while (not self.term.isSet()):
-            if (counter % updatecnt == 0):
-                self.mutex.acquire()
-                for sensor in self.sensors:
-                    succes, value = self._GetSensorDevice(sensor)
-                    if (success):
-                        curval = localaccess.GetSensor(sensor)
-                        if (curval != value):
-                            self.commandqueue.put_id("Domoticz", sensor, value, True)
-                    connected = success
-                for actuator in self.actuators:
-                    succes, value = self._GetActuatorDevice(actuator)
-                    if (success):
-                        curval = localaccess.GetActuator(actuator)
-                        if (curval != value):
-                            self.commandqueue.put_id("Domoticz", actuator, value, False)
-                    connected = success
-                self.mutex.release()
-                if (connected != connectedprev):
-                    if (connected):
-                        self.logger.info("connection established")
-                    else:
-                        self.logger.info("no connection")
-                    connectedprev = connected
-            sleep(sleeptime)
-            if (counter < maxcnt):
-                counter += 1
-            else:
-                counter = 0
+            while (not self.term.isSet()):
+                if (counter % updatecnt == 0):
+                    self.mutex.acquire()
+                    for sensor in self.sensors:
+                        succes, value = self._GetSensorDevice(sensor)
+                        if (success):
+                            curval = localaccess.GetSensor(sensor)
+                            if (curval != value):
+                                self.commandqueue.put_id("Domoticz", sensor, value, True)
+                        connected = success
+                    for actuator in self.actuators:
+                        succes, value = self._GetActuatorDevice(actuator)
+                        if (success):
+                            curval = localaccess.GetActuator(actuator)
+                            if (curval != value):
+                                self.commandqueue.put_id("Domoticz", actuator, value, False)
+                        connected = success
+                    self.mutex.release()
+                    if (connected != connectedprev):
+                        if (connected):
+                            self.logger.info("connection established")
+                        else:
+                            self.logger.info("no connection")
+                        connectedprev = connected
+                sleep(sleeptime)
+                if (counter < maxcnt):
+                    counter += 1
+                else:
+                    counter = 0
 
-        self.logger.info("terminating")
+            self.logger.info("terminating")
+        except Exception, e:
+            self.logger.exception(e)
 
     def _GetSensorDevice(self, key):
         success = True

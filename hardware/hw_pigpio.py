@@ -61,40 +61,43 @@ class gpio(Thread):
             self.term.set()
 
     def run(self):
-        testing = False
-        testcnt = retrytime 
-        testretries = retries 
+        try:
+            testing = False
+            testcnt = retrytime 
+            testretries = retries 
 
-        self.logger.info("running")
+            self.logger.info("running")
 
-        if (not self.pi):
-            self.logger.warning("pigpio not installed, terminating")
-        else:
-            while (not self.term.isSet() and (testretries>0)):
-                if (not self.PiGPIOrunning):
-                    if (testcnt > 0):
-                        testcnt -= 1
+            if (not self.pi):
+                self.logger.warning("pigpio not installed, terminating")
+            else:
+                while (not self.term.isSet() and (testretries>0)):
+                    if (not self.PiGPIOrunning):
+                        if (testcnt > 0):
+                            testcnt -= 1
+                        else:
+                            testcnt = retrytime
+                            self._TestGPIO()
+                            if (not self.PiGPIOrunning):
+                                if (retries == testretries):
+                                    self.logger.warning("pigpio not running, retrying")
+                                elif (testretries <= 1):
+                                    self.logger.warning("pigpio not running, terminating")
+                                testretries -= 1
+                            else:
+                                self.logger.info("pigpio connection established")          
                     else:
-                        testcnt = retrytime
+                        testcnt = retrytime 
+                        testretries = retries 
                         self._TestGPIO()
                         if (not self.PiGPIOrunning):
-                            if (retries == testretries):
-                                self.logger.warning("pigpio not running, retrying")
-                            elif (testretries <= 1):
-                                self.logger.warning("pigpio not running, terminating")
-                            testretries -= 1
-                        else:
-                            self.logger.info("pigpio connection established")          
-                else:
-                    testcnt = retrytime 
-                    testretries = retries 
-                    self._TestGPIO()
-                    if (not self.PiGPIOrunning):
-                        self._IsPi433MHz(reset = True)
-                    # Nothing to be done here, everything is callback based
-                sleep(sleeptime)
+                            self._IsPi433MHz(reset = True)
+                        # Nothing to be done here, everything is callback based
+                    sleep(sleeptime)
                 
-        self.logger.info("terminating")
+            self.logger.info("terminating")
+        except Exception, e:
+            self.logger.exception(e)
 
     def _TestGPIO(self, reset = False):
         self.mutex.acquire()
@@ -133,19 +136,19 @@ class gpio(Thread):
     def _InitCallbacks(self, sensors):
         if (self.PiGPIOrunning):
             # Add new ones, don't update existing values
-            for key in sensors:
-                if sensors[key] != 0:
-                    if not key in self.sensorcallbacks:
-                        self.sensorcallbacks[key] = self.pi.callback(sensor, pigpio.EITHER_EDGE, self._Callback)
+            for sensor in sensors:
+                if sensor != 0:
+                    if not sensor in self.sensorcallbacks:
+                        self.sensorcallbacks[sensor] = self.pi.callback(sensor, pigpio.EITHER_EDGE, self._Callback)
             #remove old ones
-            for key in self.sensorcallbacks.copy():
-                if not key in sensors:
-                    self.sensorcallbacks[key].cancel()
-                    del self.sensorcallbacks[key]
+            for sensor in self.sensorcallbacks.copy():
+                if not sensor in sensors:
+                    self.sensorcallbacks[sensor].cancel()
+                    del self.sensorcallbacks[sensor]
 
     def _RemoveCallbacks(self):
         if (self.PiGPIOrunning):
-            for key in self.sensorcallbacks.copy():
-                if self.sensorcallbacks[key] is not None:
-                    self.sensorcallbacks[key].cancel()
-                    del self.sensorcallbacks[key]
+            for sensor in self.sensorcallbacks.copy():
+                if self.sensorcallbacks[sensor] is not None:
+                    self.sensorcallbacks[sensor].cancel()
+                    del self.sensorcallbacks[sensor]

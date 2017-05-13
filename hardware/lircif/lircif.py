@@ -83,24 +83,29 @@ class lircif(object):
             return sockerror,success
         if (timems<=0):
             command="SEND_ONCE %s %s\n"%(remote, key)
-            success=self._lirc_send_command(s, command)
+            success=self._lirc_send_command(command)
         else:
             command="SEND_START %s %s\n"%(remote, key)
-            success=self._lirc_send_command(s, command)
+            success=self._lirc_send_command(command)
 
             sleep(timems/1000)
 
             command="SEND_STOP %s %s\n"%(remote, key)
-            success=self._lirc_send_command(s, command)
+            success=self._lirc_send_command(command)
         sockerror = (success<-1)
         return sockerror,success
 
     def _DecodeBuf(self,buf):
         spbuf = buf.strip().split(' ')
-        if int(spbuf[1])>0:
-            repeat = True
-        else:
-            repeat = False
+        try:
+            if int(spbuf[1])>0:
+                repeat = True
+            else:
+                repeat = False
+        except:
+            spbuf[3]=None
+            spbuf[2]=None
+            repeat=False
         return spbuf[3],spbuf[2],repeat
 
     def _lirc_send_command(self, command):

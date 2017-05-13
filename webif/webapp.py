@@ -215,8 +215,12 @@ class webapp(Thread):
         return success
 
     def run(self):
-        self.logger.info("running")
-        if (self.ssl):
-            app.run(host="0.0.0.0", debug=False, use_reloader=False, port=self.port, ssl_context=context)
-        else:
-            app.run(host="0.0.0.0", debug=False, use_reloader=False, port=self.port)
+        try:
+            self.logger.info("running")
+            if (self.ssl):
+                app.run(host="0.0.0.0", debug=False, use_reloader=False, port=self.port, ssl_context=context)
+            else:
+                app.run(host="0.0.0.0", debug=False, use_reloader=False, port=self.port)
+        except Exception, e:
+            self.logger.exception(e)
+            

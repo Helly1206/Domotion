@@ -1,3 +1,11 @@
+[B]0.9.6[/B]
+- Fixed bug in updating sinrise/ sunset timer every 2 seconds during the first minute of a new day
+- Fixed bug in GPIO callbacks
+- Fixed bug in changing settings
+- Fixed bug in lirc send interface
+- Added capturing of software errors and tracebacks
+- Fixed bug in error reply on lirc send
+
 [B]0.9.5[/B]
 - Minor change to timers status view
 - Added home and trip days to program different timers when you are at home all day or away

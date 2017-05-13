@@ -67,40 +67,43 @@ class url(Thread):
             self.term.set()
 
     def run(self):
-        counter = 0
-        connected = False
-        connectedprev = False
-        self.logger.info("running")
+        try:
+            counter = 0
+            connected = False
+            connectedprev = False
+            self.logger.info("running")
 
-        while (not self.term.isSet()):
-            if (counter % updatecnt == 0):
-                for sensor in self.sensors:
-                    success, value = self._GetSensorURL(sensor)
-                    if (success):
-                        curval = localaccess.GetSensor(sensor)
-                        if (curval != value):
-                            self.commandqueue.put_id("Url", sensor, value, True)
-                    connected = success
-                for actuator in self.actuators:
-                    success, value = self._GetActuatorURL(actuator)
-                    if (success):
-                        curval = localaccess.GetActuator(actuator)
-                        if (curval != value):
-                            self.commandqueue.put_id("Url", actuator, value, False)
-                    connected = success
-                if (connected != connectedprev):
-                    if (connected):
-                        self.logger.info("connection established")
-                    else:
-                        self.logger.info("no connection")
-                    connectedprev = connected
-            sleep(sleeptime)
-            if (counter < maxcnt):
-                counter += 1
-            else:
-                counter = 0
+            while (not self.term.isSet()):
+                if (counter % updatecnt == 0):
+                    for sensor in self.sensors:
+                        success, value = self._GetSensorURL(sensor)
+                        if (success):
+                            curval = localaccess.GetSensor(sensor)
+                            if (curval != value):
+                                self.commandqueue.put_id("Url", sensor, value, True)
+                        connected = success
+                    for actuator in self.actuators:
+                        success, value = self._GetActuatorURL(actuator)
+                        if (success):
+                            curval = localaccess.GetActuator(actuator)
+                            if (curval != value):
+                                self.commandqueue.put_id("Url", actuator, value, False)
+                        connected = success
+                    if (connected != connectedprev):
+                        if (connected):
+                            self.logger.info("connection established")
+                        else:
+                            self.logger.info("no connection")
+                        connectedprev = connected
+                sleep(sleeptime)
+                if (counter < maxcnt):
+                    counter += 1
+                else:
+                    counter = 0
 
-        self.logger.info("terminating")
+            self.logger.info("terminating")
+        except Exception, e:
+            self.logger.exception(e)
 
     def _buildauth(self,name,password):
         if name:

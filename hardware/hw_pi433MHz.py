@@ -50,46 +50,49 @@ class pi433MHz(Thread):
             self.term.set()
 
     def run(self):
-        testing = False
-        testcnt = retrytime 
-        testretries = retries 
+        try:
+            testing = False
+            testcnt = retrytime 
+            testretries = retries 
 
-        self.logger.info("running")
+            self.logger.info("running")
 
-        if (not self.client):
-            self.logger.warning("pi433MHzd not installed, terminating")
-        else:
-            while (not self.term.isSet() and (testretries>0)):
-                res, array = self.client.ReadMessage(maxsize)
-                if (testing):
-                    sleep(sleeptime)
-                    if (testcnt > 0):
-                        testcnt -= 1
-                    else:
-                        testcnt = retrytime
-                        if (res<0):
-                            if (retries == testretries):
-                                self.logger.warning("pi433MHzd not running, retrying")
-                            elif (testretries <= 1):
-                                self.logger.warning("pi433MHzd not running, terminating")
-                            testretries -= 1
+            if (not self.client):
+                self.logger.warning("pi433MHzd not installed, terminating")
+            else:
+                while (not self.term.isSet() and (testretries>0)):
+                    res, array = self.client.ReadMessage(maxsize)
+                    if (testing):
+                        sleep(sleeptime)
+                        if (testcnt > 0):
+                            testcnt -= 1
                         else:
-                            testing = False
-                            self.logger.info("pi433MHzd connection established")
-                if (not testing):
-                    if (res<0):
-                        self._IsPi433MHz(reset = True)
-                        testing = True
-                        testcnt = retrytime 
-                        testretries = retries 
-                    elif (res>0):
-                        if (self.commandqueue):
-                            syscode, groupcode, devicecode, value = self._array2code(array)
-                            self.commandqueue.put_code("Pi433MHz", syscode, groupcode, devicecode, value)
-                    else:
-                        sleep(sleeptime)     
-            	
-        self.logger.info("terminating")
+                            testcnt = retrytime
+                            if (res<0):
+                                if (retries == testretries):
+                                    self.logger.warning("pi433MHzd not running, retrying")
+                                elif (testretries <= 1):
+                                    self.logger.warning("pi433MHzd not running, terminating")
+                                testretries -= 1
+                            else:
+                                testing = False
+                                self.logger.info("pi433MHzd connection established")
+                    if (not testing):
+                        if (res<0):
+                            self._IsPi433MHz(reset = True)
+                            testing = True
+                            testcnt = retrytime 
+                            testretries = retries 
+                        elif (res>0):
+                            if (self.commandqueue):
+                                syscode, groupcode, devicecode, value = self._array2code(array)
+                                self.commandqueue.put_code("Pi433MHz", syscode, groupcode, devicecode, value)
+                        else:
+                            sleep(sleeptime)     
+
+            self.logger.info("terminating")
+        except Exception, e:
+            self.logger.exception(e)
 
     def _IsPi433MHz(self, set = False, reset = False):
         self.mutex.acquire()

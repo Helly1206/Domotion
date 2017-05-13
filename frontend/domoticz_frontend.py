@@ -69,50 +69,53 @@ class domoticz_frontend(Thread):
         return success
 
     def run(self):
-        connected = False
-        firstconn = True
-        counter = 0
-        gethardware = True
-        self.logger.info("running")
+        try:
+            connected = False
+            firstconn = True
+            counter = 0
+            gethardware = True
+            self.logger.info("running")
 
-        while (not self.term.isSet()):
-            if (not connected):
-                gethardware = True
-                if (counter % testcnt == 0):
-                    connected = domoticz_api.getDummy()
-                    if (connected):
-                        self.logger.info("connection established")
-                    elif (firstconn):
-                        self.logger.info("no connection, retrying")
-                    firstconn = False
-            else:
-                if (gethardware):
-                    connected = self._DomotionHardware()
-                    if connected:
-                        self._updatemessageDevice()
-                        self._updateSensorsActuators()
-                    gethardware = False
-                else:
-                    if (counter % updatecnt == 0):
-                        connected, sensorvalues, actuatorvalues = self._GetAllDevices()
-                        if (connected):
-                            for key in sensorvalues:
-                                self.commandqueue.put_id("None",key, sensorvalues[key], True)
-                            del sensorvalues
-                            for key in actuatorvalues:
-                                self.commandqueue.put_id("None",key, actuatorvalues[key], False)
-                            del actuatorvalues
-                            self._updatemessageDevice()
+            while (not self.term.isSet()):
                 if (not connected):
-                    self.logger.warning("connection lost, retrying")
+                    gethardware = True
+                    if (counter % testcnt == 0):
+                        connected = domoticz_api.getDummy()
+                        if (connected):
+                            self.logger.info("connection established")
+                        elif (firstconn):
+                            self.logger.info("no connection, retrying")
+                        firstconn = False
+                else:
+                    if (gethardware):
+                        connected = self._DomotionHardware()
+                        if connected:
+                            self._updatemessageDevice()
+                            self._updateSensorsActuators()
+                        gethardware = False
+                    else:
+                        if (counter % updatecnt == 0):
+                            connected, sensorvalues, actuatorvalues = self._GetAllDevices()
+                            if (connected):
+                                for key in sensorvalues:
+                                    self.commandqueue.put_id("None",key, sensorvalues[key], True)
+                                del sensorvalues
+                                for key in actuatorvalues:
+                                    self.commandqueue.put_id("None",key, actuatorvalues[key], False)
+                                del actuatorvalues
+                                self._updatemessageDevice()
+                    if (not connected):
+                        self.logger.warning("connection lost, retrying")
+    
+                sleep(sleeptime)
+                if (counter < maxcnt):
+                    counter += 1
+                else:
+                    counter = 0
 
-            sleep(sleeptime)
-            if (counter < maxcnt):
-                counter += 1
-            else:
-                counter = 0
-
-        self.logger.info("terminating")
+            self.logger.info("terminating")
+        except Exception, e:
+            self.logger.exception(e)
 
     def _updatesettings(self):
         self.mutex.acquire()

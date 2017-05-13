@@ -49,35 +49,36 @@ class timer(Thread):
         self.term.set()
 
     def run(self):
-        counter = 0
-        Modd = 0
-        UpdateDone = False
-        self.logger.info("running")
+        try:
+            counter = 0
+            UpdateDone = False
+            Modd = localaccess.GetModTime() - 1 # Stating point for first update
+            self.logger.info("running")
 
-        while (not self.term.isSet()):
-            if (counter <= 0):
-                if (not UpdateDone):
-                    UpdateDone = self.UpdateSunRiseSet()
-                    if (UpdateDone):
-                        localaccess.UpdateToday()
-                        UpdateDone = self.UpdateTimers()
-                    if (UpdateDone):
-                        Modd = localaccess.GetModTime() - 1 # Stating point for first update
-                else:
-                    Mod = localaccess.GetModTime()
-                    ModAbsDiff = abs(Mod-Modd)
-                    if (ModAbsDiff):
-                        self.mutex.acquire()
-                        if ((Mod == 0) or (ModAbsDiff>1)): # A brand new day or DST switch, recalc
-                            UpdateDone = False
-                        self._CheckTimersNow(Mod)
-                        self.mutex.release()
-                        Modd = Mod
-                counter = updatecnt
-            sleep(sleeptime)
-            counter -= 1
+            while (not self.term.isSet()):
+                if (counter <= 0):
+                    if (not UpdateDone):
+                        UpdateDone = self.UpdateSunRiseSet()
+                        if (UpdateDone):
+                            localaccess.UpdateToday()
+                            UpdateDone = self.UpdateTimers()
+                    else:
+                        Mod = localaccess.GetModTime()
+                        ModAbsDiff = abs(Mod-Modd)
+                        if (ModAbsDiff != 0):
+                            self.mutex.acquire()
+                            if ((Mod == 0) or (ModAbsDiff>1)): # A brand new day or DST switch, recalc
+                                UpdateDone = False
+                            self._CheckTimersNow(Mod)
+                            self.mutex.release()
+                            Modd = Mod
+                    counter = updatecnt
+                sleep(sleeptime)
+                counter -= 1
 
-        self.logger.info("terminating")
+            self.logger.info("terminating")
+        except Exception, e:
+            self.logger.exception(e)
 
     def UpdateAll(self):
         retval = self.UpdateSunRiseSet()

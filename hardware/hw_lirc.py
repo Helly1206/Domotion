@@ -41,45 +41,48 @@ class lirc(Thread):
             self.term.set()
 
     def run(self):
-        testing = False
-        testcnt = retrytime 
-        testretries = retries 
+        try:
+            testing = False
+            testcnt = retrytime 
+            testretries = retries 
 
-        self.logger.info("running")
+            self.logger.info("running")
 
-        if (not self._TestLirc()):
-            testing = True
-            self.logger.warning("lircd not running, retrying")
-        while (not self.term.isSet() and (testretries>0)):
-            if (not testing):
-                sockerror,device,key,repeat = self.lircif.ReadKey()
-                if sockerror:
-                    if (not self._TestLirc(True)):
-                        testing = True
-                        testcnt = retrytime 
-                        testretries = retries 
-                elif (key):
-                    if (not repeat and self.commandqueue):
-                        self.commandqueue.put_device("lirc",device,key,1)
-                else:
-                    sleep(sleeptime)
-            if (testing):
-                sleep(sleeptime)
-                if (testcnt > 0):
-                    testcnt -= 1
-                else:
-                    testcnt = retrytime
-                    if (not self._TestLirc()):
-                        if (retries == testretries):
-                            self.logger.warning("lircd not running, retrying")
-                        elif (testretries <= 1):
-                            self.logger.warning("lircd not running, terminating")
-                        testretries -= 1
+            if (not self._TestLirc()):
+                testing = True
+                self.logger.warning("lircd not running, retrying")
+            while (not self.term.isSet() and (testretries>0)):
+                if (not testing):
+                    sockerror,device,key,repeat = self.lircif.ReadKey()
+                    if sockerror:
+                        if (not self._TestLirc(True)):
+                            testing = True
+                            testcnt = retrytime 
+                            testretries = retries 
+                    elif (key):
+                        if (not repeat and self.commandqueue):
+                            self.commandqueue.put_device("lirc",device,key,1)
                     else:
-                        testing = False    
-                        self.logger.info("lircd connection established") 
-            	
-        self.logger.info("terminating")
+                        sleep(sleeptime)
+                if (testing):
+                    sleep(sleeptime)
+                    if (testcnt > 0):
+                        testcnt -= 1
+                    else:
+                        testcnt = retrytime
+                        if (not self._TestLirc()):
+                            if (retries == testretries):
+                                self.logger.warning("lircd not running, retrying")
+                            elif (testretries <= 1):
+                                self.logger.warning("lircd not running, terminating")
+                            testretries -= 1
+                        else:
+                            testing = False    
+                            self.logger.info("lircd connection established") 
+
+            self.logger.info("terminating")
+        except Exception, e:
+            self.logger.exception(e)
 
     def _TestLirc(self, reset = False):
         self.mutex.acquire()

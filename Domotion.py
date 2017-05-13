@@ -40,142 +40,158 @@ LogMemory = 100
 #########################################################
 class Domotion(object):
     def __init__(self, Debug):
-        localformat.init()
-        self.logger = logging.getLogger('Domotion')
-        self.logger.setLevel(logging.INFO)
-        # create file handler which logs even debug messages
-        fh = logging.handlers.RotatingFileHandler(self.GetLogger(), maxBytes=LOG_MAXSIZE, backupCount=5)
-        # create console handler with a higher log level
-        ch = logging.StreamHandler(sys.stdout)
-        # create memory handler for printing in web interfaceset to 10 kB > 1000 lines
-        mh = logging.StreamHandler(memorylog(LogMemory)) #logging.handlers.MemoryHandler(1024*10,logging.INFO,LogStream.set())
-        ########## Add memory handler  : logging.handlers.MemoryHandler
-        # create formatter and add it to the handlers
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s', localformat.datetime())
-        fh.setFormatter(formatter)
-        ch.setFormatter(formatter)
-        mh.setFormatter(formatter)
-        # add the handlers to the logger
-        self.logger.addHandler(fh)
-        self.logger.addHandler(ch)
-        self.logger.addHandler(mh)
-        logging.captureWarnings(True)
-        self.logger.info("Starting Domotion")
-        self.killer = AppKiller()
+        try:
+            localformat.init()
+            self.logger = logging.getLogger('Domotion')
+            self.logger.setLevel(logging.INFO)
+            # create file handler which logs even debug messages
+            fh = logging.handlers.RotatingFileHandler(self.GetLogger(), maxBytes=LOG_MAXSIZE, backupCount=5)
+            # create console handler with a higher log level
+            ch = logging.StreamHandler(sys.stdout)
+            # create memory handler for printing in web interfaceset to 10 kB > 1000 lines
+            mh = logging.StreamHandler(memorylog(LogMemory)) #logging.handlers.MemoryHandler(1024*10,logging.INFO,LogStream.set())
+            ########## Add memory handler  : logging.handlers.MemoryHandler
+            # create formatter and add it to the handlers
+            formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s', localformat.datetime())
+            fh.setFormatter(formatter)
+            ch.setFormatter(formatter)
+            mh.setFormatter(formatter)
+            # add the handlers to the logger
+            self.logger.addHandler(fh)
+            self.logger.addHandler(ch)
+            self.logger.addHandler(mh)
+            logging.captureWarnings(True)
+            self.logger.info("Starting Domotion")
+            self.killer = AppKiller()
 
-        #start queue and engine
-        self.commandqueue=commandqueue()
-        self.engine = engine(self.commandqueue, self.GetDB(), LoopTime)
+            #start queue and engine
+            self.commandqueue=commandqueue()
+            self.engine = engine(self.commandqueue, self.GetDB(), LoopTime)
 
-        #start domoticz api (even when no domoticz connection is made)
-        self.domoticz_api = domoticz_api()
+            #start domoticz api (even when no domoticz connection is made)
+            self.domoticz_api = domoticz_api()
 
-        #start hardware
-        if (localaccess.GetSetting('Pi433MHz')):
-            self.pi433MHz = pi433MHz(self.commandqueue)
-            self.pi433MHz.start()
-        else:
-            self.logger.info("Pi433MHz hardware disabled")
-            self.pi433MHz = None
-    
-        if (localaccess.GetSetting('LIRC')):
-            self.lirc = lirc(self.commandqueue)
-            self.lirc.start()
-        else:
-            self.logger.info("LIRC interface disabled")
-            self.lirc = None
-    
-        if (localaccess.GetSetting('Domoticz')):
-            self.domoticz_if = domoticz_if(self.commandqueue)
-            self.domoticz_if.start()
-        else:
-            self.logger.info("Domoticz interface disabled")
-            self.domoticz_if = None
-    
-        if (localaccess.GetSetting('URL')):
-            self.url = url(self.commandqueue)
-            self.url.start()
-        else:
-            self.logger.info("URL interface disabled")
-            self.url = None
-    
-        if (localaccess.GetSetting('GPIO')):
-            self.gpio = gpio(self.commandqueue)
-            self.gpio.start()
-        else:
-            self.logger.info("PiGPIO interface disabled")
-            self.gpio = None
+            #start hardware
+            if (localaccess.GetSetting('Pi433MHz')):
+                self.pi433MHz = pi433MHz(self.commandqueue)
+                self.pi433MHz.start()
+            else:
+                self.logger.info("Pi433MHz hardware disabled")
+                self.pi433MHz = None
 
-        #start frontend
-        if (localaccess.GetSetting('Domoticz_frontend')):
-            self.domoticz_frontend = domoticz_frontend(self.commandqueue)
-            self.domoticz_frontend.start()
-        else:
-            self.logger.info("Domoticz frontend disabled")
-            self.domoticz_frontend = None
-    
-        #start webapp
-        self.webapp = webapp(Debug)
-        self.webapp.setDaemon(True)
-        self.webapp.start()
+            if (localaccess.GetSetting('LIRC')):
+                self.lirc = lirc(self.commandqueue)
+                self.lirc.start()
+            else:
+                self.logger.info("LIRC interface disabled")
+                self.lirc = None
 
-        self.engine.instances(self.domoticz_api, self.domoticz_frontend, self.gpio, self.url, self.domoticz_if, self.lirc, self.pi433MHz)
-        self.engine.DomoticzMessenger(1)
+            if (localaccess.GetSetting('Domoticz')):
+                self.domoticz_if = domoticz_if(self.commandqueue)
+                self.domoticz_if.start()
+            else:
+                self.logger.info("Domoticz interface disabled")
+                self.domoticz_if = None
+
+            if (localaccess.GetSetting('URL')):
+                self.url = url(self.commandqueue)
+                self.url.start()
+            else:
+                self.logger.info("URL interface disabled")
+                self.url = None
+
+            if (localaccess.GetSetting('GPIO')):
+                self.gpio = gpio(self.commandqueue)
+                self.gpio.start()
+            else:
+                self.logger.info("PiGPIO interface disabled")
+                self.gpio = None
+
+            #start frontend
+            if (localaccess.GetSetting('Domoticz_frontend')):
+                self.domoticz_frontend = domoticz_frontend(self.commandqueue)
+                self.domoticz_frontend.start()
+            else:
+                self.logger.info("Domoticz frontend disabled")
+                self.domoticz_frontend = None
+
+            #start webapp
+            self.webapp = webapp(Debug)
+            self.webapp.setDaemon(True)
+            self.webapp.start()
+
+            self.engine.instances(self.domoticz_api, self.domoticz_frontend, self.gpio, self.url, self.domoticz_if, self.lirc, self.pi433MHz)
+            self.engine.DomoticzMessenger(1)
+        except Exception, e:
+            if (self.logger):
+                self.logger.exception(e)
+            else:
+                print(e)
 
     def __del__(self):
-        self.engine.DomoticzMessenger(0)
+        try:
+            self.engine.DomoticzMessenger(0)
 
-        #stop webapp
-        if (self.webapp != None):
-            self.webapp.terminate()
-            self.webapp.join(5)
-            del self.webapp
-    
-        #stop frontend
-        if (self.domoticz_frontend != None):
-            self.domoticz_frontend.terminate()
-            self.domoticz_frontend.join(5)
-            del self.domoticz_frontend
-    
-        #stop hardware
-        if (self.gpio != None):
-            self.gpio.terminate()
-            self.gpio.join(5)
-            del self.gpio
+            #stop webapp
+            if (self.webapp != None):
+                self.webapp.terminate()
+                self.webapp.join(5)
+                del self.webapp
 
-        if (self.url != None):
-            self.url.terminate()
-            self.url.join(5)
-            del self.url
+            #stop frontend
+            if (self.domoticz_frontend != None):
+                self.domoticz_frontend.terminate()
+                self.domoticz_frontend.join(5)
+                del self.domoticz_frontend
 
-        if (self.domoticz_if != None):
-            self.domoticz_if.terminate()
-            self.domoticz_if.join(5)
-            del self.domoticz_if
+            #stop hardware
+            if (self.gpio != None):
+                self.gpio.terminate()
+                self.gpio.join(5)
+                del self.gpio
 
-        if (self.lirc != None):
-            self.lirc.terminate()
-            self.lirc.join(5)
-            del self.lirc
-    
-        if (self.pi433MHz != None):
-            self.pi433MHz.terminate()
-            self.pi433MHz.join(5)
-            del self.pi433MHz
-    
-        # stop domoticz_api, queue and engine
-        del self.domoticz_api
-        del self.engine
-        del self.commandqueue
-        self.logger.info("Domotion Ready")
-        logging.shutdown()
+            if (self.url != None):
+                self.url.terminate()
+                self.url.join(5)
+                del self.url
+
+            if (self.domoticz_if != None):
+                self.domoticz_if.terminate()
+                self.domoticz_if.join(5)
+                del self.domoticz_if
+
+            if (self.lirc != None):
+                self.lirc.terminate()
+                self.lirc.join(5)
+                del self.lirc
+
+            if (self.pi433MHz != None):
+                self.pi433MHz.terminate()
+                self.pi433MHz.join(5)
+                del self.pi433MHz
+
+            # stop domoticz_api, queue and engine
+            del self.domoticz_api
+            del self.engine
+            del self.commandqueue
+            self.logger.info("Domotion Ready")
+            logging.shutdown()
+        except Exception, e:
+            if (self.logger):
+                self.logger.exception(e)
+            else:
+                print(e)
 
     def run(self):
-        while(True):
-            if (not self.engine.loop()):
-                sleep(LoopTime)
-            if self.killer.kill_now:
-                break   
+        try:
+            while(True):
+                if (not self.engine.loop()):
+                    sleep(LoopTime)
+                if self.killer.kill_now:
+                    break   
+        except Exception, e:
+            self.logger.exception(e)
+
         return self.killer.restart
 
     def GetLogger(self):
@@ -244,6 +260,7 @@ if __name__ == '__main__':
             if  ('-d' in sys.argv):
                 print "Option: default detected, running on port 5000 with no login"
                 Debug = 2
+
     while (Domotion(Debug).run()):
         try:
             p = psutil.Process(os.getpid())

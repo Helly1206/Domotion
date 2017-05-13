@@ -76,48 +76,51 @@ class statuslight(Thread):
         self.term.set()
 
     def run(self):
-        self.logger.info("running")
-        secint = 0
-        state = self.state
-        DeviceSet = False
-        Flash50 = False
+        try:
+            self.logger.info("running")
+            secint = 0
+            state = self.state
+            DeviceSet = False
+            Flash50 = False
 
-        while (not self.term.isSet()):
-            if (secint < seccnt-1):
-                secint += 1
-            else:
-                secint = 0
-                DeviceSet = False
-            
-            self.mutex.acquire()
-            if (self.DeviceSet):
-                self.DeviceSet = False
-                DeviceSet = True
-                secint = 0
-                self._SetLights(1,1,1)
-            if (self.state != state):
-                state = self.state
-                secint = 0
-            Flash50 = self.Flash50
-            self.mutex.release()   
+            while (not self.term.isSet()):
+                if (secint < seccnt-1):
+                    secint += 1
+                else:
+                    secint = 0
+                    DeviceSet = False
 
-            if (not DeviceSet):
-                if (secint == 0):
-                    if (state == State.OK):
-                        self._SetLights(0,0,1)
-                    elif (state == State.BUSY):
-                        self._SetLights(0,1,0)
-                    else: #(state == State.ERROR)
-                        self._SetLights(1,0,0)
-                elif ((secint == secflash) and (not Flash50)):
-                    self._SetLights(0,0,0)                    
-                elif ((secint == secflash50) and (Flash50)):
-                    self._SetLights(0,0,0)
+                self.mutex.acquire()
+                if (self.DeviceSet):
+                    self.DeviceSet = False
+                    DeviceSet = True
+                    secint = 0
+                    self._SetLights(1,1,1)
+                if (self.state != state):
+                    state = self.state
+                    secint = 0
+                Flash50 = self.Flash50
+                self.mutex.release()   
 
-            sleep(sleeptime)
+                if (not DeviceSet):
+                    if (secint == 0):
+                        if (state == State.OK):
+                            self._SetLights(0,0,1)
+                        elif (state == State.BUSY):
+                            self._SetLights(0,1,0)
+                        else: #(state == State.ERROR)
+                            self._SetLights(1,0,0)
+                    elif ((secint == secflash) and (not Flash50)):
+                        self._SetLights(0,0,0)                    
+                    elif ((secint == secflash50) and (Flash50)):
+                        self._SetLights(0,0,0)
 
-        self._SetLights(0,0,0)
-        self.logger.info("terminating")
+                sleep(sleeptime)
+
+            self._SetLights(0,0,0)
+            self.logger.info("terminating")
+        except Exception, e:
+            self.logger.exception(e)
 
     def SetFlash50(self, val):
         self.mutex.acquire()

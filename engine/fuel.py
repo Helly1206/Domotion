@@ -151,7 +151,7 @@ class fuel(object):
             if (Id == 0):
                 self.logger.info("Received unknown input from Lirc: device: %s, tag: %s", self.commandqueue.device(queueresult), self.commandqueue.tag(queueresult))
         elif (self.commandqueue.hardware(queueresult) ==  "GPIO"):
-            Id = self.localacces.FindGPIOSensorbyCode(self.commandqueue.id(queueresult))
+            Id = self.localaccess.FindGPIOSensorbyCode(self.commandqueue.id(queueresult))
             if (Id == 0):
                 self.logger.info("Received unknown GPIO input: %d", self.commandqueue.id(queueresult))
         else: # None, Url or Domoticz
