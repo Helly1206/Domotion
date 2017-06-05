@@ -30,6 +30,7 @@ sleeptime = 0.1
 seccnt = (1/sleeptime)
 secflash = (0.2/sleeptime)
 secflash50 = (0.5/sleeptime)
+secbusy = (3/sleeptime)
 
 class State(Enum):
     OK, BUSY, ERROR = range(3)
@@ -79,6 +80,7 @@ class statuslight(Thread):
         try:
             self.logger.info("running")
             secint = 0
+            secbusyint = 0
             state = self.state
             DeviceSet = False
             Flash50 = False
@@ -96,9 +98,16 @@ class statuslight(Thread):
                     DeviceSet = True
                     secint = 0
                     self._SetLights(1,1,1)
-                if (self.state != state):
+                if ((state == State.BUSY) and (secbusyint<secbusy)):
+                    secbusyint += 1
+                    if (self.state == State.BUSY):
+                        secbusyint = 0
+                    else:
+                        secbusyint += 1
+                elif (self.state != state):
                     state = self.state
                     secint = 0
+                    secbusyint = 0
                 Flash50 = self.Flash50
                 self.mutex.release()   
 

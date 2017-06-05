@@ -25,7 +25,11 @@ function handleValues(resp) {
       SNSet(key,values.values[key]);
     } else {
       if (TableId == "devices") {
-        SOOSet(key,values.values[key]);
+        if (!SOOHidden(key)) {
+          SOOSet(key,values.values[key]);
+        } else {
+          BLButtonSet(key,values.values[key]);
+        }
       } else {
         SButtonSet(key,values.values[key]);
       }
@@ -83,6 +87,11 @@ function SNHidden(id) {
   return document.getElementById(iid).hidden;
 }
 
+function SOOHidden(id) {
+  var iid='StatValOO'+id;
+  return document.getElementById(iid).hidden;
+}
+
 function SOOChanged(id) {
   var iid='SOOd'+id;
   var value = 0;
@@ -120,7 +129,21 @@ function SButtonSet(id, value) {
   } else {
     document.getElementById(iid).getElementsByTagName('span')[0].innerHTML="Off";
   }
-}      
+}   
+
+function BLButtonClicked(id, value) {
+  BLButtonSet(id, value);
+  setValue(id, value);
+}
+
+function BLButtonSet(id, value) {
+  var iid='BLButtond'+id;
+  if (value) {
+    document.getElementById(iid).getElementsByTagName('span')[0].innerHTML="Down";
+  } else {
+    document.getElementById(iid).getElementsByTagName('span')[0].innerHTML="Up";
+  }
+}     
 
 function OnLoadWindow(tid) {
   getHeaderValues();

@@ -47,6 +47,7 @@ def db_editeditem(tableid,id):
 @db_webproc.route('/database_edit/<string:tableid>/<int:id>')
 @login_required
 def db_edititem(tableid,id):
+    localaccess.SetStatusBusy()
     # generate editingdata (depending on tableid)
     fmt = None
     if (tableid == "timers"):
@@ -58,6 +59,7 @@ def db_edititem(tableid,id):
 @db_webproc.route('/database_delete/<string:tableid>/<int:id>')
 @login_required
 def db_deleteitem(tableid,id):
+    localaccess.SetStatusBusy()
     cols, data, editable = get_db().ReadTable(tableid)
     return render_template('db_editor.html', cols=cols, data=data, editable=0, tableid=tableid, editing=2, editingid=id, editingdata=[], format=None)
 
@@ -70,6 +72,7 @@ def db_additem(tableid):
 @db_webproc.route('/database/<string:tableid>')
 @login_required
 def db_view(tableid):
+    localaccess.SetStatusBusy()
     cols, data, editable = get_db().ReadTable(tableid)
     return render_template('db_editor.html', cols=cols, data=data, editable=editable, tableid=tableid, editing=0, editingid=0, editingdata=[], format=None)
 

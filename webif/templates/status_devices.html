@@ -40,10 +40,15 @@
               <td>
                 {% if tableid == "devices" %}
                   <input style="width: 50px;" type="number" name="NValue{{datum[0]}}" value="{{datum[3]}}" id="StatVal{{datum[0]}}" step="0.01" {% if digital[datum[0]] %}hidden{% endif %} onchange="SNChanged({{datum[0]}})">
-                  <label id="StatValOO{{datum[0]}}"  {% if not digital[datum[0]] %}hidden{% endif %}>
+                  <label id="StatValOO{{datum[0]}}"  {% if (not digital[datum[0]]) or (dtype[datum[0]] == 3) %}hidden{% endif %}>
                     <input type="checkbox" value="1" name="Value{{datum[0]}}" id="SOOd{{datum[0]}}" onchange="SOOChanged({{datum[0]}})" {% if datum[3] %} checked {% endif %}>
                     <span>{% if datum[3] %}On{% else %}Off{% endif %}</span>
                     <input type="hidden" value="0" name="Value{{datum[0]}}">
+                  </label>
+                  <button type="button" value="0" name="ValueOn{{datum[0]}}" id="BLButtonOnd{{datum[0]}}"{% if (not digital[datum[0]]) or (dtype[datum[0]] != 3) %}hidden{% endif %} onclick="BLButtonClicked({{datum[0]}}, 0)">Up</button>
+                  <button type="button" value="0" name="ValueOff{{datum[0]}}" id="BLButtonOffd{{datum[0]}}"{% if (not digital[datum[0]]) or (dtype[datum[0]] != 3) %}hidden{% endif %} onclick="BLButtonClicked({{datum[0]}}, 1)">Down</button>
+                  <label id="BLButtond{{datum[0]}}"  {% if (not digital[datum[0]]) or (dtype[datum[0]] != 3) %}hidden{% endif %}>
+                    <span>{% if datum[3] %}Down{% else %}Up{% endif %}</span>
                   </label>
                 {% else %}
                   <input style="width: 50px;" type="number" name="NValue{{datum[0]}}" value="{{datum[3]}}" id="StatVal{{datum[0]}}" step="0.01" {% if digital[datum[0]] %}hidden{% endif %} disabled onchange="SNChanged({{datum[0]}})">

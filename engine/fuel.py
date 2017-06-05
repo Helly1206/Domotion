@@ -167,20 +167,21 @@ class fuel(object):
     def SetActuator(self, Id, value, RepeatAction = 0):
         retval = False
         props=self.localaccess.GetActuatorProperties(Id)
-        if ((props['SetOnce']) and (self.localaccess.GetActuator(Id) == value)):
+        curval = self.localaccess.GetActuator(Id)
+        if ((props['SetOnce']) and (curval == value)):
             self.logger.info("Actuator: %s not set; SetOnce active, value: %f", props['Name'], value)
         else:
             if (self._DoSetActuator(props, value)):
                 if ((not RepeatAction) and (props['Repeat'])):
                     self._SetRepeats(Id)
                     self.logger.info("Actuator: %s, value: %f <repeat 0>", props['Name'], value)
-                    self._UpdateFlash50(props, value)
+                    self._UpdateFlash50(props, value, curval)
                 else:
                     if (RepeatAction):
                         self.logger.info("Actuator: %s, value: %f <repeat %d>", props['Name'], value, RepeatAction)
                     else:
                         self.logger.info("Actuator: %s, value: %f", props['Name'], value)
-                        self._UpdateFlash50(props, value)
+                        self._UpdateFlash50(props, value, curval)
                 retval = True
             else:
                 if (props['Type'] == 8): # Timer
@@ -234,12 +235,19 @@ class fuel(object):
                 newval = (not value)
         return (newval)
 
-    def _UpdateFlash50(self, props, value):
+    def _UpdateFlash50(self, props, value, oldval):
         if (props['StatusLightFlash']):
-            curval = (self.localaccess.GetActuator(props['Id'])>0)
+            curval = (oldval>0)
             newval = (value>0)
             if ((newval) and (not curval)):
                 self.Flash50 += 1
             if ((not newval) and (curval)):
                 if (self.Flash50 > 0):
                     self.Flash50 -= 1
+
+    def UpdateActuatorsInit(self):
+        for Id in self.localaccess.GetActuatorValues():
+            props=self.localaccess.GetActuatorProperties(Id)
+            if (props['StatusLightFlash']):
+                if (self.localaccess.GetActuator(Id)>0):
+                    self.Flash50 += 1

@@ -76,6 +76,7 @@ class localaccess(db_read):
     dbpath = ""
     instance = None
     sessionpassword = None
+    StatusBusy = False
     secret_key = "@%^&123_domotion_$%#!@"
     sunriseset = (0,0)
     todaytype = 0
@@ -85,6 +86,7 @@ class localaccess(db_read):
         self.SetDBPath(idbpath)
         self._SetInstance(self)
         self._MakeSessionPassword()
+        self.SetStatusBusy()
         db_read.__init__(self, idbpath)
 
     def __del__(self):
@@ -351,6 +353,17 @@ class localaccess(db_read):
     def GetSetting(cls, Setting):
         Value, Format =  db_read.GetSetting(cls.instance, Setting)
         return Value
+
+    # Status light
+    @classmethod
+    def SetStatusBusy(cls):
+        cls.StatusBusy = True
+
+    @classmethod
+    def GetStatusBusy(cls):
+        LocalStatusBusy = cls.StatusBusy
+        cls.StatusBusy = False
+        return (LocalStatusBusy)        
 
     # Password 
 

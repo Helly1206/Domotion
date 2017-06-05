@@ -33,13 +33,13 @@ class db_status(object):
             cols=self.db.GetColNames("actuators")[:3]
             data=[seq[:3] for seq in self.db.ReadTable("actuators")]
             cols, data=self._AddActuatorValues(cols, data)
-            digital = self._GetDigital("actuators")
+            digital, dtype = self._GetDigitalType("actuators")
         else:
             cols=self.db.GetColNames("sensors")[:3]
             data=[seq[:3] for seq in self.db.ReadTable("sensors")]
             cols, data=self._AddSensorValues(cols, data)
-            digital = self._GetDigital("sensors")
-        return cols, data, digital
+            digital, dtype = self._GetDigitalType("sensors")
+        return cols, data, digital, dtype
 
     def GetTimers(self, values=True):
         cols=self.db.GetColNames("timers")[:3]
@@ -99,8 +99,9 @@ class db_status(object):
     def GetTodayString(self):
         return DaytypeDict[localaccess.GetToday()] 
 
-    def _GetDigital(self,table):
+    def _GetDigitalType(self,table):
         digital = {}
+        dtype = {}
         if (table.lower() == "sensors"):
             stypes = dict(self.db.SelectColumnFromTable("sensors", "Id,SensorType"))
             types = dict(self.db.SelectColumnFromTable("sensortypes", "Id,Digital"))
@@ -109,7 +110,8 @@ class db_status(object):
             types = dict(self.db.SelectColumnFromTable("actuatortypes", "Id,Digital"))
         for key in stypes:
             digital[key] = types[int(stypes[key])]
-        return digital
+            dtype[key] = int(stypes[key])
+        return digital, dtype
 
     def _GetColumn(self, cols, name):
         i = 0

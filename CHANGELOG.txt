@@ -1,3 +1,10 @@
+[B]0.9.7[/B]
+- Hardware tests executed
+- Updated StatusLightFlash setting on switched on actuators during startup
+- Fixed behavior on adding sensor, toggle setting
+- Added yellow status light during webaccess
+- On devices webview for blind control set up/down instead of on/ off
+
 [B]0.9.6[/B]
 - Fixed bug in updating sinrise/ sunset timer every 2 seconds during the first minute of a new day
 - Fixed bug in GPIO callbacks

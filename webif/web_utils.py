@@ -1,6 +1,7 @@
 from flask import Flask, Blueprint, render_template, g, request, session, redirect, jsonify
 from flask_login import login_required
 from engine import AppKiller
+from engine import localaccess
 from utilities import memorylog
 
 maxlines = 100
@@ -11,6 +12,7 @@ web_utils = Blueprint('web_utils', __name__, template_folder='templates')
 @login_required
 def _getlog():
     if request.method == "GET":
+        localaccess.SetStatusBusy()
         ll = memorylog.readlines()
         return jsonify(log=ll)
     else:
@@ -19,6 +21,7 @@ def _getlog():
 @web_utils.route('/utils')
 @login_required
 def utils():
+    localaccess.SetStatusBusy()
     loggedin = session.get('logged_in')
     return render_template('utils.html', editing=0, loggedin=loggedin, log=0, lines=maxlines, stream="")
 

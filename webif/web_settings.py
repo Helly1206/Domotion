@@ -39,6 +39,7 @@ def settings_edited(id):
 @web_settings.route('/settings_edit/<int:id>')
 @login_required
 def settings_edit(id):
+    localaccess.SetStatusBusy()
     cols, data = get_db().ReadSettings()
     editingdata = get_db().BuildFormatDict()
     return render_template('settings.html', cols=cols, data=data, editing=1, editingid=id, editingdata=editingdata)
@@ -46,5 +47,6 @@ def settings_edit(id):
 @web_settings.route('/settings')
 @login_required
 def settings():
+    localaccess.SetStatusBusy()
     cols, data = get_db().ReadSettings()
     return render_template('settings.html', cols=cols, data=data, editing=0, editingid=0, editingdata={})

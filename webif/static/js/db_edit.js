@@ -50,7 +50,7 @@ function dSensorTypeChanged() {
 }
 
 function SensorDisableBydType(val) {
-	if (val.toLowerCase() == "key") {
+	if ((val.toLowerCase() == "key") || (val == '-')) {
 		document.getElementById("TF3").disabled = false;
 	} else {
 		document.getElementById("TF3").disabled = true;

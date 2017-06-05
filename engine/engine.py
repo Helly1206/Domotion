@@ -59,6 +59,7 @@ class engine(fuel):
         super(engine, self).__init__()
         self.UpdateSensorsPoll()
         self.UpdateSensorsActuatorsGPIO()
+        self.UpdateActuatorsInit()
         self.loopcnt = 0
         self.repeattime = 0
         self.success = True
@@ -163,7 +164,10 @@ class engine(fuel):
         else:
             if (self.statuslight):
                 if (self.success):
-                    self.statuslight.Ok()
+                    if (self.localaccess.GetStatusBusy()):
+                        self.statuslight.Busy()
+                    else:
+                        self.statuslight.Ok()
                 else:
                     self.statuslight.Error()
             if (not self.success):
