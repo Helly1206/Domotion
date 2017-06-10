@@ -92,7 +92,6 @@ class lirc(Thread):
                 self.lircrunning = self.lircif.init(1)
             else:
                 self.lircrunning = False
-            print self.lircrunning 
         self.mutex.release()
         return self.lircrunning
 

@@ -153,7 +153,7 @@ def status(tableid):
         get_db().DeleteOldHolidays()
         cols, data = get_db().GetHolidays()
         digital = None
-        type = None
+        dtype = None
     else:
         cols, data, digital, dtype = get_db().GetDevices(tableid)
     return render_template('status.html', editing=0, tableid=tableid, cols=cols, data=data, editingdata=None, digital=digital, dtype=dtype, editingid=0, format=fmt)

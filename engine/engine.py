@@ -133,7 +133,7 @@ class engine(fuel):
                     self.UpdateSensorsActuatorsGPIO()
                     self.UpdateRepeat()
                     self.InitRepeats()
-                    self.timer.UpdateAll()
+                    self.timer.UpdateAll(True)
                     self.valueretainer.Update()
                     self.logger.info("Process updated")
                 elif (retval ==  "settings"):

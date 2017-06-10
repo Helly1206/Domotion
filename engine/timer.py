@@ -80,11 +80,11 @@ class timer(Thread):
         except Exception, e:
             self.logger.exception(e)
 
-    def UpdateAll(self):
+    def UpdateAll(self, Settings=False):
         retval = self.UpdateSunRiseSet()
         if (retval):
             localaccess.UpdateToday()
-            self.UpdateTimers()
+            self.UpdateTimers(Settings)
         return (retval)
 
     def UpdateSunRiseSet(self):
@@ -111,22 +111,22 @@ class timer(Thread):
         zone = localaccess.GetSetting('Timezone')
         return timecalc().SunRiseSet(date[2], date[1], date[0], lon, lat, zone, date[3])
 
-    def UpdateTimers(self):
+    def UpdateTimers(self, Settings=False):
         retval = True
         self.mutex.acquire()
         Ids=localaccess.GetTimerIds()
 
         for Id in Ids:
-            self._UpdateTimer(Id)
+            self._UpdateTimer(Id, Settings=Settings)
         self.mutex.release()
         return (retval)
 
     def UpdateOffsetTimer(self, Id):
         self.mutex.acquire()
-        self._UpdateTimer(Id, True)
+        self._UpdateTimer(Id, UpdateOffset=True)
         self.mutex.release()
 
-    def _UpdateTimer(self, Id, UpdateOffset=False):
+    def _UpdateTimer(self, Id, UpdateOffset=False, Settings=False):
         props=localaccess.GetTimerProperties(Id)
         if (self._TimerToday(props)):
             if (props['Method'] == 0): # Fixed
@@ -138,7 +138,7 @@ class timer(Thread):
             elif (props['Method'] == 3): # Offset
                 if (UpdateOffset):
                     localaccess.SetTimer(Id,localaccess.GetModTime()+props['Minutes_Offset'])
-                else:
+                elif (Settings):
                     localaccess.SetTimer(Id, -1)        
         else:
             localaccess.SetTimer(Id, -1)
@@ -177,4 +177,8 @@ class timer(Thread):
         for Id in TimerValues:
             if (TimerValues[Id] == Mod):
                 self.commandqueue.put_id("Timer", Id, 1)
+                # remove on offset timer, keep the rest intact
+                props=localaccess.GetTimerProperties(Id)
+                if (props['Method'] == 3): # Offset
+                    localaccess.SetTimer(Id, -1)
         return

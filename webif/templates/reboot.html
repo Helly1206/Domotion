@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-    <title>Restart</title>
+    <title>Reboot</title>
     <meta content="helly" name="author">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/icon16.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
@@ -12,8 +12,8 @@
     {% set tab = "login" %}
     {% include "banner.html" ignore missing %} 
     <div class="container">
-      <h3>Restart required, restart Domotion?</h2>
-      <form action="/utils/restart_dialog" method="post">
+      <h3>Reboot Domotion?</h2>
+      <form action="/utils/reboot_dialog" method="post">
         <div>
           <table style="width: 300px;">
             <tbody>

@@ -33,6 +33,7 @@ LOG_MAXSIZE = 100*1024*1024
 DB_FILENAME = "Domotion.db"
 VERSION = "0.01"
 LoopTime = 0.1
+RestartSleepTime = 2
 LogMemory = 100
 
 #########################################################
@@ -268,6 +269,7 @@ if __name__ == '__main__':
                 os.close(handler.fd)
         except Exception, e:
             pass
+        sleep(RestartSleepTime)
         python = sys.executable
         os.execl(python, python, *sys.argv)
     

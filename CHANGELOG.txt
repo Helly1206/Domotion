@@ -1,3 +1,13 @@
+[B]0.9.8[/B]
+- Endurance tests executed
+- Fixed typo in holidays web-access
+- Do not enter error mode if a 'SetOnce' actuator is set twice. Just don't execute and log info
+- Fixed timer overflow (at end of day)
+- Fixed deletion of offset timers during update (they are only deleted when settings change or fired)
+- Fixed dependency issue
+- Fixed typo in settings description
+- Added reboot and shutdown options to reboot or shutdown the system from the web interface
+
 [B]0.9.7[/B]
 - Hardware tests executed
 - Updated StatusLightFlash setting on switched on actuators during startup

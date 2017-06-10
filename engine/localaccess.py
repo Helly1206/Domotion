@@ -17,7 +17,7 @@ import signal
 import logging
 from time import sleep, localtime, strftime
 from datetime import date, datetime
-from os import urandom
+from os import urandom, system
 #########################################################
 
 ## WILL BE a dict !!!!
@@ -54,6 +54,18 @@ class AppKiller(object):
 
     @classmethod
     def exit_app(cls, signum, frame):
+        cls.kill_now = True 
+        cls.restart = False
+
+    @classmethod
+    def shutdown(cls):
+        system("sudo shutdown -h now")
+        cls.kill_now = True 
+        cls.restart = False
+
+    @classmethod
+    def reboot(cls):
+        system("sudo shutdown -r now")
         cls.kill_now = True 
         cls.restart = False
 
@@ -248,6 +260,8 @@ class localaccess(db_read):
         retval = None
         if (cls._acquire()):
             if timer in cls.TimerValues:
+                if (value > 24*60-1):
+                    value = value % (24*60)
                 cls.TimerValues[timer] = value
                 retval = value
             cls._release()

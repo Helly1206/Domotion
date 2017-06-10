@@ -78,7 +78,6 @@ class fuel(object):
             retval = self._logiccombine(combs,vals)
             if (invert):
                 retval = (not retval) 
-
         return (retval)
 
     def _actuate(self, Id, value):
@@ -105,13 +104,12 @@ class fuel(object):
 
     def _logiccombine(self, combs, vals):
         retval = True
-        for i in range(0, len(vals)-1):
+        for i in range(0, len(vals)):
             if (i<len(combs)):
                 retval = self._logic(vals[i], combs[i], vals[i+1])
-            else:
+                vals[i+1] = retval
+            elif (len(combs) == 0):
                 retval = vals[i]
-            vals[i+1] = retval
-
         return (retval)
 
     def _logic(self,val1, comb, val2):
@@ -170,6 +168,7 @@ class fuel(object):
         curval = self.localaccess.GetActuator(Id)
         if ((props['SetOnce']) and (curval == value)):
             self.logger.info("Actuator: %s not set; SetOnce active, value: %f", props['Name'], value)
+            retval = True
         else:
             if (self._DoSetActuator(props, value)):
                 if ((not RepeatAction) and (props['Repeat'])):
