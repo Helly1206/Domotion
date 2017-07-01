@@ -155,13 +155,13 @@ class timer(Thread):
         elif (Today == 1): #home day
             if (home == 2): #inactive during home
                 retval = False
-            elif (trip == 1): # active during trip, then inactive during home day
-                retval = False
+            #elif (trip == 1): # active during trip, then inactive during home day
+            #    retval = False
         else: #trip day
             if (trip == 2): #inactive during trip
                 retval = False
-            elif (home == 1): # active during home, then inactive during trip day
-                retval = False
+            #elif (home == 1): # active during home, then inactive during trip day
+            #    retval = False
 
         return retval
 
