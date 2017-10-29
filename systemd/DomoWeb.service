@@ -1,0 +1,14 @@
+# Domotion Web Server - Service for Domotion Web Server
+
+[Unit]
+Description=Domotion (Home control and automation) Web Server
+Wants=Domotion.service
+After=Domotion.service
+
+[Service]
+Type=simple
+ExecStart=/opt/Domotion/DomoWebStarter
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

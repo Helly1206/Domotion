@@ -33,10 +33,10 @@
                   <td>{{ item }}</td>
                 {% endfor %}
                 {% if editable == 1 %}
-                  <td><a href="/database_edit/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
+                  <td><a href="{{prefix}}/database_edit/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
                     alt="Edit" src={{ url_for('static', filename = "images/edit.png") }}></a>
                   </td>
-                  <td><a href="/database_delete/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="delete"
+                  <td><a href="{{prefix}}/database_delete/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="delete"
                     alt="Del" src={{ url_for('static', filename = "images/delete.png") }}></a>
                   </td>
                 {% endif %}
@@ -45,7 +45,7 @@
           {% endfor %}
           {% if editable == 1 %}
             <tr class='d1'>    
-                <td colspan="100%" style="text-align: left;"><a href="/database_add/{{ tableid }}"><img style="width: 15px; height: 15px;" title="add"
+                <td colspan="100%" style="text-align: left;"><a href="{{prefix}}/database_add/{{ tableid }}"><img style="width: 15px; height: 15px;" title="add"
                   alt="Add" src={{ url_for('static', filename = "images/add.png") }}></a>
                 </td>
             </tr>

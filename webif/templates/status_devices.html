@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='js/status_devices.js') }}"></script>
   </head>
-  <body onload='OnLoadWindow("{{tableid}}")' onunload='OnUnloadWindow()'>
+  <body onload='OnLoadWindow("{{tableid}}","{{prefix}}")' onunload='OnUnloadWindow()'>
     <div class="xtable">
       <table style="width: 100%;" border="0">
         <tbody>

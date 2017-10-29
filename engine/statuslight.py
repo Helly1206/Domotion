@@ -39,7 +39,8 @@ class State(Enum):
 # Class : statuslight                                   #
 #########################################################
 class statuslight(Thread):
-    def __init__(self):
+    def __init__(self, localaccess):
+        self.localaccess = localaccess
         self.light=[0,0,0]
         self.gpio=None
         self.Flash50=False
@@ -59,13 +60,13 @@ class statuslight(Thread):
         self.logger.info("finished")
 
     def AddStatusActuators(self, Actuators):
-        self.light[0]=localaccess.GetSetting('Status_red')
+        self.light[0]=self.localaccess.GetSetting('Status_red')
         if (self.light[0]):
             Actuators.append(self.light[0])
-        self.light[1]=localaccess.GetSetting('Status_yellow')
+        self.light[1]=self.localaccess.GetSetting('Status_yellow')
         if (self.light[1]):
             Actuators.append(self.light[1])
-        self.light[2]=localaccess.GetSetting('Status_green')
+        self.light[2]=self.localaccess.GetSetting('Status_green')
         if (self.light[2]):
             Actuators.append(self.light[2])
         return (Actuators)

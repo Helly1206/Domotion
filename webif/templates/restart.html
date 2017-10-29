@@ -12,9 +12,15 @@
     {% set tab = "login" %}
     {% include "banner.html" ignore missing %} 
     <div class="container">
-      <h3>Restart required, restart Domotion?</h2>
-      <form action="/utils/restart_dialog" method="post">
+      <h3>Restart required, restart Domotion?</h3>
+      {% if (all==1) %}
+        <h4>Domotion and webservers are restarted, refresh may be necessary ...</h4>
+      {% else %}
+        <h4>Only Domotion is restarted ...</h4>
+      {% endif %}
+      <form action="{{prefix}}/utils/restart_dialog" method="post">
         <div>
+          <input type="hidden" name="All" value="{{all}}" />
           <table style="width: 300px;">
             <tbody>
               <tr>

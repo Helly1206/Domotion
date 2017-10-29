@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='js/utils_log.js') }}"></script>
   </head>
-  <body onload='OnLoadWindow({{lines}})' onunload='OnUnloadWindow()'>
+  <body onload='OnLoadWindow({{lines}},"{{prefix}}")' onunload='OnUnloadWindow()'>
     <div style="font-size: small;">
       <textarea readonly id="logarea" style="font-size: 12pt; width: 100%; height: 400px;">{{stream}}</textarea>
       <label id="StatActive">

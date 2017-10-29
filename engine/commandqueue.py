@@ -18,10 +18,8 @@ from Queue import Queue
 #########################################################
 class commandqueue(object):
     _hardware = {0: "None", 1: "Pi433MHz", 2: "Lirc", 3: "Url", 4: "Domoticz", 5: "GPIO", 99: "Timer", 999: "Callback"}
-    _queue = None
     def __init__(self):
         self.queue = Queue()
-        self._initqueue(self.queue)
 
     def __del__(self):
         if (self.queue):
@@ -40,7 +38,12 @@ class commandqueue(object):
         return self.put(self.build_format(hardware, syscode, groupcode, devicecode, URL, Tag, value, sensor))
 
     def put_id(self, hardware, id, value, sensor = True):
-        return self.put(self.build_id(hardware, id, value, sensor))
+        ivalue = 0
+        try:
+            ivalue = int(value)
+        except ValueError:
+            ivalue = float(value)
+        return self.put(self.build_id(hardware, id, ivalue, sensor))
 
     def put_code(self, hardware, syscode, groupcode, devicecode, value, sensor = True):
         return self.put(self.build_code(hardware, syscode, groupcode, devicecode, value, sensor))   
@@ -49,7 +52,7 @@ class commandqueue(object):
         return self.put(self.build_device(hardware, URL, Tag, value, sensor)) 
 
     def callback(self, type):
-        return self.put(self.getkey("Callback"), 0, 0, 0, "", "", int(type), False)  
+        return self.put(self.build_callback(type))  
 
     def build_format(self, hardware, syscode, groupcode, devicecode, URL, Tag, value, sensor = True):
         return (self.getkey(hardware), syscode, groupcode, devicecode, URL, Tag, value, sensor)
@@ -62,6 +65,9 @@ class commandqueue(object):
 
     def build_device(self, hardware, URL, Tag, value, sensor = True):
         return (self.getkey(hardware), 0, 0, 0, URL, Tag, value, sensor)
+
+    def build_callback(self, type):
+        return (self.getkey("Callback"), 0, 0, 0, "", "", type, False)
 
     def join(self):
         return self.queue.task_done()
@@ -96,37 +102,12 @@ class commandqueue(object):
     def issensor(self ,format):
         return (format[7])
 
-    @classmethod
-    def getkey(cls, hardware):
+    def getkey(self, hardware):
         retkey = None
-        for key in cls._hardware.keys():
-            if (cls._hardware[key].lower() == hardware.lower()):
+        for key in self._hardware.keys():
+            if (self._hardware[key].lower() == hardware.lower()):
                 retkey = key
                 break
-
         return retkey
 
-    @classmethod
-    def _initqueue(cls, queue):
-        cls._queue = queue
 
-    @classmethod
-    def put_id2(cls, hardware, id, value, sensor = True):
-        ivalue = 0
-        try:
-            ivalue = int(value)
-        except ValueError:
-            ivalue = float(value)
-        if (cls._queue):
-            cls._queue.put((cls.getkey(hardware), 0, 0, id, "", "", ivalue, sensor))
-            return value
-        else:
-            return None
-
-    @classmethod
-    def callback2(cls, type):
-        if (cls._queue):
-            cls._queue.put((cls.getkey("Callback"), 0, 0, 0, type, "", 0, False))
-            return type
-        else:
-            return None    

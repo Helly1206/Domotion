@@ -7,22 +7,21 @@
 
 ####################### IMPORTS #########################
 from sqlitedb import sqlitedb
-from engine import localaccess
-from utilities import localformat
 
 #########################################################
 
 ####################### GLOBALS #########################
 HolidayDict = {0: "Home", 1: "Trip"}
-DaytypeDict = {0: "Normal day", 1: "Home day", 2: "Trip day"}
+DaytypeDict = {0: "Normal day", 1: "Home day", 2: "Trip day", -1: "Error"}
 
 #########################################################
 # Class : db_read                                       #
 #########################################################
 
 class db_status(object):
-    def __init__(self, dbpath):
-        self.db=sqlitedb(dbpath)
+    def __init__(self, app):
+        self.app = app
+        self.db=sqlitedb(self.app.common.GetDBPath())
 
     def __del__(self):
         del self.db
@@ -67,8 +66,8 @@ class db_status(object):
 
     def AddHolidaysRow(self):
         rowdict = {}
-        rowdict['Start'] = str(localaccess.GetDateOrd())
-        rowdict['End'] = str(localaccess.GetDateOrd())
+        rowdict['Start'] = str(self.app.common.GetDateOrd())
+        rowdict['End'] = str(self.app.common.GetDateOrd())
         return (self.db.AddRow("holidays",rowdict))
 
     def DeleteHolidaysRow(self, id):
@@ -82,7 +81,7 @@ class db_status(object):
         cols=self.db.GetColNames("holidays")
         for col in cols:
             if (col == "Start") or (col == "End"):
-                rowdict[col]=str(localaccess.GetDateOrd(result[col]))
+                rowdict[col]=str(self.app.common.GetDateOrd(result[col]))
             elif not col == "Id":
                 if (result[col]):
                     rowdict[col]=result[col]
@@ -97,7 +96,10 @@ class db_status(object):
         return DictList
 
     def GetTodayString(self):
-        return DaytypeDict[localaccess.GetToday()] 
+        error, today = self.app.domotionaccess.Call("GetToday")
+        if error:            
+            today = -1
+        return DaytypeDict[today] 
 
     def _GetDigitalType(self,table):
         digital = {}
@@ -135,7 +137,7 @@ class db_status(object):
     def _GetToday(self, cols, data):
         start_col = self._GetColumn(cols,"start")
         end_col = self._GetColumn(cols,"end")
-        today_ord = localaccess.GetDateOrd()
+        today_ord = self.app.common.GetDateOrd()
         newdata = []
         for row in data:
             if ((today_ord >= row[start_col]) and (today_ord <= row[end_col])):
@@ -149,7 +151,7 @@ class db_status(object):
     def _GetOldies(self, cols, data):
         id_col = self._GetColumn(cols,"id")
         end_col = self._GetColumn(cols,"end")
-        today_ord = localaccess.GetDateOrd()
+        today_ord = self.app.common.GetDateOrd()
         ids = []
         for row in data:
             if (today_ord > row[end_col]):
@@ -161,50 +163,53 @@ class db_status(object):
         end_col = self._GetColumn(cols,"end")
         newdata = []
         for row in data:
-            startasc = localaccess.DateOrd2Asc(row[start_col])
-            endasc = localaccess.DateOrd2Asc(row[end_col])
+            startasc = self.app.common.DateOrd2Asc(row[start_col])
+            endasc = self.app.common.DateOrd2Asc(row[end_col])
             newrow = row[:start_col] + (startasc,) + (endasc,) + row[end_col+1:]
             newdata.append(newrow)
         return newdata
 
     def _AddActuatorValues(self, cols, data):
         newcol = cols + ["Value"]
-        vals = localaccess.GetActuatorValues()
+        error, vals = self.app.domotionaccess.Call("GetActuatorValues") 
         newdata = []
         for row in data:
             addval = 0
-            for key in vals:
-                if key == row[0]:
-                    addval = vals[key]
+            if not error:
+                for key in vals:
+                    if int(key) == row[0]:
+                        addval = vals[key]
             newrow = row + (addval,)
             newdata.append(newrow)
         return newcol, newdata
 
     def _AddSensorValues(self, cols, data):
         newcol = cols + ["Value"]
-        vals = localaccess.GetSensorValues()
+        error, vals = self.app.domotionaccess.Call("GetSensorValues")
         newdata = []
         for row in data:
             addval = 0
-            for key in vals:
-                if key == row[0]:
-                    addval = vals[key]
+            if not error:
+                for key in vals:
+                    if int(key) == row[0]:
+                        addval = vals[key]
             newrow = row + (addval,)
             newdata.append(newrow)
         return newcol, newdata
 
     def _AddTimerValues(self, cols, data):
         newcol = cols + ["Time","Active"]
-        vals = localaccess.GetTimerValues()
+        error, vals = self.app.domotionaccess.Call("GetTimerValues")
         newdata = []
         for row in data:
-            ttime = localformat.Mod2Asc((0,))[0]
+            ttime = self.app.common.Mod2Asc((0,))[0]
             active = 'False'
-            for key in vals:
-                if key == row[0]:
-                    if (vals[key] >= 0):
-                        ttime = localformat.Mod2Asc((vals[key],))[0]
-                        active = 'True'
+            if not error:
+                for key in vals:
+                    if int(key) == row[0]:
+                        if (int(vals[key]) >= 0):
+                            ttime = self.app.common.Mod2Asc((int(vals[key]),))[0]
+                            active = 'True'
             newrow = row + (ttime,) + (active,)
             newdata.append(newrow)
         return newcol, newdata

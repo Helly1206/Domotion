@@ -87,12 +87,12 @@ def MoveForward():
     print ("Move from '" + FindVLocRead() + "' to '" + FindNVLocWrite() + "'")
     shutil.move(FindVLocRead(), FindNVLocWrite())
 
-if __name__ == '__main__':
-    if (len(sys.argv)>1):
-        if (('-b' in sys.argv) or ('--back' in sys.argv)):
+def RetainerMove(argv):
+    if (len(argv)>1):
+        if (('-b' in argv) or ('--back' in argv)):
             MoveBack()
             exit(0)
-        if (('-f' in sys.argv) or ('--forward' in sys.argv)):
+        if (('-f' in argv) or ('--forward' in argv)):
             MoveForward()
             exit(0)
     print "Domotion Home control and automation, Retainer move tool"
@@ -101,4 +101,7 @@ if __name__ == '__main__':
     print "         RetainerMove <args>"
     print "         -b: move back to it's desired volatile location (when starting)"
     print "         -f: move forward to non volatile location (when shutting down)"
-    exit(1)
+    exit(1)    
+
+if __name__ == '__main__':
+    RetainerMove(sys.argv[1:])

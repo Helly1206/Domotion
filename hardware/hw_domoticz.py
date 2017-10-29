@@ -26,8 +26,10 @@ updatecnt = (1/sleeptime)
 # Class : domoticz_if                                   #
 #########################################################
 class domoticz_if(Thread):
-    def __init__(self, commandqueue):
+    def __init__(self, commandqueue, localaccess, domoticz_api):
         self.commandqueue=commandqueue
+        self.localaccess=localaccess
+        self.domoticz_api=domoticz_api
         self.logger = logging.getLogger('Domotion.Domoticz_if')
         self.sensors = []
         self.actuators = []
@@ -69,14 +71,14 @@ class domoticz_if(Thread):
                     for sensor in self.sensors:
                         succes, value = self._GetSensorDevice(sensor)
                         if (success):
-                            curval = localaccess.GetSensor(sensor)
+                            curval = self.localaccess.GetSensor(sensor)
                             if (curval != value):
                                 self.commandqueue.put_id("Domoticz", sensor, value, True)
                         connected = success
                     for actuator in self.actuators:
                         succes, value = self._GetActuatorDevice(actuator)
                         if (success):
-                            curval = localaccess.GetActuator(actuator)
+                            curval = self.localaccess.GetActuator(actuator)
                             if (curval != value):
                                 self.commandqueue.put_id("Domoticz", actuator, value, False)
                         connected = success
@@ -100,43 +102,43 @@ class domoticz_if(Thread):
     def _GetSensorDevice(self, key):
         success = True
         value = None
-        IDx = int(localaccess.GetSensorProperties(key)['DeviceCode'])
+        IDx = int(self.localaccess.GetSensorProperties(key)['DeviceCode'])
         if (IDx == 0):
             success = False
         if (success):
-            success, device = domoticz_api.getDevice(IDx)
+            success, device = self.domoticz_api.getDevice(IDx)
         if (success):
-            value = domoticz_api.GetValue(device)
+            value = self.domoticz_api.GetValue(device)
         return success, value
 
     def _GetActuatorDevice(self, key):
         success = True
         value = None
-        IDx = int(localaccess.GetActuatorProperties(key)['DeviceCode'])
+        IDx = int(self.localaccess.GetActuatorProperties(key)['DeviceCode'])
         if (IDx == 0):
             success = False
         if (success):
-            success, device = domoticz_api.getDevice(IDx)
+            success, device = self.domoticz_api.getDevice(IDx)
         if (success):
-            value = domoticz_api.GetValue(device)
+            value = self.domoticz_api.GetValue(device)
         return success, value
 
     def _SetSensorDevice(self, key, value):
         success = True
-        IDx = int(localaccess.GetSensorProperties(key)['DeviceCode'])
+        IDx = int(self.localaccess.GetSensorProperties(key)['DeviceCode'])
         if (IDx == 0):
             success = False
         if (success):
-            digital=localaccess.GetSensorDigital(key)
-            success = domoticz_api.setDevice(IDx, value, digital)
+            digital=self.localaccess.GetSensorDigital(key)
+            success = self.domoticz_api.setDevice(IDx, value, digital)
         return success
 
     def _SetActuatorDevice(self, key, value):
         success = True
-        IDx = int(localaccess.GetActuatorProperties(key)['DeviceCode'])
+        IDx = int(self.localaccess.GetActuatorProperties(key)['DeviceCode'])
         if (IDx == 0):
             success = False
         if (success):
-            digital=localaccess.GetActuatorDigital(key)
-            success = domoticz_api.setDevice(IDx, value, digital)
+            digital=self.localaccess.GetActuatorDigital(key)
+            success = self.domoticz_api.setDevice(IDx, value, digital)
         return success

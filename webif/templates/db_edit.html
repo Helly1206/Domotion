@@ -10,7 +10,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/db_edit.js') }}"></script>
 	</head>
   <body onload='OnLoadWindow("{{tableid}}",{{datum|tojson|safe}});'>
-  	<form method="post" action="/database_edited/{{ tableid }}/{{ editingid }}">
+  	<form method="post" action="{{prefix}}/database_edited/{{ tableid }}/{{ editingid }}">
   		<tr class="d5">
   			<td class="d5"> <!-- ID, fixed -->
   				{{ datum[0] }}

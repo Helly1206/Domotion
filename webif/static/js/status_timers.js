@@ -1,10 +1,11 @@
 var nIntervId = 0;
 var TimerOn = 0;
+var route = "";
 
 var TimePicker = null;
 
 function getTimers() {
-  loadJSON('/status/_gettimers', handleValues);
+  loadJSON(route+'/status/_gettimers', handleValues);
 }
 
 function handleValues(resp) {
@@ -22,6 +23,8 @@ function loadJSON(url, callback) {
   xobj.onreadystatechange = function () {
     if (xobj.readyState == 4 && xobj.status == "200") {
       callback(xobj.responseText);
+    } else if (xobj.status != "200") {
+      location.reload();
     }
   };
   xobj.send(null);  
@@ -52,7 +55,8 @@ function ActiveChanged() {
   }
 }
 
-function OnLoadWindow(tid, id) {
+function OnLoadWindow(rt) {
+  route=rt;
   getTimers();
   Timer(1);
 }

@@ -17,13 +17,12 @@ from threading import Lock
 #########################################################
 
 class memorylog(object):
-    Memory=[]
-    size=0
-    wrpos=0
-    rdpos=0
-    mutex = None
-
     def __init__(self, size=0):
+        self.Memory=[]
+        self.size=0
+        self.wrpos=0
+        self.rdpos=0
+        self.mutex = None
         self._initmutex()
         self._setinit(size)
 
@@ -31,117 +30,102 @@ class memorylog(object):
         self._setdel()
         self._delmutex()
 
-    @classmethod
-    def _setinit(cls,size):
-        cls._acquire()
-        cls.wrpos=0
-        cls.rdpos=0
-        cls.size=size
-        cls.Memory=[]
-        cls._release()
+    def _setinit(self,size):
+        self._acquire()
+        self.wrpos=0
+        self.rdpos=0
+        self.size=size
+        self.Memory=[]
+        self._release()
 
-    @classmethod
-    def _setdel(cls):
-        cls._acquire()
-        del cls.Memory
-        cls.Memory=[]
-        cls.wrpos=0
-        cls.rdpos=0
-        cls._release()
+    def _setdel(self):
+        self._acquire()
+        del self.Memory
+        self.Memory=[]
+        self.wrpos=0
+        self.rdpos=0
+        self._release()
 
-    @classmethod
-    def _initmutex(cls):
-        cls.mutex = Lock()
+    def _initmutex(self):
+        self.mutex = Lock()
 
-    @classmethod
-    def _delmutex(cls):
-        del cls.mutex
+    def _delmutex(self):
+        del self.mutex
 
-    @classmethod
-    def _acquire(cls):
-        if (cls.mutex):
-            cls.mutex.acquire()
+    def _acquire(self):
+        if (self.mutex):
+            self.mutex.acquire()
             return True
         else:
             return False
 
-    @classmethod
-    def _release(cls):
-        if (cls.mutex):
-            cls.mutex.release()
+    def _release(self):
+        if (self.mutex):
+            self.mutex.release()
             return True
         else:
             return False
 
-    @classmethod
-    def write(cls,s):
-        cls._acquire()
-        if (cls.size>0):
-            if (cls.wrpos>=cls.size):
-                cls.Memory.pop(0)
-                if (cls.rdpos>0):
-                    cls.rdpos-=1
-        cls.Memory.append(s)
-        cls.wrpos=len(cls.Memory)
-        cls._release()
+    def write(self,s):
+        self._acquire()
+        if (self.size>0):
+            if (self.wrpos>=self.size):
+                self.Memory.pop(0)
+                if (self.rdpos>0):
+                    self.rdpos-=1
+        self.Memory.append(s)
+        self.wrpos=len(self.Memory)
+        self._release()
 
-    @classmethod
-    def writelines(cls,sl):
+    def writelines(self,sl):
         for s in sl:
-            cls.write(s)
+            self.write(s)
 
-    @classmethod
-    def readline(cls):
+    def readline(self):
         strbuf=""
-        cls._acquire()
-        oldpos=cls.rdpos
-        if (oldpos<cls.wrpos):
-            cls.rdpos+=1
-            strbuf=cls.Memory[oldpos]
-        cls._release()
+        self._acquire()
+        oldpos=self.rdpos
+        if (oldpos<self.wrpos):
+            self.rdpos+=1
+            strbuf=self.Memory[oldpos]
+        self._release()
         return (strbuf)
 
-    @classmethod
-    def readlines(cls):
+    def readlines(self):
         buf=[]
-        cls._acquire()
-        oldpos=cls.rdpos
-        if (oldpos<cls.wrpos):
-            cls.rdpos=cls.wrpos
-            buf=cls.Memory[oldpos:]
-        cls._release()
+        self._acquire()
+        oldpos=self.rdpos
+        if (oldpos<self.wrpos):
+            self.rdpos=self.wrpos
+            buf=self.Memory[oldpos:]
+        self._release()
         return (buf)
 
-    @classmethod
-    def read(cls):
-        return cls.readline()
+    def read(self):
+        return self.readline()
 
-    @classmethod
-    def getvalue(cls):
-        cls._acquire()
-        cls.rdpos=cls.wrpos
-        buf=''.join(cls.Memory)
-        cls._release()
+    def getvalue(self):
+        self._acquire()
+        self.rdpos=self.wrpos
+        buf=''.join(self.Memory)
+        self._release()
         return (buf)
 
-    @classmethod
-    def tell(cls):
-        cls._acquire()
-        pos=(cls.rdpos)
-        cls._release()
+    def tell(self):
+        self._acquire()
+        pos=(self.rdpos)
+        self._release()
         return (pos)
 
-    @classmethod
-    def seek(cls, pos):
-        cls._acquire()
-        if (pos>cls.wrpos):
-            cls.rdpos=cls.wrpos
+    def seek(self, pos):
+        self._acquire()
+        if (pos>self.wrpos):
+            self.rdpos=self.wrpos
         elif (pos<0):
-            cls.rdpos=0
+            self.rdpos=0
         else:
-            cls.rdpos=pos
-        cls._release()
+            self.rdpos=pos
+        self._release()
 
-    @classmethod
-    def close(cls): 
-        cls._setdel()   
+    def close(self): 
+        self._setdel()   

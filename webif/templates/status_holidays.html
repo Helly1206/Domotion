@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='js/status_holidays.js') }}"></script>
   </head>
-  <body onload='OnLoadWindow()' onunload='OnUnloadWindow()'>
+  <body onload='OnLoadWindow("{{prefix}}")' onunload='OnUnloadWindow()'>
     <div class="xtable">
       <table style="width: 100%;" border="0">
         <tbody>
@@ -51,10 +51,10 @@
                   <td>{{ item }}</td>
                 {% endfor %}
                 {% if (editing==0) %}
-                  <td><a href="/status/holidays_edit/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
+                  <td><a href="{{prefix}}/status/holidays_edit/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
                     alt="Edit" src={{ url_for('static', filename = "images/edit.png") }}></a>
                   </td>
-                  <td><a href="/status/holidays_delete/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="delete"
+                  <td><a href="{{prefix}}/status/holidays_delete/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="delete"
                     alt="Del" src={{ url_for('static', filename = "images/delete.png") }}></a>
                   </td>
                 {% endif %}
@@ -63,7 +63,7 @@
           {% endfor %}
           {% if (editing==0) %}
             <tr class='d1'>    
-                <td colspan="100%" style="text-align: left;"><a href="/status/holidays_add"><img style="width: 15px; height: 15px;" title="add"
+                <td colspan="100%" style="text-align: left;"><a href="{{prefix}}/status/holidays_add"><img style="width: 15px; height: 15px;" title="add"
                   alt="Add" src={{ url_for('static', filename = "images/add.png") }}></a>
                 </td>
             </tr>

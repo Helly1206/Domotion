@@ -19,6 +19,7 @@ import sqlite3
 class sqlitedb(object):
     def __init__(self, dbpath):
         self.conn = sqlite3.connect(dbpath, check_same_thread=False)
+        self.OperationalError = sqlite3.OperationalError
     def __del__(self):
         # Closing the connection to the database file
         self.conn.close()
@@ -70,20 +71,17 @@ class sqlitedb(object):
             c.execute("SELECT {cl} FROM {tn} WHERE {fn}='{sd}'".format(cl=column, tn=table_name, fn=field, sd=searchdata))
         return c.fetchall()
 
+    def CreateTable(self, table_name, params):
+        c = self.conn.cursor()
+        c.execute("CREATE TABLE IF NOT EXISTS {tn} ({pm});".format(tn=table_name, pm=params))
+        self.conn.commit()
+        return
+
     def ClearTable(self, table_name):
         c = self.conn.cursor()
         c.execute("DELETE FROM {tn}".format(tn=table_name))
         self.conn.commit()
         return
-
-    def ClearDB(self):
-        self.ClearTable(ACTUATORS)
-        self.ClearTable(COMBINERS)
-        self.ClearTable(DEPENDENCIES)
-        self.ClearTable(SENSORS)
-        self.ClearTable(TIMERS)
-        #do not clear types, only if add types later?
-        #self.ClearTable(TYPES)
 
     def AddRow(self, table_name, rowdict):
         names = ""

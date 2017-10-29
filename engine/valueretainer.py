@@ -22,7 +22,8 @@ filename = "DomotionRetainer.dat"
 # Class : valueretainer                                 #
 #########################################################
 class valueretainer(object):
-    def __init__(self):
+    def __init__(self, localaccess):
+        self.localaccess = localaccess
         self.Retainer = False
         self.RetainerPath = ""
         self.Update()
@@ -32,7 +33,7 @@ class valueretainer(object):
         self.RetainerPath = ""
 
     def Update(self):
-        if (localaccess.GetSetting('Retain_values')):
+        if (self.localaccess.GetSetting('Retain_values')):
             self.Retainer = self._CheckLocation()
         else:
             self.Retainer = False
@@ -70,14 +71,14 @@ class valueretainer(object):
             if (Devices):
                 if (len(Devices) == 2):
                     for Id in Devices[0]:
-                        localaccess.SetSensor(int(Id), Devices[0][Id])
+                        self.localaccess.SetSensor(int(Id), Devices[0][Id])
                     for Id in Devices[1]:
-                        localaccess.SetActuator(int(Id), Devices[1][Id])
+                        self.localaccess.SetActuator(int(Id), Devices[1][Id])
         return
 
     def SetDevices(self):
         if (self.Retainer):
-            Devices = [localaccess.GetSensorValues(), localaccess.GetActuatorValues()]
+            Devices = [self.localaccess.GetSensorValues(), self.localaccess.GetActuatorValues()]
             self._save_obj(Devices)
         return
 

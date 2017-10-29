@@ -12,8 +12,8 @@
     {% set tab = "login" %}
     {% include "banner.html" ignore missing %} 
     <div class="container">
-      <h3>Shutdown Domotion?</h2>
-      <form action="/utils/shutdown_dialog" method="post">
+      <h3>Shutdown Domotion?</h3>
+      <form action="{{prefix}}/utils/shutdown_dialog" method="post">
         <div>
           <table style="width: 300px;">
             <tbody>

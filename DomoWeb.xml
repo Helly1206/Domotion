@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<servers>
+	<httpserver>
+		<ssl>false</ssl>
+		<port>8091</port>
+		<certificate></certificate>
+		<privatekey></privatekey>
+		<externaldeployment>false</externaldeployment>
+		<serveradmin>admin@localhost</serveradmin>
+		<servername>localhost</servername>
+	</httpserver>
+	<httpsserver>
+		<ssl>true</ssl>
+		<port>4043</port>
+		<certificate>/etc/letsencrypt/live/example.com/cert.pem</certificate>
+		<privatekey>/etc/letsencrypt/live/example.com/privkey.pem</privatekey>
+		<externaldeployment>false</externaldeployment>
+		<serveradmin>admin@localhost</serveradmin>
+		<servername>localhost</servername>
+	</httpsserver>
+</servers>

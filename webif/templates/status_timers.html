@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='js/status_timers.js') }}"></script>
   </head>
-  <body onload='OnLoadWindow()' onunload='OnUnloadWindow()'>
+  <body onload='OnLoadWindow("{{prefix}}")' onunload='OnUnloadWindow()'>
     <div class="xtable">
       <table style="width: 100%;" border="0">
         <tbody>
@@ -56,7 +56,7 @@
                   <label id="Active{{datum[0]}}">{{datum[4]}}</label>
                 </td>
                 {% if (editing==0) %}
-                  <td><a href="/status/timers_edit/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
+                  <td><a href="{{prefix}}/status/timers_edit/{{ tableid }}/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
                     alt="Edit" src={{ url_for('static', filename = "images/edit.png") }}></a>
                   </td>
                 {% endif %}
@@ -65,7 +65,7 @@
           {% endfor %}
           {% if (editing==0) %}
             <tr class='d1'>    
-              <td colspan="100%" style="text-align: left;"><a style="color: black;" href="/status/timers_recalc">Recalculate <img style="width: 15px; height: 15px;" title="recalculate" alt="Recalculate" src={{ url_for('static', filename = "images/warning.png") }}></a>
+              <td colspan="100%" style="text-align: left;"><a style="color: black;" href="{{prefix}}/status/timers_recalc">Recalculate <img style="width: 15px; height: 15px;" title="recalculate" alt="Recalculate" src={{ url_for('static', filename = "images/warning.png") }}></a>
               </td>
             </tr>
           {% endif %}

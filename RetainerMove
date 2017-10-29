@@ -1,5 +1,6 @@
-#!/bin/bash
+#!/usr/bin/python
 
-SOURCE="${BASH_SOURCE[0]}"
-SRCDIR=$(dirname $SOURCE)
-/usr/bin/python $SRCDIR//RetainerMove.py $@
+from main import RetainerMove
+from sys import argv
+
+RetainerMove(argv[1:])

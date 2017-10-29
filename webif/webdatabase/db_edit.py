@@ -6,8 +6,8 @@
 #########################################################
 
 ####################### IMPORTS #########################
+
 from sqlitedb import sqlitedb
-from utilities import localformat
 import random
 
 #########################################################
@@ -28,8 +28,9 @@ DepCombDict = {0: "-", 1: "and", 2: "nand", 3: "or", 4: "nor", 5: "xor", 6: "xno
 #########################################################
 
 class db_edit(object):
-    def __init__(self, dbpath):
-        self.db=sqlitedb(dbpath)
+    def __init__(self, app):
+        self.app = app
+        self.db=sqlitedb(self.app.common.GetDBPath())
 
     def __del__(self):
         del self.db
@@ -92,10 +93,10 @@ class db_edit(object):
                     if ('rf' in typename) or ('timer' in typename) or ('domoticz' in typename) or ('gpio' in typename):
                         rowdict[col]=result[col]
                 elif col == "DeviceURL":
-                    if ('url' in typename) or('ir' in typename):
+                    if ('url' in typename) or ('ir' in typename) or ('script' in typename):
                         rowdict[col]=result[col]    
                 elif col == "KeyTag":
-                    if ('url' in typename) or('ir' in typename):
+                    if ('url' in typename) or ('ir' in typename) or ('script' in typename):
                         rowdict[col]=result[col]
                 elif not col == "Id":
                     if (result[col]):
@@ -110,7 +111,7 @@ class db_edit(object):
                     if ('sunrise' in method) or ('sunset' in method) or ('offset' in method):
                         rowdict[col]="0"
                     else:
-                        rowdict[col]= str(localformat.Asc2Mod(result['Time']))
+                        rowdict[col]= str(self.app.common.Asc2Mod(result['Time']))
                 elif col == "Minutes_Offset":
                     if ('fixed' in method):
                         rowdict[col]="0"
@@ -167,7 +168,7 @@ class db_edit(object):
         elif (tableid.lower() == "timers"):
             # options: method, weekdays
             DictList.append(MethodDict)
-            DictList.append(localformat.GetWeekdayDict())
+            DictList.append(self.app.common.GetWeekdayDict())
             DictList.append(ActiveDict)
         elif (tableid.lower() == "processors"):
             # options: timers, sensors, digital, operator, sensorval, combiners
@@ -515,7 +516,7 @@ class db_edit(object):
         # Modify data
         newdata = []
         for row in data:
-            newrow = row[:Offset_col+1] + (localformat.Mod2Asc((row[Offset_col+1],)),)[0] + row[Offset_col+2:]
+            newrow = row[:Offset_col+1] + (self.app.common.Mod2Asc((row[Offset_col+1],)),)[0] + row[Offset_col+2:]
             newdata.append(newrow)
 
         return newcols, newdata   

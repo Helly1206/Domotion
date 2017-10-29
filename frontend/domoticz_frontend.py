@@ -26,8 +26,10 @@ messagename = "Domotion Messages"
 # Class : domoticz_frontend                             #
 #########################################################
 class domoticz_frontend(Thread):
-    def __init__(self, commandqueue):
+    def __init__(self, commandqueue, localaccess, domoticz_api):
         self.commandqueue = commandqueue
+        self.localaccess = localaccess
+        self.domoticz_api = domoticz_api
         self.logger = logging.getLogger('Domotion.Domoticz_frontend')
         Thread.__init__(self)
         self.term = Event()
@@ -65,7 +67,7 @@ class domoticz_frontend(Thread):
         idx = self.MessageIDx
         self.mutex.release()
         if (idx):
-            success = domoticz_api.setDevice(idx, message, False)
+            success = self.domoticz_api.setDevice(idx, message, False)
         return success
 
     def run(self):
@@ -80,7 +82,7 @@ class domoticz_frontend(Thread):
                 if (not connected):
                     gethardware = True
                     if (counter % testcnt == 0):
-                        connected = domoticz_api.getDummy()
+                        connected = self.domoticz_api.getDummy()
                         if (connected):
                             self.logger.info("connection established")
                         elif (firstconn):
@@ -119,10 +121,10 @@ class domoticz_frontend(Thread):
 
     def _updatesettings(self):
         self.mutex.acquire()
-        self.devices = localaccess.GetSetting('Domoticz_devices')
-        self.sensors_poll = localaccess.GetSetting('Domoticz_sensors_poll')
-        self.actuators_poll = localaccess.GetSetting('Domoticz_actuators_poll')
-        self.message = localaccess.GetSetting('Domoticz_message')
+        self.devices = self.localaccess.GetSetting('Domoticz_devices')
+        self.sensors_poll = self.localaccess.GetSetting('Domoticz_sensors_poll')
+        self.actuators_poll = self.localaccess.GetSetting('Domoticz_actuators_poll')
+        self.message = self.localaccess.GetSetting('Domoticz_message')
         self.mutex.release()
         return self.message
 
@@ -137,7 +139,7 @@ class domoticz_frontend(Thread):
                 self.mutex.release()
             else:
                 # Messagedevice doesn't exist, add (type 5 is text sensor)
-                success = domoticz_api.addDevice(self.Hardware, messagename, [5])
+                success = self.domoticz_api.addDevice(self.Hardware, messagename, [5])
                 if (success):
                     success, idx = self._DomotionIdx(messagename)
                 if (success):
@@ -146,7 +148,7 @@ class domoticz_frontend(Thread):
                     self.mutex.release()
         elif ((not self.message) and (self.MessageIDx != 0)):
             # messaging switched off, delete device
-            success = domoticz_api.deleteDevice(self.MessageIDx)
+            success = self.domoticz_api.deleteDevice(self.MessageIDx)
             if (success):
                 self.mutex.acquire()
                 self.MessageIDx = 0
@@ -159,8 +161,8 @@ class domoticz_frontend(Thread):
         success,devices = self._DomotionDevices()
         if (success):
             #get all sensors and actuators domotion
-            sensors = localaccess.GetSensorNames()
-            actuators = localaccess.GetActuatorNames()
+            sensors = self.localaccess.GetSensorNames()
+            actuators = self.localaccess.GetActuatorNames()
             # couple idx for update
             ActiveDev = self._UpdateIDx(devices,sensors,actuators)
             if (self.devices):
@@ -193,10 +195,10 @@ class domoticz_frontend(Thread):
 
     def _writeInitialValues(self):
         success = True
-        for Id in localaccess.GetSensorValues():
-            self._SetSensorDevice(Id,localaccess.GetSensor(Id))
-        for Id in localaccess.GetActuatorValues():
-            self._SetActuatorDevice(Id,localaccess.GetActuator(Id))    
+        for Id in self.localaccess.GetSensorValues():
+            self._SetSensorDevice(Id,self.localaccess.GetSensor(Id))
+        for Id in self.localaccess.GetActuatorValues():
+            self._SetActuatorDevice(Id,self.localaccess.GetActuator(Id))    
         return success
 
     def _UpdateIDx(self,devices,sensors,actuators):
@@ -231,9 +233,9 @@ class domoticz_frontend(Thread):
 
     def _AddSensor(self,name,key):
         success = True
-        sensortype=localaccess.GetSensorType(key)
+        sensortype=self.localaccess.GetSensorType(key)
         if (sensortype):
-            success = domoticz_api.addDevice(self.Hardware, name, sensortype)
+            success = self.domoticz_api.addDevice(self.Hardware, name, sensortype)
             if (success):
                 success, IDx = self._DomotionIdx(name)
                 if (success):
@@ -241,16 +243,16 @@ class domoticz_frontend(Thread):
                     self.mutex.acquire()
                     self.SensorIDx[key] = IDx
                     self.mutex.release()
-                    success = domoticz_api.updateDevice(IDx, name, sensortype, True)
+                    success = self.domoticz_api.updateDevice(IDx, name, sensortype, True)
             else:
                 self.logger.warning("Adding sensor failed: %s", name)
         return success
 
     def _AddActuator(self,name,key):
         success = True
-        actuatortype=localaccess.GetActuatorType(key)
+        actuatortype=self.localaccess.GetActuatorType(key)
         if (actuatortype):
-            success = domoticz_api.addDevice(self.Hardware, name, actuatortype)
+            success = self.domoticz_api.addDevice(self.Hardware, name, actuatortype)
             if (success):
                 success, IDx = self._DomotionIdx(name)
                 if (success):
@@ -258,18 +260,18 @@ class domoticz_frontend(Thread):
                     self.mutex.acquire()
                     self.ActuatorIDx[key] = IDx
                     self.mutex.release()
-                    success = domoticz_api.updateDevice(IDx, name, actuatortype, True)
+                    success = self.domoticz_api.updateDevice(IDx, name, actuatortype, True)
             else:
                 self.logger.warning("Adding actuator failed: %s", name)
         return success
     
     def _UpdateSensor(self, devices, name, key):
         success = True
-        sensortype=localaccess.GetSensorType(key)
+        sensortype=self.localaccess.GetSensorType(key)
         if (sensortype):
             for device in devices:
                 if (device['Name'] == name):
-                    devicetype = domoticz_api.GetDeviceType(device)
+                    devicetype = self.domoticz_api.GetDeviceType(device)
                     if (sensortype[0] != devicetype[0]):
                         success = self._DelDevice(devices,int(device['idx']))
                         if (success):
@@ -279,7 +281,7 @@ class domoticz_frontend(Thread):
                         else:
                             self.logger.warning("Deleting/ adding changed sensor failed: %s", name)
                     elif (sensortype[1] != devicetype[1]):
-                        success = domoticz_api.updateDevice(device['idx'], name, sensortype, True)
+                        success = self.domoticz_api.updateDevice(device['idx'], name, sensortype, True)
                         if (success):
                             self.logger.info("Updated changed sensor: %s", name)
                         else:
@@ -290,11 +292,11 @@ class domoticz_frontend(Thread):
     # Cannot be done from Domotion, do not execute
     def _UpdateActuator(self, devices, name, key):
         success = True
-        actuatortype=localaccess.GetActuatorType(key)
+        actuatortype=self.localaccess.GetActuatorType(key)
         if (actuatortype):
             for device in devices:
                 if (device['Name'] == name):
-                    devicetype = domoticz_api.GetDeviceType(device)
+                    devicetype = self.domoticz_api.GetDeviceType(device)
                     if (actuatortype[0] != devicetype[0]):
                         success = self._DelDevice(devices,int(device['idx']))
                         if (success):
@@ -304,7 +306,7 @@ class domoticz_frontend(Thread):
                         else:
                             self.logger.warning("Deleting/ adding changed actuator failed: %s", name)
                     elif (actuatortype[1] != devicetype[1]):
-                        success = domoticz_api.updateDevice(device['idx'], name, actuatortype, True)
+                        success = self.domoticz_api.updateDevice(device['idx'], name, actuatortype, True)
                         if (success):
                             self.logger.info("Updated changed actuator: %s", name)
                         else:
@@ -324,7 +326,7 @@ class domoticz_frontend(Thread):
                 break
         #delete
         if (found):
-            success = domoticz_api.deleteDevice(IDx)
+            success = self.domoticz_api.deleteDevice(IDx)
             if (success):
                 self.logger.info("Deleted obsolete device: %s", name)
                 #update sensors and actuators IDx
@@ -352,15 +354,15 @@ class domoticz_frontend(Thread):
                 for device in devices:
                     IDx = int(device['idx'])
                     if (IDx != self.MessageIDx):
-                        value = domoticz_api.GetValue(device)
+                        value = self.domoticz_api.GetValue(device)
                         if ((IDx in self.SensorIDx.values()) and (self.sensors_poll)):
                             id=self.SensorIDx.keys()[self.SensorIDx.values().index(IDx)]
-                            curval = localaccess.GetSensor(id)
+                            curval = self.localaccess.GetSensor(id)
                             if (curval != value):
                                 sensorvalues[id]=value
                         if ((IDx in self.ActuatorIDx.values()) and (self.actuators_poll)):    
                             id=self.ActuatorIDx.keys()[self.ActuatorIDx.values().index(IDx)]
-                            curval = localaccess.GetActuator(id)
+                            curval = self.localaccess.GetActuator(id)
                             if (curval != value):
                                 actuatorvalues[id]=value
         return success, sensorvalues, actuatorvalues
@@ -372,8 +374,8 @@ class domoticz_frontend(Thread):
         else:
             success = False
         if (success):
-            digital=localaccess.GetSensorDigital(key)
-            success = domoticz_api.setDevice(IDx, value, digital)
+            digital=self.localaccess.GetSensorDigital(key)
+            success = self.domoticz_api.setDevice(IDx, value, digital)
         return success
 
     def _SetActuatorDevice(self, key, value):
@@ -383,14 +385,14 @@ class domoticz_frontend(Thread):
         else:
             success = False
         if (success):
-            digital=localaccess.GetActuatorDigital(key)
-            success = domoticz_api.setDevice(IDx, value, digital)
+            digital=self.localaccess.GetActuatorDigital(key)
+            success = self.domoticz_api.setDevice(IDx, value, digital)
         return success
 
     def _DomotionHardware(self):
         success = False
 
-        success, result = domoticz_api.getHardware()
+        success, result = self.domoticz_api.getHardware()
         if (success):
             if (result["status"] == 'OK'):
                 Hardware = None
@@ -399,7 +401,7 @@ class domoticz_frontend(Thread):
                         Hardware = res
                         if (Hardware["Enabled"] == "false"):
                             self.logger.info("Disabled hardware found, enable")
-                            success,res = domoticz_api.enableHardware(Hardware["idx"])
+                            success,res = self.domoticz_api.enableHardware(Hardware["idx"])
                             if (success):
                                 if (res["status"] != "OK"):
                                     self.logger.error("Cannot enable hardware, create a new one")
@@ -410,7 +412,7 @@ class domoticz_frontend(Thread):
                 if not Hardware:
                     #create new
                     self.logger.info("No hardware found, create new one")
-                    success,res = domoticz_api.createHardware()
+                    success,res = self.domoticz_api.createHardware()
                     if (success):
                         if (res["status"] != "OK"):
                             self.logger.error("Cannot create hardware")
@@ -427,7 +429,7 @@ class domoticz_frontend(Thread):
         Hardware = self.Hardware
         self.mutex.release()
         if (Hardware): 
-            success,result = domoticz_api.getDevices()
+            success,result = self.domoticz_api.getDevices()
         else:
             success = False
         if (success):

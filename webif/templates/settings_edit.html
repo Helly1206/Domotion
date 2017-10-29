@@ -8,7 +8,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/settings_edit.js') }}"></script>
   </head>
   <body onload='OnLoadWindow("{{editingdata[datum[0]]}}",{{datum|tojson|safe}});'>
-  	<form method="post" action="/settings_edited/{{ editingid }}">
+  	<form method="post" action="{{prefix}}/settings_edited/{{ editingid }}">
   		<tr class="d5">
   			<td class="d5"> <!-- ID, fixed -->
   				{{ datum[0] }}

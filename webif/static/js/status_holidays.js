@@ -1,11 +1,12 @@
 var nIntervId = 0;
 var TimerOn = 0;
+var route = "";
 
 var StartPicker = null;
 var EndPicker = null;
 
 function getHolidays() {
-  loadJSON('/status/_getholidays', handleValues);
+  loadJSON(route+'/status/_getholidays', handleValues);
 }
 
 function handleValues(resp) {
@@ -22,6 +23,8 @@ function loadJSON(url, callback) {
   xobj.onreadystatechange = function () {
     if (xobj.readyState == 4 && xobj.status == "200") {
       callback(xobj.responseText);
+    } else if (xobj.status != "200") {
+      location.reload();
     }
   };
   xobj.send(null);  
@@ -60,7 +63,8 @@ function DateChanged() {
   }
 }
 
-function OnLoadWindow() {
+function OnLoadWindow(rt) {
+  route=rt;
   getHolidays();
   Timer(1);
 }

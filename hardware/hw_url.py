@@ -27,8 +27,9 @@ updatecnt = (1/sleeptime)
 # Class : url                                           #
 #########################################################
 class url(Thread):
-    def __init__(self, commandqueue):
+    def __init__(self, commandqueue, localaccess):
         self.commandqueue=commandqueue
+        self.localaccess=localaccess
         self.logger = logging.getLogger('Domotion.url')
         self.sensors = []
         self.actuators = []
@@ -52,8 +53,8 @@ class url(Thread):
     def updatesettings(self):
         if (self.mutex):
             self.mutex.acquire()
-            self._buildauth(localaccess.GetSetting('URL_username'),localaccess.GetSetting('URL_password'))
-            self.SSL=localaccess.GetSetting('URL_SSL')
+            self._buildauth(self.localaccess.GetSetting('URL_username'),self.localaccess.GetSetting('URL_password'))
+            self.SSL=self.localaccess.GetSetting('URL_SSL')
             self.mutex.release()
         return
 
@@ -64,7 +65,7 @@ class url(Thread):
         return self._SetActuatorURL(key, value)
 
     def terminate(self):
-            self.term.set()
+        self.term.set()
 
     def run(self):
         try:
@@ -78,14 +79,14 @@ class url(Thread):
                     for sensor in self.sensors:
                         success, value = self._GetSensorURL(sensor)
                         if (success):
-                            curval = localaccess.GetSensor(sensor)
+                            curval = self.localaccess.GetSensor(sensor)
                             if (curval != value):
                                 self.commandqueue.put_id("Url", sensor, value, True)
                         connected = success
                     for actuator in self.actuators:
                         success, value = self._GetActuatorURL(actuator)
                         if (success):
-                            curval = localaccess.GetActuator(actuator)
+                            curval = self.localaccess.GetActuator(actuator)
                             if (curval != value):
                                 self.commandqueue.put_id("Url", actuator, value, False)
                         connected = success
@@ -164,7 +165,7 @@ class url(Thread):
     def _GetSensorURL(self, key):
         success = True
         value = None
-        prop = localaccess.GetSensorProperties(key)
+        prop = self.localaccess.GetSensorProperties(key)
         success, result = self._httpget(prop['DeviceURL'],{"tag": prop['KeyTag']})
         if (success):
             if ((result[0].lower == 'value') and (result[1] == prop['KeyTag'])):
@@ -176,7 +177,7 @@ class url(Thread):
     def _GetActuatorURL(self, key):
         success = True
         value = None
-        prop = localaccess.GetActuatorProperties(key)
+        prop = self.localaccess.GetActuatorProperties(key)
         success, result = self._httpget(prop['DeviceURL'],{"tag": prop['KeyTag']})
         if (success):
             if ((result[0].lower == 'value') and (result[1] == prop['KeyTag'])):
@@ -187,7 +188,7 @@ class url(Thread):
 
     def _SetSensorURL(self, key, value):
         success = True
-        prop = localaccess.GetSensorProperties(key)
+        prop = self.localaccess.GetSensorProperties(key)
         success, result = self._httpget(prop['DeviceURL'],{"tag": prop['KeyTag'], "value": str(value)})
         if (success):
             if ((result[0].lower == 'stored') and (result[1] == prop['KeyTag'])):
@@ -198,7 +199,7 @@ class url(Thread):
 
     def _SetActuatorURL(self, key, value):
         success = True
-        prop = localaccess.GetActuatorProperties(key)
+        prop = self.localaccess.GetActuatorProperties(key)
         success, result = self._httpget(prop['DeviceURL'],{"tag": prop['KeyTag'], "value": str(value)})
         if (success):
             if ((result[0].lower == 'stored') and (result[1] == prop['KeyTag'])):

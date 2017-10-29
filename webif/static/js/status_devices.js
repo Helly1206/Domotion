@@ -1,17 +1,18 @@
 var nIntervId = 0;
 var TimerOn = 0;
 var TableId = "None";
+var route = "";
 
 function getValues() {
-  loadJSON('/status/_getvalues/'+TableId, handleValues);
+  loadJSON(route+'/status/_getvalues/'+TableId, handleValues);
 }
 
 function getHeaderValues() {
-  loadJSON('/status/_getvalues/Header', handleValues);
+  loadJSON(route+'/status/_getvalues/Header', handleValues);
 }
 
 function setValue(id,value) {
-  var uri='/status/_getvalues/'+TableId+BuildGetRequest(id,value);
+  var uri=route+'/status/_getvalues/'+TableId+BuildGetRequest(id,value);
   loadJSON(uri, handleValues);
 }
 
@@ -48,6 +49,8 @@ function loadJSON(url, callback) {
   xobj.onreadystatechange = function () {
     if (xobj.readyState == 4 && xobj.status == "200") {
       callback(xobj.responseText);
+    } else if (xobj.status != "200") {
+      location.reload();
     }
   };
   xobj.send(null);  
@@ -145,7 +148,8 @@ function BLButtonSet(id, value) {
   }
 }     
 
-function OnLoadWindow(tid) {
+function OnLoadWindow(tid, rt) {
+  route=rt;
   getHeaderValues();
   Timer(1);
   TableId=tid;

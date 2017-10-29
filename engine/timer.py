@@ -22,10 +22,11 @@ updatecnt = (1/sleeptime)
 # Class : timer                                         #
 #########################################################
 class timer(Thread):
-    def __init__(self, commandqueue):
+    def __init__(self, commandqueue, localaccess):
         self.domoticz_api = None
         self.instances_loaded = False
         self.commandqueue=commandqueue
+        self.localaccess=localaccess
         self.logger = logging.getLogger('Domotion.Timer')
         Thread.__init__(self)
         self.term = Event()
@@ -52,7 +53,7 @@ class timer(Thread):
         try:
             counter = 0
             UpdateDone = False
-            Modd = localaccess.GetModTime() - 1 # Stating point for first update
+            Modd = self.localaccess.GetModTime() - 1 # Stating point for first update
             self.logger.info("running")
 
             while (not self.term.isSet()):
@@ -60,10 +61,10 @@ class timer(Thread):
                     if (not UpdateDone):
                         UpdateDone = self.UpdateSunRiseSet()
                         if (UpdateDone):
-                            localaccess.UpdateToday()
+                            self.localaccess.UpdateToday()
                             UpdateDone = self.UpdateTimers()
                     else:
-                        Mod = localaccess.GetModTime()
+                        Mod = self.localaccess.GetModTime()
                         ModAbsDiff = abs(Mod-Modd)
                         if (ModAbsDiff != 0):
                             self.mutex.acquire()
@@ -83,7 +84,7 @@ class timer(Thread):
     def UpdateAll(self, Settings=False):
         retval = self.UpdateSunRiseSet()
         if (retval):
-            localaccess.UpdateToday()
+            self.localaccess.UpdateToday()
             self.UpdateTimers(Settings)
         return (retval)
 
@@ -92,29 +93,30 @@ class timer(Thread):
         self.mutex.acquire()
         if (self.instances_loaded):
             retval = True
-            if (localaccess.GetSetting('Domoticz_sun') and localaccess.GetSetting('Domoticz_frontend') and (self.domoticz_api)):
+            if (self.localaccess.GetSetting('Domoticz_sun') and self.localaccess.GetSetting('Domoticz_frontend') and (self.domoticz_api)):
                 success, srise, sset = self.domoticz_api.getSunRiseSet()
-                if (not success):
-                    self.logger.info("Updating sunrise/ sunset from domoticz failed, calculate locally")
+                if (success):
+                    self.logger.info("Updating sunrise/ sunset: from domoticz")
             else:
                 success = False
             if (not success):
                 srise, sset = self._UpdateFromTimecalc()
-            localaccess.SetSunRiseSetMod(srise,sset)
+                self.logger.info("Updating sunrise/ sunset: calculated locally")
+            self.localaccess.SetSunRiseSetMod(srise,sset)
         self.mutex.release()
         return (retval)
 
     def _UpdateFromTimecalc(self):
-        date = localaccess.GetDateDMY()
-        lon = localaccess.GetSetting('Longitude')
-        lat = localaccess.GetSetting('Latitude')
-        zone = localaccess.GetSetting('Timezone')
+        date = self.localaccess.GetDateDMY()
+        lon = self.localaccess.GetSetting('Longitude')
+        lat = self.localaccess.GetSetting('Latitude')
+        zone = self.localaccess.GetSetting('Timezone')
         return timecalc().SunRiseSet(date[2], date[1], date[0], lon, lat, zone, date[3])
 
     def UpdateTimers(self, Settings=False):
         retval = True
         self.mutex.acquire()
-        Ids=localaccess.GetTimerIds()
+        Ids=self.localaccess.GetTimerIds()
 
         for Id in Ids:
             self._UpdateTimer(Id, Settings=Settings)
@@ -127,28 +129,28 @@ class timer(Thread):
         self.mutex.release()
 
     def _UpdateTimer(self, Id, UpdateOffset=False, Settings=False):
-        props=localaccess.GetTimerProperties(Id)
+        props=self.localaccess.GetTimerProperties(Id)
         if (self._TimerToday(props)):
             if (props['Method'] == 0): # Fixed
-                localaccess.SetTimer(Id,props['Time'])
+                self.localaccess.SetTimer(Id,props['Time'])
             elif (props['Method'] == 1): # Sunrise
-                localaccess.SetTimer(Id,localaccess.GetSunRiseSetMod()[0]+props['Minutes_Offset'])
+                self.localaccess.SetTimer(Id,self.localaccess.GetSunRiseSetMod()[0]+props['Minutes_Offset'])
             elif (props['Method'] == 2): # Sunset
-                localaccess.SetTimer(Id,localaccess.GetSunRiseSetMod()[1]+props['Minutes_Offset'])
+                self.localaccess.SetTimer(Id,self.localaccess.GetSunRiseSetMod()[1]+props['Minutes_Offset'])
             elif (props['Method'] == 3): # Offset
                 if (UpdateOffset):
-                    localaccess.SetTimer(Id,localaccess.GetModTime()+props['Minutes_Offset'])
+                    self.localaccess.SetTimer(Id,self.localaccess.GetModTime()+props['Minutes_Offset'])
                 elif (Settings):
-                    localaccess.SetTimer(Id, -1)        
+                    self.localaccess.SetTimer(Id, -1)        
         else:
-            localaccess.SetTimer(Id, -1)
+            self.localaccess.SetTimer(Id, -1)
         return
 
     #ActiveDict = {0: "-", 1: "Active", 2: "Inactive"}
     #DaytypeDict = {0: "Normal day", 1: "Home day", 2: "Trip day"}
     def _TimerCheckHoliday(self, home, trip):
         retval = True
-        Today = localaccess.GetToday()
+        Today = self.localaccess.GetToday()
         if (Today == 0): #normal day
             if ((home == 1) or (trip == 1)): # active during home or trip, then inactive during normal day
                 retval = False
@@ -168,17 +170,17 @@ class timer(Thread):
     def _TimerToday(self, props):
         retval = False
         if self._TimerCheckHoliday(props['Home'],props['Trip']):
-            day = localaccess.GetWeekday()
+            day = self.localaccess.GetWeekday()
             retval = props[day]
         return (retval)
 
     def _CheckTimersNow(self, Mod):
-        TimerValues = localaccess.GetTimerValues()
+        TimerValues = self.localaccess.GetTimerValues()
         for Id in TimerValues:
             if (TimerValues[Id] == Mod):
                 self.commandqueue.put_id("Timer", Id, 1)
                 # remove on offset timer, keep the rest intact
-                props=localaccess.GetTimerProperties(Id)
+                props=self.localaccess.GetTimerProperties(Id)
                 if (props['Method'] == 3): # Offset
-                    localaccess.SetTimer(Id, -1)
+                    self.localaccess.SetTimer(Id, -1)
         return

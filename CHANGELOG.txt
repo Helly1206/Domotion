@@ -1,3 +1,16 @@
+[B]1.0.0[/B]
+- Detached web application from Domotion application to be able to deploy externally and run multiple web applications simultaneously.
+- Designed communication channel between Domotion and web app.
+- Added script to run web applications during startup (however Domotion will work without any webapp running)
+- Configure web applications with configuration file DomoWeb.xml (Removed SSL and port from settings)
+- Adding configuration for deploying the webserver on Apache2
+- Added script to easily setup Apache2 webserver(s) from DomoWeb.xml
+- Added updater for database to automatically update the database on changes without loosing your setup or settings
+- Updated install script
+- Added prefix for web location
+- Added possiblity to run scripts as actuator
+- Updated restart procedure to be able to restart webservers during restart
+
 [B]0.9.9[/B]
 - Fixed small bug to make it possible for a timer to be active during home-day and trip-day
 

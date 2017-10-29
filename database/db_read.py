@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 #########################################################
-# SERVICE : db_read                                     #
+# SERVICE : db_read sqlitedb                            #
 #           Reading and processing db for home control  #
 #           I. Helwegen 2017                            #
 #########################################################
 
 ####################### IMPORTS #########################
-from sqlitedb import sqlitedb
+import sqlite3
 
 #########################################################
 
@@ -18,14 +18,16 @@ from sqlitedb import sqlitedb
 
 class db_read(object):
     def __init__(self, dbpath):
-        self.db=sqlitedb(dbpath)
+        self.conn = sqlite3.connect(dbpath, check_same_thread=False)
+        self.OperationalError = sqlite3.OperationalError
 
     def __del__(self):
-        del self.db
+        # Closing the connection to the database file
+        self.conn.close()
 
     def FillSensorBuffer(self,SensorDict):
-        sensors=dict(self.db.SelectColumnFromTable("sensors", "Id,Type"))
-        isoutput=dict(self.db.SelectColumnFromTable("types", "Id,IsOutput"))
+        sensors=dict(self._SelectColumnFromTable("sensors", "Id,Type"))
+        isoutput=dict(self._SelectColumnFromTable("types", "Id,IsOutput"))
 
         # Add new ones, don't update existing values
         for key in sensors:
@@ -46,8 +48,8 @@ class db_read(object):
         return SensorDict
 
     def FillActuatorBuffer(self,ActuatorDict):
-        actuators=dict(self.db.SelectColumnFromTable("actuators", "Id,Type"))
-        isoutput=dict(self.db.SelectColumnFromTable("types", "Id,IsOutput"))
+        actuators=dict(self._SelectColumnFromTable("actuators", "Id,Type"))
+        isoutput=dict(self._SelectColumnFromTable("types", "Id,IsOutput"))
 
         # Add new ones, don't update existing values
         for key in actuators:
@@ -68,7 +70,7 @@ class db_read(object):
         return ActuatorDict
 
     def FillTimerBuffer(self,TimerDict):
-        timertups=self.db.SelectColumnFromTable("timers", "Id")
+        timertups=self._SelectColumnFromTable("timers", "Id")
         timers=map(lambda y: y[0], timertups)
 
         # Add new ones, don't update existing values
@@ -84,7 +86,7 @@ class db_read(object):
         return TimerDict
 
     def FillSensorNames(self, SensorDict, Names):
-        sensors=dict(self.db.SelectColumnFromTable("sensors", "Id,Name"))
+        sensors=dict(self._SelectColumnFromTable("sensors", "Id,Name"))
         # add new ones and update
         for key in SensorDict:
             Names[key]=sensors[key]
@@ -97,7 +99,7 @@ class db_read(object):
         return Names
 
     def FillActuatorNames(self, ActuatorDict, Names):
-        actuators=dict(self.db.SelectColumnFromTable("actuators", "Id,Name"))
+        actuators=dict(self._SelectColumnFromTable("actuators", "Id,Name"))
         # add new ones and update
         for key in ActuatorDict:
             Names[key]=actuators[key]
@@ -110,7 +112,7 @@ class db_read(object):
         return Names
 
     def FillTimerNames(self, TimerDict, Names):
-        timers=dict(self.db.SelectColumnFromTable("timers", "Id,Name"))
+        timers=dict(self._SelectColumnFromTable("timers", "Id,Name"))
         # add new ones and update
         for key in TimerDict:
             Names[key]=timers[key]
@@ -124,8 +126,8 @@ class db_read(object):
 
     def FindSensorPollbyHardware(self, Type):
         poll = []
-        spoll=dict(self.db.SelectColumnFromTable("sensors", "Id,Poll"))
-        stype=dict(self.db.SelectColumnFromTable("sensors", "Id,Type"))
+        spoll=dict(self._SelectColumnFromTable("sensors", "Id,Poll"))
+        stype=dict(self._SelectColumnFromTable("sensors", "Id,Type"))
 
         TypeId = self._GetTypeId(Type, False)
 
@@ -136,8 +138,8 @@ class db_read(object):
 
     def FindGPIOSensors(self):
         fsensors = []
-        stype=dict(self.db.SelectColumnFromTable("sensors", "Id,Type"))
-        scode=dict(self.db.SelectColumnFromTable("sensors", "Id,DeviceCode"))
+        stype=dict(self._SelectColumnFromTable("sensors", "Id,Type"))
+        scode=dict(self._SelectColumnFromTable("sensors", "Id,DeviceCode"))
 
         TypeId = self._GetTypeId("pigpio", False)
 
@@ -147,8 +149,8 @@ class db_read(object):
         return (fsensors)
 
     def _GetTypeId(self, Type, OutputType):
-        hwlink=dict(self.db.SelectColumnFromTable("types", "Id,HWlink"))
-        isoutput=dict(self.db.SelectColumnFromTable("types", "Id,IsOutput"))
+        hwlink=dict(self._SelectColumnFromTable("types", "Id,HWlink"))
+        isoutput=dict(self._SelectColumnFromTable("types", "Id,IsOutput"))
 
         TypeId = 0
         for key in hwlink:
@@ -161,7 +163,7 @@ class db_read(object):
         SearchDict['SysCode']=str(SysCode)
         SearchDict['GroupCode']=str(GroupCode)
         SearchDict['DeviceCode']=str(DeviceCode)
-        sensor=self.db.SearchTableMultiple("sensors", "Id", SearchDict, False)
+        sensor=self._SearchTableMultiple("sensors", "Id", SearchDict, False)
         if (sensor):
             return sensor[0][0]
         else:
@@ -171,7 +173,7 @@ class db_read(object):
         SearchDict = {}
         SearchDict['Type']=str(self._GetTypeId("pigpio", False))
         SearchDict['DeviceCode']=str(DeviceCode)
-        sensor=self.db.SearchTableMultiple("sensors", "Id", SearchDict, False)
+        sensor=self._SearchTableMultiple("sensors", "Id", SearchDict, False)
         if (sensor):
             return sensor[0][0]
         else:
@@ -181,14 +183,14 @@ class db_read(object):
         SearchDict = {}
         SearchDict['DeviceURL']=URL
         SearchDict['KeyTag']=URLTag
-        sensor=self.db.SearchTableMultiple("sensors", "Id", SearchDict, False)
+        sensor=self._SearchTableMultiple("sensors", "Id", SearchDict, False)
         if (sensor):
             return sensor[0][0]
         else:
             return 0
 
     def FindSensorbyName(self, Name):
-        sensor=self.db.SearchValueFromColumn("sensors", "Id", "Name", Name, False)
+        sensor=self._SearchValueFromColumn("sensors", "Id", "Name", Name, False)
         if (sensor):
             return sensor[0][0]
         else:
@@ -196,8 +198,8 @@ class db_read(object):
 
     def FindGPIOActuators(self):
         factuators = []
-        stype=dict(self.db.SelectColumnFromTable("actuators", "Id,Type"))
-        scode=dict(self.db.SelectColumnFromTable("actuators", "Id,DeviceCode"))
+        stype=dict(self._SelectColumnFromTable("actuators", "Id,Type"))
+        scode=dict(self._SelectColumnFromTable("actuators", "Id,DeviceCode"))
 
         TypeId = self._GetTypeId("pigpio", True)
 
@@ -207,43 +209,43 @@ class db_read(object):
         return (factuators)
 
     def FindActuatorbyName(self, Name):
-        actuator=self.db.SearchValueFromColumn("actuators", "Id", "Name", Name, False)
+        actuator=self._SearchValueFromColumn("actuators", "Id", "Name", Name, False)
         if (actuator):
             return actuator[0][0]
         else:
             return 0
 
     def GetSensorProperties(self, SensorId):
-        cols=self.db.GetColNames("sensors")
-        vals=self.db.SearchTable("sensors", "Id", SensorId, False)
+        cols=self._GetColNames("sensors")
+        vals=self._SearchTable("sensors", "Id", SensorId, False)
         if (vals):
             return dict(zip(cols, list(vals[0])))
         else:
             return None
 
     def GetActuatorProperties(self, ActuatorId):
-        cols=self.db.GetColNames("actuators")
-        vals=self.db.SearchTable("actuators", "Id", ActuatorId, False)
+        cols=self._GetColNames("actuators")
+        vals=self._SearchTable("actuators", "Id", ActuatorId, False)
         if (vals):
             return dict(zip(cols, list(vals[0])))
         else:
             return None
 
     def GetTimerProperties(self, TimerId):
-        cols=self.db.GetColNames("timers")
-        vals=self.db.SearchTable("timers", "Id", TimerId, False)
+        cols=self._GetColNames("timers")
+        vals=self._SearchTable("timers", "Id", TimerId, False)
         if (vals):
             return dict(zip(cols, list(vals[0])))
         else:
             return None
 
     def GetSensorType(self, SensorId):
-        result = self.db.SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)
+        result = self._SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)
         if (result):
             sensortype = result[0][0]
         else:
             sensortype = 0
-        result = self.db.SearchTable("sensortypes", "Id", sensortype, False)
+        result = self._SearchTable("sensortypes", "Id", sensortype, False)
         if (result):
             retval = result[0][4:]
         else:
@@ -251,12 +253,12 @@ class db_read(object):
         return retval
 
     def GetActuatorType(self, ActuatorId):
-        result = self.db.SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)
+        result = self._SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)
         if (result):
             actuatortype = result[0][0]
         else:
             actuatortype = 0
-        result = self.db.SearchTable("actuatortypes", "Id", actuatortype, False)
+        result = self._SearchTable("actuatortypes", "Id", actuatortype, False)
         if (result):
             retval = result[0][4:]
         else:
@@ -264,12 +266,12 @@ class db_read(object):
         return retval
 
     def GetSensorDigital(self, SensorId):
-        result = self.db.SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)
+        result = self._SearchValueFromColumn("sensors", "SensorType", "Id", SensorId, False)
         if (result):
             sensortype = result[0][0]
         else:
             sensortype = 0
-        result = self.db.SearchTable("sensortypes", "Id", sensortype, False)
+        result = self._SearchTable("sensortypes", "Id", sensortype, False)
         if (result):
             retval = result[0][3]
         else:
@@ -277,12 +279,12 @@ class db_read(object):
         return retval
 
     def GetActuatorDigital(self, ActuatorId):
-        result = self.db.SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)
+        result = self._SearchValueFromColumn("actuators", "ActuatorType", "Id", ActuatorId, False)
         if (result):
             actuatortype = result[0][0]
         else:
             actuatortype = 0
-        result = self.db.SearchTable("actuatortypes", "Id", actuatortype, False)
+        result = self._SearchTable("actuatortypes", "Id", actuatortype, False)
         if (result):
             retval = result[0][3]
         else:
@@ -297,9 +299,9 @@ class db_read(object):
             SearchDict['Sensor']=str(SensorId)
 
         if SearchDict:
-            proc=self.db.SearchTableMultiple("processors", "Id", SearchDict, False)
+            proc=self._SearchTableMultiple("processors", "Id", SearchDict, False)
         else:
-            proc=self.db.SelectColumnFromTable("processors", "Id")
+            proc=self._SelectColumnFromTable("processors", "Id")
 
         if (proc):
             procs=map(lambda y: y[0], proc)
@@ -308,8 +310,8 @@ class db_read(object):
         return procs
 
     def GetProcessorProperties(self, ProcId):
-        cols=self.db.GetColNames("processors")
-        vals=self.db.SearchTable("processors", "Id", ProcId, False)
+        cols=self._GetColNames("processors")
+        vals=self._SearchTable("processors", "Id", ProcId, False)
         if (vals):
             dictdef=dict(zip(cols, list(vals[0])))
             dictdef,dictedit = self._SplitDict(dictdef, ['Sensor','Operator','Value'])
@@ -320,8 +322,8 @@ class db_read(object):
             return None
 
     def GetCombinerProperties(self, CombId):
-        cols=self.db.GetColNames("combiners")
-        vals=self.db.SearchTable("combiners", "Id", CombId, False)
+        cols=self._GetColNames("combiners")
+        vals=self._SearchTable("combiners", "Id", CombId, False)
         if (vals):
             dictdef=dict(zip(cols, list(vals[0])))
             dictedit,dictdef = self._SplitDict(dictdef, ['Id','Name','Description','Dependency','Invert_Dependency'])
@@ -332,8 +334,8 @@ class db_read(object):
             return None
 
     def GetDependencyProperties(self, DepId):
-        cols=self.db.GetColNames("dependencies")
-        vals=self.db.SearchTable("dependencies", "Id", DepId, False)
+        cols=self._GetColNames("dependencies")
+        vals=self._SearchTable("dependencies", "Id", DepId, False)
         if (vals):
             dictdef=dict(zip(cols, list(vals[0])))
             dictedit,dictdef = self._SplitDict(dictdef, ['Id','Name','Description'])
@@ -344,22 +346,22 @@ class db_read(object):
             return None
 
     def GetTypeProperties(self,TypeId):
-        cols=self.db.GetColNames("types")
-        vals=self.db.SearchTable("types", "Id", TypeId, False)
+        cols=self._GetColNames("types")
+        vals=self._SearchTable("types", "Id", TypeId, False)
         if (vals):
             return dict(zip(cols, list(vals[0])))
         else:
             return None
 
     def GetSetting(self, Setting):
-        vals=self.db.SearchTable("settings", "Parameter", Setting, False)
+        vals=self._SearchTable("settings", "Parameter", Setting, False)
         if vals:
-            return vals[0][3],vals[0][4]
+            return vals[0][3] #,vals[0][4]
         else:
-            return None,None
+            return None #,None
 
     def GetHolidays(self):
-        data=[seq[:4] for seq in self.db.ReadTable("holidays")]
+        data=[seq[:4] for seq in self._ReadTable("holidays")]
 
         return (data)
 
@@ -402,3 +404,226 @@ class db_read(object):
                         HasDepComb = True
 
         return (rettup)
+
+    def UpdateDB(self, version):
+        dbversion=""
+        try:
+            dbversion=self._SearchTable("miscellaneous", "Parameter", "Version", False)[0][2]
+        except self.OperationalError:
+            sql_params_misc_table = """ Id INTEGER PRIMARY KEY,
+                                        Parameter TEXT NOT NULL,
+                                        Value TEXT
+                                    """    
+            self._CreateTable("miscellaneous", sql_params_misc_table)
+            rowdict = {}
+            rowdict['Parameter'] = "Version"
+            rowdict['Value'] = "0.00"
+            self._AddRow("miscellaneous", rowdict)
+        except:
+            version=""
+        if ((version == dbversion) or (version=="")):
+            return ("") #nothing to be done
+        if (version == "1.00"):
+            self._UpdateDB100()
+            rowdict = {}
+            rowdict['Parameter'] = "Version"
+            rowdict['Value'] = version
+            self._UpdateRow("miscellaneous", rowdict, "Parameter", "Version")            
+        # More to be done in later versions
+        return(version)
+
+    def _UpdateDB100(self):
+        self._DeleteRowAndSort("settings", "Parameter", "Webport", "Id")
+        self._DeleteRowAndSort("settings", "Parameter", "SSL", "Id")
+        self._AddRowAndSort("settings","Parameter","Timezone", "Id", (1, u'DomoWeb_port', u'Port for webserver communication (restart required)', 51402, u'INT', 2))
+        self._AddRowAndSort("settings","Parameter","DomoWeb_port", "Id", (1, u'DomoWeb_prefix', u'Prefix for webpage (restart required)', u'/', u'STRING', 2))
+        self._AddRowAndSort("types","Name","GPIO Output", "Id", (1, u'Script Output', u'Run a script output', u'-', 1))
+        rowdict = {}
+        rowdict['Restart'] = "2"
+        self._UpdateRow("settings", rowdict, "Parameter", "Username")
+        self._UpdateRow("settings", rowdict, "Parameter", "Password")
+        return
+
+    def _GetColNames(self, table_name):
+        #this works beautifully given that you know the table name
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM {tn}".format(tn=table_name))
+        return [member[0] for member in c.description]
+
+    def _ReadTable(self, table_name):
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM {tn}".format(tn=table_name))
+        return c.fetchall()        
+
+    def _SearchTable(self, table_name, field, searchdata, like=True):
+        c = self.conn.cursor()
+        # like makes searching slower. Set false if you require speed.
+        if like:
+            c.execute("SELECT * FROM {tn} WHERE {fn} LIKE '{sd}'".format(tn=table_name, fn=field, sd=searchdata))
+        else:
+            c.execute("SELECT * FROM {tn} WHERE {fn}='{sd}'".format(tn=table_name, fn=field, sd=searchdata))
+        return c.fetchall()
+
+    def _SearchTableMultiple(self, table_name, column, searchdict, like=True):
+        searchdata=""
+        c = self.conn.cursor()
+        for field in searchdict:
+            if like:
+                searchdata += field + " LIKE '" + searchdict[field] + "' AND "
+            else:
+                searchdata += field + "='" + searchdict[field] + "' AND "
+        searchdata = searchdata[:-5]
+
+        c.execute("SELECT {cl} FROM {tn} WHERE {sd}".format(cl=column, tn=table_name, sd=searchdata))
+        return c.fetchall()
+
+    def _SelectColumnFromTable(self, table_name, column):
+        c = self.conn.cursor()
+        c.execute("SELECT {cl} from {tn}".format(cl=column, tn=table_name))
+        return c.fetchall()
+
+    def _SearchValueFromColumn(self, table_name, column, field, searchdata, like=True):
+        c = self.conn.cursor()
+        # like makes searching slower. Set false if you require speed.
+        if like:
+            c.execute("SELECT {cl} FROM {tn} WHERE {fn} LIKE '{sd}'".format(cl=column, tn=table_name, fn=field, sd=searchdata))
+        else:
+            c.execute("SELECT {cl} FROM {tn} WHERE {fn}='{sd}'".format(cl=column, tn=table_name, fn=field, sd=searchdata))
+        return c.fetchall()
+
+    def _CreateTable(self, table_name, params):
+        c = self.conn.cursor()
+        c.execute("CREATE TABLE IF NOT EXISTS {tn} ({pm});".format(tn=table_name, pm=params))
+        self.conn.commit()
+        return
+
+    def _ClearTable(self, table_name):
+        c = self.conn.cursor()
+        c.execute("DELETE FROM {tn}".format(tn=table_name))
+        self.conn.commit()
+        return
+
+    def _AddRow(self, table_name, rowdict):
+        names = ""
+        values = ""
+        c = self.conn.cursor()
+
+        for key in rowdict:
+            names += key + ", "
+            values += "'" + rowdict[key] + "', "
+        names = "(" + names[:-2] + ")"
+        values = "(" + values[:-2] + ")"
+
+        c.execute("INSERT INTO {tn} {nm} VALUES {vl}".format(tn=table_name,nm=names, vl=values))
+        self.conn.commit()
+
+        return (c.lastrowid)
+
+    def _DeleteRowAndSort(self, table_name, field, fieldvalue, Id):
+        columns=self._GetColNames(table_name)
+        colnrid=0
+        for col in columns:
+            if col.lower() == Id.lower():
+                break
+            colnrid+=1
+        colnrfield=0
+        for col in columns:
+            if col.lower() == field.lower():
+                break
+            colnrfield+=1
+        # Read complete table
+        table = self._ReadTable(table_name)
+        # Remove row and update numbering
+        rowid = -1
+        for row in table:
+            if row[colnrfield].lower() == fieldvalue.lower():
+                rowid=row[colnrid]
+        newtable = []
+        for row in table:
+            if rowid<0:
+                newtable.append(row)
+            elif row[colnrid]<rowid:
+                newtable.append(row)
+            elif row[colnrid]>rowid:
+                row = row[:colnrid] + (row[colnrid]-1,) + row[colnrid+1:]
+                newtable.append(row)
+        # Delete table
+        del table
+        self._ClearTable(table_name)
+        # Add newtable
+        fmt = "("
+        for col in columns:
+            fmt +="?, "
+        fmt = fmt[:-2] + ")"
+        c = self.conn.cursor()
+        c.executemany("INSERT INTO {tn} VALUES{fm}".format(tn=table_name, fm=fmt), newtable)
+        self.conn.commit()
+        return
+
+    def _AddRowAndSort(self, table_name, field, fieldvalue, Id, newrow):
+        columns=self._GetColNames(table_name)
+        colnrid=0
+        for col in columns:
+            if col.lower() == Id.lower():
+                break
+            colnrid+=1
+        colnrfield=0
+        for col in columns:
+            if col.lower() == field.lower():
+                break
+            colnrfield+=1
+        # Read complete table
+        table = self._ReadTable(table_name)
+        # Remove row and update numbering
+        rowid = -1
+        for row in table:
+            if row[colnrfield].lower() == fieldvalue.lower():
+                rowid=row[colnrid]
+        newtable = []
+        for row in table:
+            if rowid<0:
+                newtable.append(row)
+            elif row[colnrid]<rowid:
+                newtable.append(row)
+            elif row[colnrid]==rowid:
+                newtable.append(row)
+                newrow = newrow[:colnrid] + (row[colnrid]+1,) + newrow[colnrid+1:]
+                newtable.append(newrow)
+            elif row[colnrid]>rowid:
+                row = row[:colnrid] + (row[colnrid]+1,) + row[colnrid+1:]
+                newtable.append(row)
+        # Delete table
+        del table
+        self._ClearTable(table_name)
+        # Add newtable
+        fmt = "("
+        for col in columns:
+            fmt +="?, "
+        fmt = fmt[:-2] + ")"
+        c = self.conn.cursor()
+        c.executemany("INSERT INTO {tn} VALUES{fm}".format(tn=table_name, fm=fmt), newtable)
+        self.conn.commit()
+        return
+
+    def _UpdateRow(self, table_name, rowdict, field, fieldvalue):
+        columns = ""
+        c = self.conn.cursor()
+
+        for key in rowdict:
+            columns += key + " = '" + rowdict[key] + "', "
+        columns = columns[:-2]
+
+        c.execute("UPDATE {tn} SET {cl} WHERE {fn}='{sd}'".format(tn=table_name, cl=columns, fn=field, sd=fieldvalue))
+        self.conn.commit()
+        return
+
+        
+
+    
+
+
+
+
+
+
+

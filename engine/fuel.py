@@ -190,34 +190,41 @@ class fuel(object):
 
     def _DoSetActuator(self, props, value):
         retval = False
+        setvalue = False
         if (props['Type'] == 2): # RF Output
             if (self.pi433MHz):
                 retval = (self.pi433MHz.send(props['SysCode'], props['GroupCode'], props['DeviceCode'], value) > 0)
+                setvalue = True
         elif (props['Type'] == 4): # IR Output
             if (self.lirc):
                 retval = self.lirc.send(props['DeviceURL'], props['KeyTag'])
         elif (props['Type'] == 6): # URL output
             if (self.url):
                 retval = self.url.SetActuator(props['Id'], value)
+                setvalue = True
         elif (props['Type'] == 10): # Domoticz output
             if (self.domoticz_if):
                 retval = self.domoticz_if.SetActuator(props['Id'], value)
+                setvalue = True
         elif (props['Type'] == 12): # GPIO output
             if (self.domoticz_if):
                 retval = self.gpio.SetActuator(props['DeviceCode'], value)
+                setvalue = True
         elif (props['Type'] == 7): # Buffer
             retval = True
+            setvalue = True
         elif (props['Type'] == 8): # Timer
             retval = False # Do not handle as output, only set timer
             self.timer.UpdateOffsetTimer(props['DeviceCode'])
             self.logger.info("Actuator: %s, Timer set: %s", self.localaccess.GetActuatorName(props['Id']), self.localaccess.GetTimerName(props['DeviceCode']))
-
-        if (props['Type'] != 8):
+        elif (props['Type'] == 13): # Script
+            retval = self.script.execute(props['DeviceURL'], props['KeyTag'])
+        if (setvalue):
             self.domoticz_frontend.SetActuator(props['Id'], value)
             self.localaccess.SetActuator(props['Id'], value)
             self.valueretainer.SetDevices()
-            if (not retval):
-                self.logger.warning("Actuator: %s, value: %f not set, hardware error", props['Name'], value)
+        if (not retval):
+            self.logger.warning("Actuator: %s, value: %f not set, hardware error", props['Name'], value)
         return (retval)
 
     def _SetRepeats(self, Id):

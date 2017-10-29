@@ -29,7 +29,7 @@
                   <td>{{ item }}</td>
                 {% endfor %}
                 {% if (editing==0) %}
-                  <td><a href="/settings_edit/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
+                  <td><a href="{{prefix}}/settings_edit/{{ datum[0] }}"><img style="width: 15px; height: 15px;" title="edit"
                     alt="Edit" src={{ url_for('static', filename = "images/edit.png") }}></a>
                   </td>
                 {% endif %}

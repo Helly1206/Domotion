@@ -8,7 +8,6 @@
 
 ####################### IMPORTS #########################
 from sqlitedb import sqlitedb
-from engine import localaccess
 from base64 import b64encode
 
 #########################################################
@@ -20,8 +19,9 @@ from base64 import b64encode
 #########################################################
 
 class db_settings(object):
-    def __init__(self, dbpath):
-        self.db=sqlitedb(dbpath)
+    def __init__(self, app):
+        self.app = app
+        self.db=sqlitedb(self.app.common.GetDBPath())
 
     def __del__(self):
         del self.db
@@ -40,7 +40,7 @@ class db_settings(object):
         if (retval):
             Restart = retval[0][0]
         else:
-            Restart = False
+            Restart = 0
         if (Format == 'BOOL'):
             if ((result['BoolValue'].lower() ==  'true') or (result['BoolValue'] == "1")):
                 value['Value']="1"
@@ -58,7 +58,7 @@ class db_settings(object):
         elif (Format == 'PDSTRING'):
             if (result['PasswordValue1'] == result['PasswordValue2']):
                 if (len(result['PasswordValue1'])>0):
-                    value['Value']=localaccess.hash_pass(result['PasswordValue1'].encode("utf"))
+                    value['Value']=self.app.common.HashPass(result['PasswordValue1'].encode("utf"))
                 else:
                     value['Value']=""
             else:

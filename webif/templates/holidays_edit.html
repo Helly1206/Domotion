@@ -9,7 +9,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/status_holidays.js') }}"></script>
   </head>
   <body>
-    <form method="post" action="/holidays_edited/{{ editingid }}">
+    <form method="post" action="{{prefix}}/holidays_edited/{{ editingid }}">
       <tr class='d5'>
         <td class="d5"> <!-- Type -->
           <select name="Type">

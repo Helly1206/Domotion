@@ -9,7 +9,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/status_timers.js') }}"></script>
   </head>
   <body>
-    <form method="post" action="/timers_edited/{{ editingid }}">
+    <form method="post" action="{{prefix}}/timers_edited/{{ editingid }}">
       <tr class='d5'>
         {% for item in datum[:3] %}
           <td  class="d7">{{ item }}</td>

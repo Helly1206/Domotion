@@ -2,9 +2,10 @@ var nIntervId = 0;
 var TimerOn = 0;
 var lines = 0;
 var maxlines = 0;
+var route = "";
 
 function getLines() {
-	loadJSON('/utils/log/_getlog/', handleValues);
+	loadJSON(route+'/utils/log/_getlog/', handleValues);
 }
 
 function handleValues(resp) {
@@ -36,7 +37,9 @@ function loadJSON(url, callback) {
 	xobj.onreadystatechange = function () {
 		if (xobj.readyState == 4 && xobj.status == "200") {
     		callback(xobj.responseText);
-		}
+		} else if (xobj.status != "200") {
+      		location.reload();
+    	}
 	};
 	xobj.send(null);  
 }
@@ -56,8 +59,9 @@ function Timer(Value) {
   }
 }
 
-function OnLoadWindow(_maxlines) {
+function OnLoadWindow(_maxlines, rt) {
 	var logarea = document.getElementById('logarea');
+	route=rt;
 	if (document.getElementById('autoscroll').checked) {
 		logarea.scrollTop = logarea.scrollHeight;  
 	}

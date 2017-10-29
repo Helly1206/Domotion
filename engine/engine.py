@@ -34,27 +34,28 @@ test = False
 # Class : engine                                        #
 #########################################################
 class engine(fuel):
-    def __init__(self, commandqueue, dbpath, LoopTime):
+    def __init__(self, commandqueue, localaccess, LoopTime):
         self.commandqueue=commandqueue
+        self.localaccess = localaccess
         self.looptime=LoopTime
         self.logger = logging.getLogger('Domotion.Engine')
         self.logger.info("initialized")
-        self.localaccess = localaccess(dbpath)
         self.localaccess.InitBuffers()
-        self.valueretainer = valueretainer()
+        self.valueretainer = valueretainer(self.localaccess)
         self.domoticz_api = None
         self.domoticz_frontend = None
         self.gpio = None
+        self.script = None
         self.url = None
         self.domoticz_if = None
         self.lirc = None
         self.pi433MHz = None
-        self.timer = timer(self.commandqueue)
+        self.timer = timer(self.commandqueue, self.localaccess)
         self.timer.start()
         self.messageid = 2
-        self.message = localaccess.GetSetting('Domoticz_message')
+        self.message = self.localaccess.GetSetting('Domoticz_message')
         self.resend = False
-        self.statuslight = statuslight()
+        self.statuslight = statuslight(self.localaccess)
         self.statuslight.start()
         super(engine, self).__init__()
         self.UpdateSensorsPoll()
@@ -76,17 +77,17 @@ class engine(fuel):
             self.timer.terminate()
             self.timer.join(5)
             del self.timer
-        del self.localaccess
         self.domoticz_api = None
         self.domoticz_frontend = None
         self.gpio = None
+        self.script = None
         self.url = None
         self.domoticz_if = None
         self.lirc = None
         self.pi433MHz = None
         self.logger.info("finished")
 
-    def instances(self, domoticz_api, domoticz_frontend, gpio, url, domoticz_if, lirc, pi433MHz):
+    def instances(self, domoticz_api, domoticz_frontend, gpio, url, domoticz_if, lirc, pi433MHz, script):
         self.domoticz_api = domoticz_api
         self.domoticz_frontend = domoticz_frontend
         self.gpio = gpio
@@ -94,6 +95,7 @@ class engine(fuel):
         self.domoticz_if = domoticz_if
         self.lirc = lirc
         self.pi433MHz = pi433MHz
+        self.script = script
         self.timer.instances(domoticz_api)
         self.statuslight.instances(gpio)
         self.UpdateSensorsPoll()
@@ -189,7 +191,6 @@ class engine(fuel):
             self.gpio.UpdateDevices(self.localaccess.FindGPIOSensors(),self.statuslight.AddStatusActuators(self.localaccess.FindGPIOActuators()))
         return
 
-
     def UpdateRepeat(self):
         self.repeattime = int(float(self.localaccess.GetSetting('Repeat_time')) / self.looptime)
         return
@@ -208,7 +209,7 @@ class engine(fuel):
         return success
 
     def UpdateMessage(self):
-        messageid = 6 + localaccess.GetToday()
+        messageid = 6 + self.localaccess.GetToday()
         if (self.CheckFlash50()):
             messageid += 3
         if (messageid != self.messageid):

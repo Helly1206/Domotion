@@ -21,8 +21,9 @@ from engine import commandqueue
 #["STORED","Name","Ivo"]
 
 class basicwebaccess(object):
-    def __init__(self):
-        pass
+    def __init__(self, commandqueue, localaccess):
+        self.commandqueue = commandqueue
+        self.localaccess = localaccess
 
     def __del__(self):
         pass
@@ -43,20 +44,20 @@ class basicwebaccess(object):
     def _findtag(self,tag):
         IsSensor = False
         # first look in sensors
-        key = localaccess.FindSensorbyName(tag)
+        key = self.localaccess.FindSensorbyName(tag)
 
         if (key):
             IsSensor = True
         else: # then look in actuators
-            key = localaccess.FindActuatorbyName(tag)
+            key = self.localaccess.FindActuatorbyName(tag)
         return IsSensor,key
 
     def _getvalue(self,issensor,key):
         if (issensor):
-            value = str(localaccess.GetSensor(key))
+            value = str(self.localaccess.GetSensor(key))
         else:
-            value = str(localaccess.GetActuator(key))
+            value = str(self.localaccess.GetActuator(key))
         return value
 
     def _setvalue(self,issensor,key, ivalue):
-        return commandqueue.put_id2("None",key, ivalue, issensor)
+        return self.commandqueue.put_id2("None",key, ivalue, issensor)

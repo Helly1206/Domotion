@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
   </head>
   <body>
-    <form method="post" action="/holidays_deleted/{{ editingid }}">
+    <form method="post" action="{{prefix}}/holidays_deleted/{{ editingid }}">
   	  <tr class="d5">
   		  {% for item in datum[1:] %}
           <td class="d5">{{ item }}</td>
