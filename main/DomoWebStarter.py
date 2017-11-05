@@ -98,10 +98,10 @@ class DomoWebStarter(object):
 
                 if ssl:
                     print ("Starting https server [%s] on port: %d"%(name,port))
-                    self.procs.append(subprocess.Popen(["python", "webif/DomoWeb.py","-p {p}".format(p=port), "-s", "-c {c}".format(c=cert), "-k {k}".format(k=key)]))
+                    self.procs.append(subprocess.Popen(["python", self.GetDomoWeb(),"-p {p}".format(p=port), "-s", "-c {c}".format(c=cert), "-k {k}".format(k=key)]))
                 else:
                     print ("Starting http server [%s] on port: %d"%(name,port))
-                    self.procs.append(subprocess.Popen(["python", "webif/DomoWeb.py","-p {p}".format(p=port)]))
+                    self.procs.append(subprocess.Popen(["python", self.GetDomoWeb(),"-p {p}".format(p=port)]))
 
         if index>0:
             signal.pause()
@@ -128,6 +128,14 @@ class DomoWebStarter(object):
                     self.logger.critical("No XML file found, exit")
                     exit(1)
         return (XMLpath)
+
+    def GetDomoWeb(self):
+        path=os.path.dirname(os.path.abspath(__file__)) 
+        main_pos=path.find("main")
+        if (main_pos>0):
+            path=path[:main_pos-1]
+
+        return os.path.join(path,"webif","DomoWeb.py")
 
     def exit_app(self, signum, frame):
         print ("Exit")
