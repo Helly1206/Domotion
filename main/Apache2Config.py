@@ -497,7 +497,7 @@ class Apache2Config(object):
             prefix=db.GetSetting('DomoWeb_prefix')
             if prefix[:1] != "/":
                 prefix = "/" + prefix
-            if prefix[-1:] == "/":
+            if (len(prefix)>1) and (prefix[-1:] == "/"):
                 prefix = prefix[:-1]
             del db
         except:
