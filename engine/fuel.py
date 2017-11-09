@@ -223,8 +223,8 @@ class fuel(object):
             self.domoticz_frontend.SetActuator(props['Id'], value)
             self.localaccess.SetActuator(props['Id'], value)
             self.valueretainer.SetDevices()
-        if (not retval):
-            self.logger.warning("Actuator: %s, value: %f not set, hardware error", props['Name'], value)
+            if (not retval):
+                self.logger.warning("Actuator: %s, value: %f not set, hardware error", props['Name'], value)
         return (retval)
 
     def _SetRepeats(self, Id):
