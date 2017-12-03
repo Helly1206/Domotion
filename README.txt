@@ -1,4 +1,4 @@
-Domotion v1.0.0
+Domotion v1.0.1
 
 Domotion Home Control and Automation
 ======== ==== ======= === ==========

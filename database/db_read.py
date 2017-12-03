@@ -406,7 +406,7 @@ class db_read(object):
         return (rettup)
 
     def UpdateDB(self, version):
-        dbversion=""
+        dbversion="0.00"
         try:
             dbversion=self._SearchTable("miscellaneous", "Parameter", "Version", False)[0][2]
         except self.OperationalError:
@@ -423,12 +423,12 @@ class db_read(object):
             version=""
         if ((version == dbversion) or (version=="")):
             return ("") #nothing to be done
-        if (version == "1.00"):
+        if (float(dbversion) < 1.00):
             self._UpdateDB100()
-            rowdict = {}
-            rowdict['Parameter'] = "Version"
-            rowdict['Value'] = version
-            self._UpdateRow("miscellaneous", rowdict, "Parameter", "Version")            
+        rowdict = {}
+        rowdict['Parameter'] = "Version"
+        rowdict['Value'] = version
+        self._UpdateRow("miscellaneous", rowdict, "Parameter", "Version")            
         # More to be done in later versions
         return(version)
 

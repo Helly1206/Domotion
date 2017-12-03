@@ -1,3 +1,11 @@
+[B]1.0.1[/B]
+- Small change on databse updater to make it work for updating from 0.9.9 to 1.0.1
+- Fixed bug in fixed db file in executable folder
+- Fixed bug on Apache2 update location
+- Fixed bug in basicwebaccess
+- Fixed bug on webpage prefix for Apache2 deployment
+- Fixed bug on logfile refresh on DomoWeb
+
 [B]1.0.0[/B]
 - Detached web application from Domotion application to be able to deploy externally and run multiple web applications simultaneously.
 - Designed communication channel between Domotion and web app.

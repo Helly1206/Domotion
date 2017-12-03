@@ -32,7 +32,7 @@ import psutil
 LOG_FILENAME = 'Domotion.log'
 LOG_MAXSIZE = 100*1024*1024
 DB_FILENAME = "Domotion.db"
-VERSION = "1.00"
+VERSION = "1.01"
 LoopTime = 0.1
 RestartSleepTime = 2
 LogMemory = 100
@@ -51,8 +51,7 @@ class Domotion(object):
             ch = logging.StreamHandler(sys.stdout)
             # create memory handler for printing in web interfaceset to 10 kB > 1000 lines
             self.memorylog=memorylog(LogMemory)
-            mh = logging.StreamHandler(self.memorylog) #logging.handlers.MemoryHandler(1024*10,logging.INFO,LogStream.set())
-            ########## Add memory handler  : logging.handlers.MemoryHandler
+            mh = logging.StreamHandler(self.memorylog)
             # create formatter and add it to the handlers
             # add the handlers to the logger
             self.logger.addHandler(fh)
@@ -235,9 +234,13 @@ class Domotion(object):
                 DBpath = os.path.join(os.path.expanduser('~'),DB_FILENAME)
             else:
                 # look in local folder, hope we may write
-                if os.path.isfile(os.path.join(".",DB_FILENAME)):
-                    if os.access(os.path.join(".",DB_FILENAME), os.W_OK):
-                        DBpath = os.path.join(".",DB_FILENAME)
+                try:
+                    sFile = os.path.abspath(sys.modules['__main__'].__file__)
+                except:
+                    sFile = "."
+                if os.path.isfile(os.path.join(os.path.dirname(sFile),DB_FILENAME)):
+                    if os.access(os.path.join(os.path.dirname(sFile),DB_FILENAME), os.W_OK):
+                        DBpath = os.path.join(os.path.dirname(sFile),DB_FILENAME)
                     else: 
                         self.logger.critical("No write access to DB file, exit")
                         exit(1)

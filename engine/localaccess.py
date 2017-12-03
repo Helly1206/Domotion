@@ -14,6 +14,7 @@ from time import localtime, strftime
 import locale
 from datetime import date
 import os
+import sys
 import subprocess
 #########################################################
 
@@ -58,7 +59,12 @@ class AppKiller(object):
 
     def restart_webservers(self):
         self._RunShell("systemctl restart DomoWeb")
-        self._RunShell("./Apache2Config -q")
+        try:
+            sFile = os.path.abspath(sys.modules['__main__'].__file__)
+        except:
+            sFile = "."
+        cmd = os.path.join(os.path.dirname(sFile),"Apache2Config") + " -q"
+        self._RunShell(cmd)
 
     def _RunShell(self, command):
         with open(os.devnull, 'w')  as devnull:

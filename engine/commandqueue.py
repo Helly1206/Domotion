@@ -42,8 +42,12 @@ class commandqueue(object):
         try:
             ivalue = int(value)
         except ValueError:
-            ivalue = float(value)
-        return self.put(self.build_id(hardware, id, ivalue, sensor))
+            try:
+                ivalue = float(value)
+            except:
+                ivalue = 0
+        self.put(self.build_id(hardware, id, ivalue, sensor))
+        return ivalue
 
     def put_code(self, hardware, syscode, groupcode, devicecode, value, sensor = True):
         return self.put(self.build_code(hardware, syscode, groupcode, devicecode, value, sensor))   

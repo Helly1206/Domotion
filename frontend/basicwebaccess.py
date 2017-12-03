@@ -60,4 +60,4 @@ class basicwebaccess(object):
         return value
 
     def _setvalue(self,issensor,key, ivalue):
-        return self.commandqueue.put_id2("None",key, ivalue, issensor)
+        return self.commandqueue.put_id("None",key, ivalue, issensor)
