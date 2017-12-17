@@ -39,6 +39,7 @@ class webserveraccess(Thread):
         self.inputs = [ self.server ]
         self.outputs = [ ]
         self.return_args = {}
+        self.memoryloginstances = {}
         
     def __del__(self):
         self.server.close()
@@ -77,13 +78,14 @@ class webserveraccess(Thread):
                         self.logger.info('New connection from: %s:%d', client_address[0], client_address[1])
                         self.inputs.append(connection)
                         self.return_args[connection] = Queue.Queue()
+                        self.memoryloginstances[connection] = self.memorylog.addinstance()
                         
                     else:
                         data = self.receive(sock)
                         if data:
                             # A readable client socket has data
                             #print 'received "%s" from %s' % (data, sock.getpeername())
-                            argout = self.execute(data)
+                            argout = self.execute(data, sock)
                             if argout:
                                 self.return_args[sock].put(argout)
                                 # Add output channel for response
@@ -99,6 +101,8 @@ class webserveraccess(Thread):
                             self.inputs.remove(sock)
                             sock.close()
                             del self.return_args[sock]
+                            self.memorylog.removeinstance(self.memoryloginstances[sock])
+                            del self.memoryloginstances[sock] 
 
                 # Handle outputs
                 for sock in outputready:
@@ -125,6 +129,8 @@ class webserveraccess(Thread):
 
                     # Remove message queue
                     del self.return_args[sock]
+                    self.memorylog.removeinstance(self.memoryloginstances[sock])
+                    del self.memoryloginstances[sock] 
 
             self.logger.info("terminating")
         except Exception, e:
@@ -162,7 +168,7 @@ class webserveraccess(Thread):
         except:
             return False
 
-    def execute(self, arguments):
+    def execute(self, arguments, sock):
         try:
             function, argin = loads(arguments)
         except:
@@ -189,7 +195,7 @@ class webserveraccess(Thread):
                 if (type(argin[0]) != str) and (type(argin[0]) != unicode):
                     status = "Invalid input argument type"
                 else:
-                    argout = basicwebaccess(self.commandqueue, self.localaccess).set(argin[0], argin[1])
+                    argout = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).set(argin[0], argin[1])
         elif (function == 4): # "BWAget" basicwebaccess().get
             if (len(argin) < 1):
                 status = "Invalid number of input arguments"
@@ -197,7 +203,7 @@ class webserveraccess(Thread):
                 if (type(argin[0]) != str) and (type(argin[0]) != unicode):
                     status = "Invalid input argument type"
                 else:
-                    argout = basicwebaccess(self.commandqueue, self.localaccess).get(argin[0])
+                    argout = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).get(argin[0])
         elif (function == 5): # "Reboot" appkiller.reboot
             self.killer.reboot()
             pass
@@ -211,11 +217,11 @@ class webserveraccess(Thread):
             self.killer.restart_all()
             pass
         elif (function == 9): # "LogReadLines" memorylog.readlines
-            argout = self.memorylog.readlines()
+            argout = self.memorylog.readlines(self.memoryloginstances[sock])
             if (argout == []):
                 argout = [""]
         elif (function == 10): # "LogGetLog" memorylog.getvalue
-            argout = self.memorylog.getvalue()
+            argout = self.memorylog.getvalue(self.memoryloginstances[sock])
             if (argout == []):
                 argout = [""]
         elif (function == 11): # "PutValue" commandqueue.put_id
@@ -248,6 +254,22 @@ class webserveraccess(Thread):
                     argout = self.localaccess.SetTimer(argin[0], argin[1])
         elif (function == 17): # "GetToday" localaccess.GetToday
             argout = self.localaccess.GetToday()
+        elif (function == 18): # "BWAget" basicwebaccess().getall
+            if (len(argin) < 1):
+                status = "Invalid number of input arguments"
+            else:
+                if (type(argin[0]) != str) and (type(argin[0]) != unicode):
+                    status = "Invalid input argument type"
+                else:
+                    argout = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).getall(argin[0])
+        elif (function == 19): # "BWAget" basicwebaccess().getinfo
+            if (len(argin) < 1):
+                status = "Invalid number of input arguments"
+            else:
+                if (type(argin[0]) != str) and (type(argin[0]) != unicode):
+                    status = "Invalid input argument type"
+                else:
+                    argout = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).getinfo(argin[0])
         else: # Error
             status = "Invalid function"
             function = 0

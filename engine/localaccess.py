@@ -193,6 +193,14 @@ class localaccess(db_read):
             self._release()
         return retval
 
+    def GetTimer(self, timer):
+        retval = None
+        if (self._acquire()):
+            if timer in self.TimerValues:
+                retval = self.TimerValues[timer]
+            self._release()
+        return retval
+
     def GetTimerIds(self):
         retval = None
         if (self._acquire()):
@@ -226,6 +234,16 @@ class localaccess(db_read):
         if (self._acquire()):
             for key in self.ActuatorNames:
                 if (self.ActuatorNames[key].lower() == Name.lower()):
+                    retkey = key
+                    break
+            self._release()
+        return retkey
+
+    def FindTimerbyName(self, Name):
+        retkey = None
+        if (self._acquire()):
+            for key in self.TimerNames:
+                if (self.TimerNames[key].lower() == Name.lower()):
                     retkey = key
                     break
             self._release()
@@ -314,6 +332,9 @@ class localaccess(db_read):
     def GetWeekday(self):
         return self._WeekDayDict[int(strftime("%w", localtime()))]
 
+    def GetAscTime(self):
+        return strftime(self.datetime(), localtime())
+
     def GetSunRiseSetMod(self):
         retval = None
         if (self._acquire()):
@@ -340,6 +361,15 @@ class localaccess(db_read):
             data = db_read.GetHolidays(self)
             d,m,y,dst = self.GetDateDMY()
             today_ord = date(year=y, month=m, day=d).toordinal()
+            # First delete old holdidays
+            ids = []
+            for row in data:
+                if (today_ord > row[3]):
+                    ids.append(row[0]) 
+            for id in ids:
+                self.DeleteHolidaysRow(id)
+            # then update today
+            data = db_read.GetHolidays(self)
             today = 0
             for row in data:
                 if ((today_ord >= row[2]) and (today_ord <= row[3])):

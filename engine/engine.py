@@ -125,7 +125,7 @@ class engine(fuel):
             if (self.statuslight):
                 self.statuslight.Busy()
             if (self.commandqueue.hardware(result) ==  "Callback"):
-                retval = self.commandqueue.device(result).lower()
+                retval = self.commandqueue.value(result).lower()
                 if (retval ==  "process"):
                     self.localaccess.InitBuffers()
                     if (self.domoticz_frontend):

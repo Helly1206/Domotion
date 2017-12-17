@@ -56,7 +56,7 @@ def _gettimers():
         if error:
             return render_template(app.common.ErrorHtml(error), prefix=app.getp()), error
         tm = app.common.GetAscTime()
-        st = app.common.GetStatus(status)
+        st = app.common.GetStatus(0)
         error, riseset = app.domotionaccess.Call("GetSunRiseSetMod")
         if error:
             return render_template(app.common.ErrorHtml(error), prefix=app.getp()), error
@@ -174,7 +174,6 @@ def status(tableid):
         digital = None
         dtype = None
     elif (tableid == "holidays"):
-        get_db().DeleteOldHolidays()
         cols, data = get_db().GetHolidays()
         digital = None
         dtype = None

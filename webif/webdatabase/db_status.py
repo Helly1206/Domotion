@@ -56,14 +56,6 @@ class db_status(object):
         data=self._LookupAscDates(cols, data)
         return cols, data
 
-    def DeleteOldHolidays(self):
-        cols=self.db.GetColNames("holidays")[:4]
-        data=[seq[:4] for seq in self.db.ReadTable("holidays")]
-        ids = self._GetOldies(cols,data)
-        for id in ids:
-            self.DeleteHolidaysRow(id)
-        return cols, data
-
     def AddHolidaysRow(self):
         rowdict = {}
         rowdict['Start'] = str(self.app.common.GetDateOrd())
@@ -147,16 +139,6 @@ class db_status(object):
             newrow = row + (today,)
             newdata.append(newrow)
         return newdata    
-
-    def _GetOldies(self, cols, data):
-        id_col = self._GetColumn(cols,"id")
-        end_col = self._GetColumn(cols,"end")
-        today_ord = self.app.common.GetDateOrd()
-        ids = []
-        for row in data:
-            if (today_ord > row[end_col]):
-                ids.append(row[id_col])    
-        return ids
 
     def _LookupAscDates(self, cols, data):
         start_col = self._GetColumn(cols,"start")

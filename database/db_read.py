@@ -124,6 +124,33 @@ class db_read(object):
 
         return Names
 
+    def GetSensors(self):
+        digital = {}
+        cols=self._GetColNames("sensors")[:3]+[self._GetColNames("sensors")[9]]+[self._GetColNames("sensortypes")[3]]
+        stypes = dict(self._SelectColumnFromTable("sensors", "Id,SensorType"))
+        types = dict(self._SelectColumnFromTable("sensortypes", "Id,Digital"))
+        for key in stypes:
+            digital[key] = types[int(stypes[key])]
+        data=[seq[:3]+(seq[9],digital[seq[0]]) for seq in self._ReadTable("sensors")]
+        #digital, dtype = self._GetDigitalType("sensors")
+        return cols, data
+
+    def GetActuators(self):
+        digital = {}
+        cols=self._GetColNames("actuators")[:3]+[self._GetColNames("sensors")[11]]+[self._GetColNames("actuatortypes")[3]]
+        atypes = dict(self._SelectColumnFromTable("actuators", "Id,ActuatorType"))
+        types = dict(self._SelectColumnFromTable("actuatortypes", "Id,Digital"))
+        for key in atypes:
+            digital[key] = types[int(atypes[key])]
+        data=[seq[:3]+(seq[11],digital[seq[0]]) for seq in self._ReadTable("actuators")]
+        #digital, dtype = self._GetDigitalType("actuators")
+        return cols, data
+
+    def GetTimers(self):
+        cols=self._GetColNames("timers")[:3]
+        data=[seq[:3] for seq in self._ReadTable("timers")]
+        return cols, data
+
     def FindSensorPollbyHardware(self, Type):
         poll = []
         spoll=dict(self._SelectColumnFromTable("sensors", "Id,Poll"))
@@ -362,8 +389,28 @@ class db_read(object):
 
     def GetHolidays(self):
         data=[seq[:4] for seq in self._ReadTable("holidays")]
-
         return (data)
+
+    def DeleteHolidaysRow(self, _id):
+        self._DeleteRow("holidays", "Id", _id)
+        return 
+
+    def EditHolidaysRow(self, _id, _type, start, end):
+        rowdict = {}
+        cols=self._GetColNames("holidays")
+        for col in cols:
+            if (col == "Start"):
+                rowdict[col]=str(start)
+            elif (col == "End"):
+                rowdict[col]=str(end)
+            elif (col == "type"):
+                rowdict[col]=str(_type)
+        ids = self._SelectColumnFromTable("holidays", "Id")
+        if _id in ids:
+            self._UpdateRow("holidays", rowdict, "Id", id)
+        else:
+            self._AddRow("holidays",rowdict)
+        return
 
     def _SplitDict(self, dict1, keys):
         dict2={}
@@ -518,6 +565,12 @@ class db_read(object):
         self.conn.commit()
 
         return (c.lastrowid)
+
+    def _DeleteRow(self, table_name, field, fieldvalue):
+        c = self.conn.cursor()
+        c.execute("DELETE FROM {tn} WHERE {fn}='{sd}'".format(tn=table_name, fn=field, sd=fieldvalue))
+        self.conn.commit()
+        return
 
     def _DeleteRowAndSort(self, table_name, field, fieldvalue, Id):
         columns=self._GetColNames(table_name)

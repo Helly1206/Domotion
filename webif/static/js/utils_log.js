@@ -13,17 +13,19 @@ function handleValues(resp) {
 	var logarea = document.getElementById('logarea');
 	var i = 0;
 	var added = false;
-
 	for (i in values.log) {
-		if ((maxlines > 0) && (lines>=maxlines)) {
-			dlines = logarea.value.split("\n");
-			dlines.splice(0, 1);
-			logarea.value = dlines.join("\n");	
-		} else {
-			lines += 1;
-			added = true;
-		}
-	    logarea.value += values.log[i];
+		logline = values.log[i];
+		if(logline.indexOf("\n")!=-1) {
+			if ((maxlines > 0) && (lines>=maxlines)) {
+				dlines = logarea.value.split("\n");
+				dlines.splice(0, 1);
+				logarea.value = dlines.join("\n");	
+			} else {
+				lines += 1;
+				added = true;
+			}
+	    	logarea.value += values.log[i];
+	    }
 	}
 	if ((added) && (document.getElementById('autoscroll').checked)) {
 		logarea.scrollTop = logarea.scrollHeight;

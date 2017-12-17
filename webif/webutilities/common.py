@@ -22,6 +22,7 @@ class common(db_webread):
     def __init__(self):
         self._MakeSessionPassword()
         db_webread.__init__(self, self.GetDBPath())
+        locale.setlocale(locale.LC_TIME,'')
 
     def __del__(self):
         db_webread.__del__(self)

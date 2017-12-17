@@ -21,7 +21,7 @@ class memorylog(object):
         self.Memory=[]
         self.size=0
         self.wrpos=0
-        self.rdpos=0
+        self.rdpos={}
         self.mutex = None
         self._initmutex()
         self._setinit(size)
@@ -33,7 +33,7 @@ class memorylog(object):
     def _setinit(self,size):
         self._acquire()
         self.wrpos=0
-        self.rdpos=0
+        self.addinstance()
         self.size=size
         self.Memory=[]
         self._release()
@@ -43,7 +43,7 @@ class memorylog(object):
         del self.Memory
         self.Memory=[]
         self.wrpos=0
-        self.rdpos=0
+        self.rdpos.clear()
         self._release()
 
     def _initmutex(self):
@@ -71,8 +71,9 @@ class memorylog(object):
         if (self.size>0):
             if (self.wrpos>=self.size):
                 self.Memory.pop(0)
-                if (self.rdpos>0):
-                    self.rdpos-=1
+                for key in self.rdpos:
+                    if (self.rdpos[key]>0):
+                        self.rdpos[key]-=1
         self.Memory.append(s)
         self.wrpos=len(self.Memory)
         self._release()
@@ -81,51 +82,70 @@ class memorylog(object):
         for s in sl:
             self.write(s)
 
-    def readline(self):
+    def readline(self,instance=0):
         strbuf=""
         self._acquire()
-        oldpos=self.rdpos
+        oldpos=self.rdpos[instance]
         if (oldpos<self.wrpos):
-            self.rdpos+=1
+            self.rdpos[instance]+=1
             strbuf=self.Memory[oldpos]
         self._release()
         return (strbuf)
 
-    def readlines(self):
+    def readlines(self, instance=0):
         buf=[]
         self._acquire()
-        oldpos=self.rdpos
+        oldpos=self.rdpos[instance]
         if (oldpos<self.wrpos):
-            self.rdpos=self.wrpos
+            self.rdpos[instance]=self.wrpos
             buf=self.Memory[oldpos:]
         self._release()
         return (buf)
 
-    def read(self):
-        return self.readline()
+    def read(self, instance=0):
+        return self.readline(instance)
 
-    def getvalue(self):
+    def getvalue(self, instance=0):
         self._acquire()
-        self.rdpos=self.wrpos
+        self.rdpos[instance]=self.wrpos
         buf=''.join(self.Memory)
         self._release()
         return (buf)
 
-    def tell(self):
+    def tell(self, instance=0):
         self._acquire()
-        pos=(self.rdpos)
+        pos=(self.rdpos[instance])
         self._release()
         return (pos)
 
-    def seek(self, pos):
+    def seek(self, pos, instance=0):
         self._acquire()
         if (pos>self.wrpos):
-            self.rdpos=self.wrpos
+            self.rdpos[instance]=self.wrpos
         elif (pos<0):
-            self.rdpos=0
+            self.rdpos[instance]=0
         else:
-            self.rdpos=pos
+            self.rdpos[instance]=pos
         self._release()
 
     def close(self): 
-        self._setdel()   
+        self._setdel() 
+
+    def addinstance(self):
+        instance = 0
+        if len(self.rdpos)>0:
+            i=0
+            keys = self.rdpos.keys()
+            while instance == 0:
+                if not i in keys:
+                    instance = i
+                i += 1
+
+        self.rdpos[instance]=0
+        return instance
+
+    def removeinstance(self, instance):
+        try:
+            del self.rdpos[instance]  
+        except:
+            pass

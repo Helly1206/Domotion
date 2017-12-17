@@ -111,10 +111,16 @@ class Apache2Config(object):
 
             content = ""
             prefix=self.GetPrefix()
+
+            try:
+                lctime = os.environ['LC_TIME']
+            except:
+                lctime = 'C'
+
             if (xmlsite[2]): # https
-                content = self.GenConfHttps(xmlsite[1], email, server, xmlsite[3], xmlsite[4], prefix)
+                content = self.GenConfHttps(xmlsite[1], email, server, lctime, xmlsite[3], xmlsite[4], prefix)
             else: #http
-                content = self.GenConfHttp(xmlsite[1], email, server, prefix)
+                content = self.GenConfHttp(xmlsite[1], email, server, lctime, prefix)
 
             if not quick or (quick and not keep):
                 self.AddSite(sitename,content)
@@ -423,10 +429,12 @@ class Apache2Config(object):
 
         return sites
 
-    def GenConfHttp(self, port, admin, server, prefix):
+    def GenConfHttp(self, port, admin, server, lctime, prefix):
         return "<VirtualHost *:%d>\n" \
         "    ServerAdmin %s\n" \
         "    ServerName %s\n" \
+        "    \n" \
+        "    SetEnv LC_TIME %s\n" \
         "    \n" \
         "    ErrorLog ${APACHE_LOG_DIR}/error.log\n" \
         "    CustomLog ${APACHE_LOG_DIR}/access.log combined\n" \
@@ -441,12 +449,14 @@ class Apache2Config(object):
         "        Allow from all\n" \
         "    </Directory>\n" \
         "    \n" \
-        "</VirtualHost>\n"%(port, admin, server, port, prefix, port)
+        "</VirtualHost>\n"%(port, admin, server, lctime, port, prefix, port)
 
-    def GenConfHttps(self, port, admin, server, cert, key, prefix):
+    def GenConfHttps(self, port, admin, server, lctime, cert, key, prefix):
         return "<VirtualHost *:%d>\n" \
         "    ServerAdmin %s\n" \
         "    ServerName %s\n" \
+        "    \n" \
+        "    SetEnv LC_TIME %s\n" \
         "    \n" \
         "    ErrorLog ${APACHE_LOG_DIR}/error.log\n" \
         "    CustomLog ${APACHE_LOG_DIR}/access.log combined\n" \
@@ -465,7 +475,7 @@ class Apache2Config(object):
         "        Allow from all\n" \
         "    </Directory>\n" \
         "    \n" \
-        "</VirtualHost>\n"%(port, admin, server, port, prefix, cert, key, port)
+        "</VirtualHost>\n"%(port, admin, server, lctime, port, prefix, cert, key, port)
 
     def GetDB(self):
         etcpath = "/etc/Domotion/"

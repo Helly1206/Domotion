@@ -1,5 +1,18 @@
+[B]1.0.2[/B]
+- Edit date format in web interface
+- Extended basicwebaccess with timers
+- Extended basicwebaccess with 'all' information (including holidays)
+- Extended basicwebaccess with device info
+- Added timerrecalc to basicwebaccess
+- Added status led on basicwebaccess
+- Added log to basicwebaccess
+- Updated memorylog to be able to get multiple read positions for logging (one read position for each webserver and one for basicwebaccess)
+- Fixed logline scroller in web-interface with no new logline (need to refresh javascript, ctrl+F5 in chrome)
+- Fixed bug on callbacks to engine
+- Moved deleting of old holidays to Domotion instead of webserver
+
 [B]1.0.1[/B]
-- Small change on databse updater to make it work for updating from 0.9.9 to 1.0.1
+- Small change on database updater to make it work for updating from 0.9.9 to 1.0.1
 - Fixed bug in fixed db file in executable folder
 - Fixed bug on Apache2 update location
 - Fixed bug in basicwebaccess

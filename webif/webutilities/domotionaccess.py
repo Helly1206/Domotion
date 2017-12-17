@@ -17,7 +17,7 @@ class domotionaccess(object):
     _functions = {"None": 0, "SetStatusBusy": 1, "Callback": 2, "BWAset": 3, "BWAget": 4, "Reboot": 5,
                   "Shutdown": 6, "RestartApp": 7, "RestartAll": 8, "LogReadLines": 9, "LogGetLog": 10, 
                   "PutValue": 11, "GetActuatorValues": 12, "GetSensorValues": 13, "GetTimerValues": 14, 
-                  "GetSunRiseSetMod": 15, "SetTimer": 16, "GetToday": 17}
+                  "GetSunRiseSetMod": 15, "SetTimer": 16, "GetToday": 17, "BWAgetall": 18, "BWAgetinfo": 19}
 
     def __init__(self, port=10000):
         self.Timer = None
@@ -141,6 +141,10 @@ class domotionaccess(object):
             argout = 1
         elif (fn == 17): #"GetToday"): #localaccess
             argout = 1
+        elif (fn == 18): #"getall"): #basicwebaccess
+            argout = "!!!"
+        elif (fn == 19): #"getinfo"): #basicwebaccess
+            argout = "!!!"
 
         return argout
 
