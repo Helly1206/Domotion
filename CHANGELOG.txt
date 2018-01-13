@@ -1,3 +1,9 @@
+[B]1.0.3[/B]
+- Fixed bug in request_loader basic authorization (IsPassword function)
+- Pass through authorization in header in apache
+- Added getinfo in basicwebaccess for holidays
+- Changed Param parameter from getinfo to INFO
+
 [B]1.0.2[/B]
 - Edit date format in web interface
 - Extended basicwebaccess with timers

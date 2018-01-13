@@ -32,7 +32,7 @@ import psutil
 LOG_FILENAME = 'Domotion.log'
 LOG_MAXSIZE = 100*1024*1024
 DB_FILENAME = "Domotion.db"
-VERSION = "1.02"
+VERSION = "1.03"
 LoopTime = 0.1
 RestartSleepTime = 2
 LogMemory = 100

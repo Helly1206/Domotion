@@ -51,7 +51,7 @@ class basicwebaccess(object):
         elif (tag.lower() == "timers"):
             retval=dumps(["ALL", tag, self.localaccess.GetAscTime(), self.localaccess.GetSunRiseSetMod(), self.localaccess.GetTimerValues()])
         elif (tag.lower() == "holidays"):
-            retval=dumps(["ALL", tag, self.localaccess.GetAscTime(), self.localaccess.GetHolidays()])
+            retval=dumps(["ALL", tag, self.localaccess.GetAscTime(), self.localaccess.GetHolidayValues()])
         elif (tag.lower() == "log"):
             retval=dumps(["ALL", tag, self.memorylog.getvalue()])
         else:
@@ -62,13 +62,15 @@ class basicwebaccess(object):
         self.localaccess.SetStatusBusy()
         retval = None
         if (tag.lower() == "sensors"):
-            retval=dumps(["ALL", tag, self.localaccess.GetSensors()])
+            retval=dumps(["INFO", tag, self.localaccess.GetSensors()])
         elif (tag.lower() == "actuators"):
-            retval=dumps(["ALL", tag, self.localaccess.GetActuators()])
+            retval=dumps(["INFO", tag, self.localaccess.GetActuators()])
         elif (tag.lower() == "timers"):
-            retval=dumps(["ALL", tag, self.localaccess.GetTimers()])
+            retval=dumps(["INFO", tag, self.localaccess.GetTimers()])
+        elif (tag.lower() == "holidays"):
+            retval=dumps(["INFO", tag, self.localaccess.GetHolidays()])
         elif (tag.lower() == "log"):
-            retval=dumps(["ALL", tag, self.memorylog.readlines()])
+            retval=dumps(["INFO", tag, self.memorylog.readlines()])
         else:
             retval=dumps(["ERROR", tag, "NULL"])
         return retval

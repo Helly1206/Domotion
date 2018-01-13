@@ -388,6 +388,10 @@ class db_read(object):
             return None #,None
 
     def GetHolidays(self):
+        cols=self._GetColNames("holidays")[:4]
+        return (cols)
+
+    def GetHolidayValues(self):
         data=[seq[:4] for seq in self._ReadTable("holidays")]
         return (data)
 

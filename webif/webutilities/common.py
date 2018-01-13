@@ -11,6 +11,7 @@ from hashlib import sha256
 from os import access, path, urandom
 from time import localtime, struct_time, strftime, strptime
 from datetime import date, datetime
+from re import match
 import locale
 
 class common(db_webread):

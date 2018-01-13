@@ -358,7 +358,7 @@ class localaccess(db_read):
     def UpdateToday(self):
         retval = None
         if (self._acquire()):
-            data = db_read.GetHolidays(self)
+            data = db_read.GetHolidayValues(self)
             d,m,y,dst = self.GetDateDMY()
             today_ord = date(year=y, month=m, day=d).toordinal()
             # First delete old holdidays
@@ -369,7 +369,7 @@ class localaccess(db_read):
             for id in ids:
                 self.DeleteHolidaysRow(id)
             # then update today
-            data = db_read.GetHolidays(self)
+            data = db_read.GetHolidayValues(self)
             today = 0
             for row in data:
                 if ((today_ord >= row[2]) and (today_ord <= row[3])):

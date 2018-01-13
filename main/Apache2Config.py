@@ -441,6 +441,7 @@ class Apache2Config(object):
         "    \n" \
         "    WSGIDaemonProcess DomoWeb_%d user=www-data group=www-data threads=5\n" \
         "    WSGIScriptAlias %s /var/www/Domotion/DomoWeb.wsgi\n" \
+        "    WSGIPassAuthorization On\n" \
         "    \n" \
         "    <Directory /var/www/Domotion>\n" \
         "        WSGIProcessGroup DomoWeb_%d\n" \
@@ -463,6 +464,7 @@ class Apache2Config(object):
         "    \n" \
         "    WSGIDaemonProcess DomoWeb_%d user=www-data group=www-data threads=5\n" \
         "    WSGIScriptAlias %s /var/www/Domotion/DomoWeb.wsgi\n" \
+        "    WSGIPassAuthorization On\n" \
         "    SSLEngine on\n" \
         "    \n" \
         "    SSLCertificateFile  %s\n" \
