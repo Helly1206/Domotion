@@ -73,7 +73,7 @@ function OnLoadWindow(_maxlines, rt, stream) {
 	}
 	lines = logarea.value.split("\n").length;
 	maxlines = _maxlines;
-	AddtoLogArea(JSON.parse(stream));
+	AddtoLogArea(stream);
 	Timer(1);
 }
 
