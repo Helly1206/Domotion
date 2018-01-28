@@ -137,7 +137,7 @@ class db_read(object):
 
     def GetActuators(self):
         digital = {}
-        cols=self._GetColNames("actuators")[:3]+[self._GetColNames("sensors")[11]]+[self._GetColNames("actuatortypes")[3]]
+        cols=self._GetColNames("actuators")[:3]+[self._GetColNames("actuators")[11]]+[self._GetColNames("actuatortypes")[3]]
         atypes = dict(self._SelectColumnFromTable("actuators", "Id,ActuatorType"))
         types = dict(self._SelectColumnFromTable("actuatortypes", "Id,Digital"))
         for key in atypes:

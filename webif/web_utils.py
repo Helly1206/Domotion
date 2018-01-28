@@ -1,6 +1,7 @@
 from flask import Flask, Blueprint, render_template, g, request, session, redirect, jsonify
 from flask_login import login_required
 from flask import current_app as app
+from json import dumps
 
 maxlines = 100
 
@@ -36,7 +37,7 @@ def utils_log():
     error, log = app.domotionaccess.Call("LogGetLog")
     if error:
         return render_template(app.common.ErrorHtml(error), prefix=app.getp()), error
-    return render_template('utils.html', prefix=app.getp(), editing=0, loggedin=loggedin, log=1, lines=maxlines, stream=log)
+    return render_template('utils.html', prefix=app.getp(), editing=0, loggedin=loggedin, log=1, lines=maxlines, stream=dumps(log))
 
 @web_utils.route('/utils/reboot_dialog', methods=['POST'])
 @login_required

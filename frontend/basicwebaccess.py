@@ -53,7 +53,7 @@ class basicwebaccess(object):
         elif (tag.lower() == "holidays"):
             retval=dumps(["ALL", tag, self.localaccess.GetAscTime(), self.localaccess.GetHolidayValues()])
         elif (tag.lower() == "log"):
-            retval=dumps(["ALL", tag, self.memorylog.getvalue()])
+            retval=dumps(["ALL", tag, self.memorylog.readlines()])
         else:
             retval=dumps(["ERROR", tag, "NULL"])
         return retval
@@ -70,7 +70,7 @@ class basicwebaccess(object):
         elif (tag.lower() == "holidays"):
             retval=dumps(["INFO", tag, self.localaccess.GetHolidays()])
         elif (tag.lower() == "log"):
-            retval=dumps(["INFO", tag, self.memorylog.readlines()])
+            retval=dumps(["INFO", tag, self.memorylog.getvalue()])
         else:
             retval=dumps(["ERROR", tag, "NULL"])
         return retval

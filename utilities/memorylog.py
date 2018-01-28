@@ -108,7 +108,7 @@ class memorylog(object):
     def getvalue(self, instance=0):
         self._acquire()
         self.rdpos[instance]=self.wrpos
-        buf=''.join(self.Memory)
+        buf=self.Memory
         self._release()
         return (buf)
 
