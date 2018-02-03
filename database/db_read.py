@@ -389,7 +389,8 @@ class db_read(object):
 
     def GetHolidays(self):
         cols=self._GetColNames("holidays")[:4]
-        return (cols)
+        data=[seq[0] for seq in self._ReadTable("holidays")]
+        return cols, data
 
     def GetHolidayValues(self):
         data=[seq[:4] for seq in self._ReadTable("holidays")]
@@ -407,11 +408,11 @@ class db_read(object):
                 rowdict[col]=str(start)
             elif (col == "End"):
                 rowdict[col]=str(end)
-            elif (col == "type"):
+            elif (col == "Type"):
                 rowdict[col]=str(_type)
         ids = self._SelectColumnFromTable("holidays", "Id")
-        if _id in ids:
-            self._UpdateRow("holidays", rowdict, "Id", id)
+        if (_id,) in ids:
+            self._UpdateRow("holidays", rowdict, "Id", _id)
         else:
             self._AddRow("holidays",rowdict)
         return

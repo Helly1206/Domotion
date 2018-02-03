@@ -1,3 +1,9 @@
+[B]1.0.5[/B]
+- Changed basicwebaccess format for holidays to dict
+- Fixed bug in updating type for holidays in basicwebaccess
+- Fixed bug in updating holiday instead of adding in basicwebaccess
+- Changed tag name to holidays in basicwebaccess instead of holiday
+
 [B]1.0.4[/B]
 - Fixed bug in reading table columns from db, may confuse people when using basicwebaccess
 - Changed log data to JSON array format

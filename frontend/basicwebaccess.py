@@ -51,7 +51,7 @@ class basicwebaccess(object):
         elif (tag.lower() == "timers"):
             retval=dumps(["ALL", tag, self.localaccess.GetAscTime(), self.localaccess.GetSunRiseSetMod(), self.localaccess.GetTimerValues()])
         elif (tag.lower() == "holidays"):
-            retval=dumps(["ALL", tag, self.localaccess.GetAscTime(), self.localaccess.GetHolidayValues()])
+            retval=dumps(["ALL", tag, self.localaccess.GetAscTime(), self._values2Dict(self.localaccess.GetHolidayValues())])
         elif (tag.lower() == "log"):
             retval=dumps(["ALL", tag, self.memorylog.readlines()])
         else:
@@ -75,6 +75,12 @@ class basicwebaccess(object):
             retval=dumps(["ERROR", tag, "NULL"])
         return retval
 
+    def _values2Dict(self, HolidayValues):
+        valuesDict = {}
+        for value in HolidayValues:
+            valuesDict[value[0]] = [value[1],value[2],value[3]]
+        return valuesDict
+
     def _findtag(self, tag):
         itype = _type["None"]
         # first look in sensors
@@ -95,7 +101,7 @@ class basicwebaccess(object):
         if tag.lower() == "timerrecalc":
             itype = _type["Timer"]
             key = -1            
-        elif tag.lower() == "holiday":
+        elif tag.lower() == "holidays":
             itype = _type["Holiday"]
             key = -1            
 
@@ -113,6 +119,10 @@ class basicwebaccess(object):
             value = str(self.localaccess.GetToday()) 
         return value
 
+
+    # TBD: setvalue, getall {"1": [0, 123,124]}
+    # maxyear
+    # test overwriting data
     def _setvalue(self, itype,key, ivalue):
         value = "NA"
         if (itype == _type["Sensor"]):
@@ -131,17 +141,20 @@ class basicwebaccess(object):
         elif (itype == _type["Holiday"]):
             try:
                 lst = loads(ivalue)
-                _id = int(lst[0])
-                _atype = int(lst[1])
-                _start = int(lst[2])
-                _end = int(lst[3])
-                if (_id>0):
+                __id = list(lst.keys())[0]
+                _atype = int(lst[__id][0])
+                _start = int(lst[__id][1])
+                _end = int(lst[__id][2])
+                _id = int(__id)
+                if ((_id > 0) and (_start < 1000000) and (_end < 1000000)):
                     if (_start == 0) and (_end == 0):
                         self.localaccess.DeleteHolidaysRow(_id)
                     else:
                         self.localaccess.EditHolidaysRow(_id, _atype, _start, _end)
-                    value = [_id, _atype, _start, _end]
+                    value = {_id: [_atype, _start, _end]}
                     self.commandqueue.callback("timerrecalc")
+                else:
+                    value = "ERROR"
             except:
                 value = "ERROR"
         return value
