@@ -389,7 +389,7 @@ class db_read(object):
 
     def GetHolidays(self):
         cols=self._GetColNames("holidays")[:4]
-        data=[seq[0] for seq in self._ReadTable("holidays")]
+        data=[seq[:1] for seq in self._ReadTable("holidays")]
         return cols, data
 
     def GetHolidayValues(self):
