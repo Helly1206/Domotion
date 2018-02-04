@@ -88,11 +88,11 @@ def MoveForward():
     shutil.move(FindVLocRead(), FindNVLocWrite())
 
 def RetainerMove(argv):
-    if (len(argv)>1):
-        if (('-b' in argv) or ('--back' in argv)):
+    if (len(argv)>0):
+        if (('-b' in argv[0]) or ('--back' in argv)):
             MoveBack()
             exit(0)
-        if (('-f' in argv) or ('--forward' in argv)):
+        if (('-f' in argv[0]) or ('--forward' in argv)):
             MoveForward()
             exit(0)
     print "Domotion Home control and automation, Retainer move tool"
