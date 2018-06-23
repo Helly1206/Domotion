@@ -5,7 +5,9 @@ INSTALL_PROGRAM="$INSTALL"
 INSTALL_FOLDER="cp -r *"
 NAME="Domotion"
 WEBNAME="DomoWeb"
+APPSNAME="DomoApps"
 WEBSTARTER="$WEBNAME""Starter"
+APPSSTARTER="$APPSNAME""Starter"
 RETMOVE="RetainerMove"
 ETCDIR="/etc"
 ETCLOC="$ETCDIR/$NAME"
@@ -21,6 +23,7 @@ SYSTEMDDIR="./systemd"
 SERVICEDIR="$ETCDIR/systemd/system"
 SERVICESCRIPT="$NAME.service"
 WEBSERVICESCRIPT="$WEBNAME.service"
+APPSSERVICESCRIPT="$APPSNAME.service"
 WEB_ROOT="/var/www"
 DOMOWEB_ROOT="$WEB_ROOT/$NAME"
 WEBLOC="./webif"
@@ -46,6 +49,11 @@ then
 	systemctl stop "$WEBSERVICESCRIPT"
 	systemctl disable "$WEBSERVICESCRIPT"
 	if [ -e "$SERVICEDIR/$WEBSERVICESCRIPT" ]; then rm -f "$SERVICEDIR/$WEBSERVICESCRIPT"; fi
+
+	echo "Uninstalling daemon $APPSNAME"
+	systemctl stop "$APPSSERVICESCRIPT"
+	systemctl disable "$APPSSERVICESCRIPT"
+	if [ -e "$SERVICEDIR/$APPSSERVICESCRIPT" ]; then rm -f "$SERVICEDIR/$APPSSERVICESCRIPT"; fi
 	
 	echo "Uninstalling $NAME"
 	if [ -d "$OPTLOC" ]; then rm -rf "$OPTLOC"; fi
@@ -123,6 +131,8 @@ else
 	systemctl disable $SERVICESCRIPT
 	systemctl stop $WEBSERVICESCRIPT
 	systemctl disable $WEBSERVICESCRIPT
+	systemctl stop $APPSSERVICESCRIPT
+	systemctl disable $APPSSERVICESCRIPT
 
 	echo "Installing $NAME"
 
@@ -136,6 +146,7 @@ else
 	$INSTALL_FOLDER $OPTLOC
 	$INSTALL_PROGRAM "./$NAME" $OPTLOC
 	$INSTALL_PROGRAM "./$WEBSTARTER" $OPTLOC
+	$INSTALL_PROGRAM "./$APPSSTARTER" $OPTLOC
 	$INSTALL_PROGRAM "./$RETMOVE" $OPTLOC
 	$INSTALL_PROGRAM "./$A2CONFIG" $OPTLOC
 	$INSTALL_PROGRAM "./${0##*/}" $OPTLOC
@@ -219,5 +230,19 @@ else
 
 		systemctl enable $WEBSERVICESCRIPT
 		systemctl start $WEBSERVICESCRIPT
+	fi
+
+	echo "Installing daemon $APPSNAME"
+	read -p "Do you want to install an automatic startup service for $APPSNAME (Y/n)? " -n 1 -r
+	echo    # (optional) move to a new line
+	if [[ $REPLY =~ ^[Nn]$ ]]
+	then
+		echo "Skipping install automatic startup service for $APPSNAME"
+	else
+		echo "Install automatic startup service for $APPSNAME"
+		$INSTALL_DATA "$SYSTEMDDIR/$APPSSERVICESCRIPT" "$SERVICEDIR/$APPSSERVICESCRIPT"
+
+		systemctl enable $APPSSERVICESCRIPT
+		systemctl start $APPSSERVICESCRIPT
 	fi
 fi

@@ -59,6 +59,7 @@ class engine(fuel):
         self.statuslight.start()
         super(engine, self).__init__()
         self.UpdateSensorsPoll()
+        self.UpdateSensorsActuatorsURL()
         self.UpdateSensorsActuatorsGPIO()
         self.UpdateActuatorsInit()
         self.loopcnt = 0
@@ -99,6 +100,7 @@ class engine(fuel):
         self.timer.instances(domoticz_api)
         self.statuslight.instances(gpio)
         self.UpdateSensorsPoll()
+        self.UpdateSensorsActuatorsURL()
         self.UpdateSensorsActuatorsGPIO()
         self.UpdateRepeat()
 
@@ -132,6 +134,7 @@ class engine(fuel):
                         if (self.domoticz_frontend.updatesensorsactuators()):
                             self.logger.info("Sensors and actuators updated to Domoticz frontend")
                     self.UpdateSensorsPoll()
+                    self.UpdateSensorsActuatorsURL()
                     self.UpdateSensorsActuatorsGPIO()
                     self.UpdateRepeat()
                     self.InitRepeats()
@@ -147,6 +150,7 @@ class engine(fuel):
                         self.url.updatesettings()
                     self.timer.UpdateAll()
                     self.UpdateRepeat()
+                    self.UpdateSensorsActuatorsURL()
                     self.UpdateSensorsActuatorsGPIO()
                     self.valueretainer.Update()
                     self.logger.info("Settings updated")
@@ -180,10 +184,13 @@ class engine(fuel):
 
     #def Check sensors poll ..... (for domo_if and URL)
     def UpdateSensorsPoll(self):
-        if (self.url):
-            self.url.UpdateDevices(self.localaccess.GetSensorPoll("URL"),[])
         if (self.domoticz_if):
             self.domoticz_if.UpdateDevices(self.localaccess.GetSensorPoll("Domoticz"),[])
+        return
+
+    def UpdateSensorsActuatorsURL(self):
+        if (self.url):
+            self.url.UpdateDevices(self.localaccess.FindSensorbyHardware("URL"),self.localaccess.FindActuatorbyHardware("URL"))
         return
 
     def UpdateSensorsActuatorsGPIO(self):

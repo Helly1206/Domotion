@@ -1,0 +1,13 @@
+# Domotion Apps Starter - Service for Domotion Apps Starter
+
+[Unit]
+Description=Domotion (Home control and automation) Apps Starter
+Wants=Domotion.service
+
+[Service]
+Type=simple
+ExecStart=/opt/Domotion/DomoAppsStarter
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

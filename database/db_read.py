@@ -163,6 +163,17 @@ class db_read(object):
                 poll.append(key)
         return (poll)
 
+    def FindSensorbyHardware(self, Type):
+        sensors = []
+        stype=dict(self._SelectColumnFromTable("sensors", "Id,Type"))
+
+        TypeId = self._GetTypeId(Type, False)
+
+        for key in stype:
+            if (stype[key] == TypeId):
+                sensors.append(key)
+        return (sensors)
+
     def FindGPIOSensors(self):
         fsensors = []
         stype=dict(self._SelectColumnFromTable("sensors", "Id,Type"))
@@ -241,6 +252,17 @@ class db_read(object):
             return actuator[0][0]
         else:
             return 0
+
+    def FindActuatorbyHardware(self, Type):
+        actuators = []
+        stype=dict(self._SelectColumnFromTable("actuators", "Id,Type"))
+
+        TypeId = self._GetTypeId(Type, False)
+
+        for key in stype:
+            if (stype[key] == TypeId):
+                actuators.append(key)
+        return (actuators)
 
     def GetSensorProperties(self, SensorId):
         cols=self._GetColNames("sensors")
@@ -477,6 +499,8 @@ class db_read(object):
             return ("") #nothing to be done
         if (float(dbversion) < 1.00):
             self._UpdateDB100()
+        if (float(dbversion) < 1.10):
+            self._UpdateDB110()
         rowdict = {}
         rowdict['Parameter'] = "Version"
         rowdict['Value'] = version
@@ -494,6 +518,18 @@ class db_read(object):
         rowdict['Restart'] = "2"
         self._UpdateRow("settings", rowdict, "Parameter", "Username")
         self._UpdateRow("settings", rowdict, "Parameter", "Password")
+        return
+
+    def _UpdateDB110(self):
+        self._DeleteRowAndSort("settings", "Parameter", "URL_SSL", "Id")
+        self._AddRowAndSort("settings","Parameter","Timezone", "Id", (1, u'URL_port', u'Port for BDA URL communication (restart required)', 60004, u'INT', 2))
+        self._AddRowAndSort("settings","Parameter","URL_port", "Id", (1, u'URL_maxclients', u'Maximum Clients for BDA URL communication (restart required)', 20, u'INT', 2))
+        rowdict = {}
+        rowdict['Description'] = "Username for BDA URL login or leave empty (restart required)"
+        rowdict['Restart'] = "2"
+        self._UpdateRow("settings", rowdict, "Parameter", "URL_username")
+        rowdict['Description'] = "Password for BDA URL login or leave empty (restart required)"
+        self._UpdateRow("settings", rowdict, "Parameter", "URL_password")
         return
 
     def _GetColNames(self, table_name):

@@ -1,3 +1,12 @@
+[B]1.1.0[/B]
+- Added possibility to use apps 
+- Updated hwurl to app format 
+- Added DomoAppsStarter to domotion
+- Updated settings
+- Implemented socket basic device access for accessing devices running in apps
+- Implemented service to automatically start local apps during startup
+- Updated installer
+
 [B]1.0.5[/B]
 - Changed basicwebaccess format for holidays to dict
 - Fixed bug in updating type for holidays in basicwebaccess
