@@ -102,7 +102,7 @@ class appcommon(Thread):
         _doUpdate = self.doUpdate
         _done = False
         self.IntervalUpdate = False
-        if (self.common['interval'] > 0):
+        if (int(self.common['interval']) > 0):
             if self.Startup:
                 self.Startup = False
                 self.IntervalUpdate = True
