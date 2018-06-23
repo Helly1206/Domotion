@@ -1,4 +1,4 @@
-Domotion v1.0.5
+Domotion v1.1.0
 
 Domotion Home Control and Automation
 ======== ==== ======= === ==========
@@ -92,6 +92,11 @@ If you would like to use external deployment by Apache2:
 - First make <externaldeployment> true for the required sites in /etc/DomoWeb.xml and take care that all the other fields are correctly filled in (e.g. when using ssl, make the servername equal to the website host).
 - Enter: 'sudo ./install.sh -a'
 - The webserver(s) are now installed in Apache2 and enabled. Take care that you open the required ports in the firewall when accessing from another computer.
+
+Apps:
+-----
+Domotion is able to run apps from this version. For more information see the reame from the apps, e.g. 
+https://github.com/Helly1206/Domo_app_weather
 
 Installer options:
 --------- --------
