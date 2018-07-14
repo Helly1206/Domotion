@@ -336,6 +336,7 @@ class db_edit(object):
             data = self._LookupSensorType(cols, data)
             data = self._LookupBoolean(cols, data, "poll")
             data = self._LookupBoolean(cols, data, "toggle")
+            data = self._LookupBoolean(cols, data, "mutelog")
         elif (tableid.lower() == "actuators"):
             # Lookup types, boolean
             data = self._LookupType(cols, data)
@@ -343,6 +344,7 @@ class db_edit(object):
             data = self._LookupBoolean(cols, data, "repeat")
             data = self._LookupActuatorType(cols, data)
             data = self._LookupBoolean(cols, data, "statuslightflash")
+            data = self._LookupBoolean(cols, data, "mutelog")
         elif (tableid.lower() == "timers"):
             # Lookup method, weekdays
             data = self._LookupMethod(cols, data)
@@ -350,6 +352,7 @@ class db_edit(object):
             cols, data = self._LookupWeekdays(cols, data)
             data = self._LookupHomeTrip(cols, data, "home")
             data = self._LookupHomeTrip(cols, data, "trip")
+            data = self._LookupBoolean(cols, data, "mutelog")
         elif (tableid.lower() == "processors"):    
             # Lookup arithmic, combiner
             cols,data = self._LookupProcessorsArithmic(cols,data)

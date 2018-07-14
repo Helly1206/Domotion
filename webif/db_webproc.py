@@ -55,9 +55,10 @@ def db_edititem(tableid,id):
     # generate editingdata (depending on tableid)
     fmt = None
     if (tableid == "timers"):
-        fmt = self.app.common.TimeNoSec()
+        fmt = app.common.TimeNoSec()
     cols, data, editable = get_db().ReadTable(tableid)
     editingdata = get_db().BuildOptionsDicts(tableid)
+    print data
     return render_template('db_editor.html', prefix=app.getp(), cols=cols, data=data, editable=0, tableid=tableid, editing=1, editingid=id, editingdata=editingdata, format=fmt)
 
 @db_webproc.route('/database_delete/<string:tableid>/<int:id>')

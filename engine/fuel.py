@@ -34,12 +34,17 @@ class fuel(object):
     def process(self, timer, sensor, value):
         if (sensor):
             value = self._CheckToggle(sensor, value)
-            self.domoticz_frontend.SetSensor(sensor, value)
+            if (self.domoticz_frontend):
+                self.domoticz_frontend.SetSensor(sensor, value)
             self.localaccess.SetSensor(sensor, value)
             self.valueretainer.SetDevices()
-            self.logger.info("Sensor: %s, value: %f", self.localaccess.GetSensorName(sensor), value)
+            props=self.localaccess.GetSensorProperties(sensor)
+            if not props['MuteLog']:
+                self.logger.info("Sensor: %s, value: %f", self.localaccess.GetSensorName(sensor), value)
         if (timer):
-            self.logger.info("Timer: %s, fired", self.localaccess.GetTimerName(timer))
+            props=self.localaccess.GetTimerProperties(timer)
+            if not props['MuteLog']:
+                self.logger.info("Timer: %s, fired", self.localaccess.GetTimerName(timer))
         procs=self.localaccess.FindProcessors(timer, sensor)
         for proc in procs:
             procprop = self.localaccess.GetProcessorProperties(proc)
@@ -167,19 +172,23 @@ class fuel(object):
         props=self.localaccess.GetActuatorProperties(Id)
         curval = self.localaccess.GetActuator(Id)
         if ((props['SetOnce']) and (curval == value)):
-            self.logger.info("Actuator: %s not set; SetOnce active, value: %f", props['Name'], value)
+            if not props['MuteLog']:
+                self.logger.info("Actuator: %s not set; SetOnce active, value: %f", props['Name'], value)
             retval = True
         else:
             if (self._DoSetActuator(props, value)):
                 if ((not RepeatAction) and (props['Repeat'])):
                     self._SetRepeats(Id)
-                    self.logger.info("Actuator: %s, value: %f <repeat 0>", props['Name'], value)
+                    if not props['MuteLog']:
+                        self.logger.info("Actuator: %s, value: %f <repeat 0>", props['Name'], value)
                     self._UpdateFlash50(props, value, curval)
                 else:
                     if (RepeatAction):
-                        self.logger.info("Actuator: %s, value: %f <repeat %d>", props['Name'], value, RepeatAction)
+                        if not props['MuteLog']:
+                            self.logger.info("Actuator: %s, value: %f <repeat %d>", props['Name'], value, RepeatAction)
                     else:
-                        self.logger.info("Actuator: %s, value: %f", props['Name'], value)
+                        if not props['MuteLog']:
+                            self.logger.info("Actuator: %s, value: %f", props['Name'], value)
                         self._UpdateFlash50(props, value, curval)
                 retval = True
             else:
@@ -216,11 +225,13 @@ class fuel(object):
         elif (props['Type'] == 8): # Timer
             retval = False # Do not handle as output, only set timer
             self.timer.UpdateOffsetTimer(props['DeviceCode'])
-            self.logger.info("Actuator: %s, Timer set: %s", self.localaccess.GetActuatorName(props['Id']), self.localaccess.GetTimerName(props['DeviceCode']))
+            if not props['MuteLog']:
+                self.logger.info("Actuator: %s, Timer set: %s", self.localaccess.GetActuatorName(props['Id']), self.localaccess.GetTimerName(props['DeviceCode']))
         elif (props['Type'] == 13): # Script
             retval = self.script.execute(props['DeviceURL'], props['KeyTag'])
         if (setvalue):
-            self.domoticz_frontend.SetActuator(props['Id'], value)
+            if (self.domoticz_frontend):
+                self.domoticz_frontend.SetActuator(props['Id'], value)
             self.localaccess.SetActuator(props['Id'], value)
             self.valueretainer.SetDevices()
             if (not retval):

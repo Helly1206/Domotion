@@ -70,6 +70,13 @@
   						<input type="hidden" value="0" name="Toggle">
   					</label>
   				</td>
+          <td class="d5"> <!-- MuteLog -->
+            <label>
+              <input type="checkbox" value="1" name="MuteLog" id="TF8" onchange="TFChanged('TF8')"><br>
+              <span>xxx</span>
+              <input type="hidden" value="0" name="MuteLog">
+            </label>
+          </td>
   			{% elif tableid == "actuators" %}
   				<td class="d5"> <!--Type -->
   					<select name="Type" id="ActuatorType" onchange="ActuatorTypeChanged()">
@@ -125,6 +132,13 @@
               <input type="hidden" value="0" name="StatusLightFlash">
             </label>
           </td>
+          <td class="d5"> <!-- MuteLog -->
+            <label>
+              <input type="checkbox" value="1" name="MuteLog" id="TF9" onchange="TFChanged('TF9')"><br>
+              <span>xxx</span>
+              <input type="hidden" value="0" name="MuteLog">
+            </label>
+          </td>
   			{% elif tableid == "timers" %}
   				<td class="d5"> <!--Method -->
   					<select name="Method" id="TimerMethod" onchange="TimerMethodChanged()">
@@ -161,6 +175,13 @@
                 </option>
               {% endfor %}
             </select>
+          </td>
+          <td class="d5"> <!-- MuteLog -->
+            <label>
+              <input type="checkbox" value="1" name="MuteLog" id="TF10" onchange="TFChanged('TF10')"><br>
+              <span>xxx</span>
+              <input type="hidden" value="0" name="MuteLog">
+            </label>
           </td>
         {% elif tableid == "processors" %}
         	<td  class="d7"> <!-- Dependencies -->
@@ -219,7 +240,7 @@
   						<input type="hidden" value="0" name="{{ value }}">
   					</td>
             <!-- 2 empty columns -->
-            {% for n in range(2) %}
+            {% for n in range(3) %}
               <td class="d7">
               </td>
             {% endfor %}

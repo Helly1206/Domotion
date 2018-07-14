@@ -501,6 +501,8 @@ class db_read(object):
             self._UpdateDB100()
         if (float(dbversion) < 1.10):
             self._UpdateDB110()
+        if (float(dbversion) < 1.11):
+            self._UpdateDB111()
         rowdict = {}
         rowdict['Parameter'] = "Version"
         rowdict['Value'] = version
@@ -530,6 +532,12 @@ class db_read(object):
         self._UpdateRow("settings", rowdict, "Parameter", "URL_username")
         rowdict['Description'] = "Password for BDA URL login or leave empty (restart required)"
         self._UpdateRow("settings", rowdict, "Parameter", "URL_password")
+        return
+
+    def _UpdateDB111(self):
+        self._AddColumn("sensors", "MuteLog", "INTEGER", 0)
+        self._AddColumn("actuators", "MuteLog", "INTEGER", 0)
+        self._AddColumn("timers", "MuteLog", "INTEGER", 0)
         return
 
     def _GetColNames(self, table_name):
@@ -588,6 +596,12 @@ class db_read(object):
     def _ClearTable(self, table_name):
         c = self.conn.cursor()
         c.execute("DELETE FROM {tn}".format(tn=table_name))
+        self.conn.commit()
+        return
+
+    def _AddColumn(self, table_name, name, type, default):
+        c = self.conn.cursor()
+        c.execute("ALTER TABLE {tn} ADD COLUMN {cn} {tp} NOT NULL DEFAULT {df}".format(tn=table_name, cn=name, tp=type, df=default))
         self.conn.commit()
         return
 

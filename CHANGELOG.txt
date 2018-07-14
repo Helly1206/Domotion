@@ -1,3 +1,8 @@
+[B]1.1.1[/B]
+- Fixed bug with domoticz_frontend switched off
+- Fixed bug on restarting bdaserver when restarting/ shutting down Domotion
+- Added mute log setting for sensors, actuators and timers to prevent ecessive logging for devices that update frequently
+
 [B]1.1.0[/B]
 - Added possibility to use apps 
 - Updated hwurl to app format 

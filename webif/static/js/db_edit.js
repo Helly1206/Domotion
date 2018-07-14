@@ -211,13 +211,16 @@ function OnLoadWindow(id,datum) { /* do stuff on page load */
 		SensorDisableBydType(datum[9]);
 		TFSet("TF2",datum[10]);
 		TFSet("TF3",datum[11]);
+		TFSet("TF8",datum[12]);
 	} else if (id == "actuators") {
 		ActuatorDisableByType(datum[3]);
 		TFSet("TF4",datum[9]);
 		TFSet("TF5",datum[10]);
 		TFSet("TF6",datum[12]);
+		TFSet("TF9",datum[13]);
 	} else if (id == "timers") {
 		TimerDisableByMethod(datum[3]);
+		TFSet("TF10",datum[9]);
 	} else if (id == "combiners") {
 		TFSet("TF7",datum[4]);
 	}

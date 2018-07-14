@@ -148,6 +148,13 @@ class bdaserver(Thread):
                     del self.send_buf[sock]
 
             self.logger.info("terminating")
+            for sock in inputready:
+                self._disconnect(sock)
+            for sock in outputready:
+                self._disconnect(sock)
+            for sock in exceptready:
+                self._disconnect(sock)
+            self.server.close()
             #print "terminating"
         except Exception, e:
             #self.logger.exception(e)
