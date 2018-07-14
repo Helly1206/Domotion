@@ -62,22 +62,25 @@ class url(bdaserver):
                 prop = self.localaccess.GetSensorProperties(sensor)
                 if data[0] == prop['KeyTag']:
                     tag=data[0]
+                    curval=self.localaccess.GetSensor(sensor)
                     if not data[1]: # Get request
-                        value=self.localaccess.GetSensor(sensor)
+                        value=curval
                     else: # Set request
                         value=data[1]
-                        self.commandqueue.put_id("Url", sensor, value, True)
+                        if (curval != value):
+                            self.commandqueue.put_id("Url", sensor, value, True)
             if not value:
                 for actuator in self.actuators: 
                     prop = self.localaccess.GetActuatorProperties(actuator)
                     if data[0] == prop['KeyTag']:
                         tag=data[0]
-                        print "Found"
+                        curval=self.localaccess.GetActuator(actuator)
                         if not data[1]: # Get request
-                            value=self.localaccess.GetActuator(actuator)
+                            value=curval
                         else: # Set request
                             value=data[1]
-                            self.commandqueue.put_id("Url", actuator, value, False)
+                            if (curval != value):
+                                self.commandqueue.put_id("Url", actuator, value, False)
         self.mutex.release()
         return tag, value
 
