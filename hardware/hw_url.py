@@ -67,8 +67,8 @@ class url(bdaserver):
                         value=curval
                     else: # Set request
                         value=data[1]
-                        if (curval != value):
-                            self.commandqueue.put_id("Url", sensor, value, True)
+                        #if (curval != value):
+                        self.commandqueue.put_id("Url", sensor, value, True)
             if not value:
                 for actuator in self.actuators: 
                     prop = self.localaccess.GetActuatorProperties(actuator)
@@ -79,8 +79,8 @@ class url(bdaserver):
                             value=curval
                         else: # Set request
                             value=data[1]
-                            if (curval != value):
-                                self.commandqueue.put_id("Url", actuator, value, False)
+                            #if (curval != value):
+                            self.commandqueue.put_id("Url", actuator, value, False)
         self.mutex.release()
         return tag, value
 
