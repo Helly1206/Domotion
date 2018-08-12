@@ -63,7 +63,7 @@ class url(bdaserver):
                 if data[0] == prop['KeyTag']:
                     tag=data[0]
                     curval=self.localaccess.GetSensor(sensor)
-                    if not data[1]: # Get request
+                    if len(data)<2: # Get request
                         value=curval
                     else: # Set request
                         value=data[1]
@@ -75,7 +75,7 @@ class url(bdaserver):
                     if data[0] == prop['KeyTag']:
                         tag=data[0]
                         curval=self.localaccess.GetActuator(actuator)
-                        if not data[1]: # Get request
+                        if len(data)<2: # Get request
                             value=curval
                         else: # Set request
                             value=data[1]
