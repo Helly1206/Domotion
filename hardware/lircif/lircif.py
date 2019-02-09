@@ -41,7 +41,7 @@ class lircif(object):
             self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             self.sock.connect(path)
             self.sock.settimeout(timeout)
-        except Exception, e:
+        except Exception as e:
             self.logger.error("Socket connection error: %s"%e)
             self.sock = None
             sockerror = True
@@ -63,12 +63,12 @@ class lircif(object):
             sockerror = True
             return sockerror,device,key,repeat
         try:
-            buf = self.sock.recv(128)
+            buf = self.sock.recv(128).decode("utf-8")
             if (buf != None):
                 device,key,repeat = self._DecodeBuf(buf)
         except socket.timeout:
             pass
-        except socket.error, e:
+        except socket.error as e:
             self.logger.error("Socket connection error: %s"%e)
             sockerror = True
 
@@ -111,8 +111,8 @@ class lircif(object):
     def _lirc_send_command(self, command):
         status = -1
         try:
-            sent = self.sock.send(command)
-        except socket.error, e:
+            sent = self.sock.send(bytes(command,"utf-8"))
+        except socket.error as e:
             self.logger.error("Socket connection error: %s"%e)
             status = -2
             return status
@@ -123,10 +123,10 @@ class lircif(object):
         while (not finished):
             buf = None
             try:
-                buf = self.sock.recv(128)
+                buf = self.sock.recv(128).decode("utf-8")
             except socket.timeout:
                 pass
-            except socket.error, e:
+            except socket.error as e:
                 self.logger.error("Socket connection error: %s"%e)
                 status = -2
                 return status     

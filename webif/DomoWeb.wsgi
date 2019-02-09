@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from sys import path
 from os import environ
 

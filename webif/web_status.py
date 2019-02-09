@@ -1,6 +1,6 @@
 from flask import Flask, Blueprint, render_template, g, request, redirect, jsonify
 from flask_login import login_required
-from webdatabase import db_status
+from webdatabase.db_status import db_status
 from flask import current_app as app
 
 web_status = Blueprint('web_status', __name__, template_folder='templates')

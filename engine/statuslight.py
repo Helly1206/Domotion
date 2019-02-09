@@ -9,7 +9,7 @@
 from threading import Thread, Event, Lock
 import logging
 from time import sleep
-from engine import localaccess
+from .localaccess import localaccess
 from enum import Enum
 #########################################################
 
@@ -33,7 +33,7 @@ secflash50 = (0.5/sleeptime)
 secbusy = (3/sleeptime)
 
 class State(Enum):
-    OK, BUSY, ERROR = range(3)
+    OK, BUSY, ERROR = list(range(3))
 
 #########################################################
 # Class : statuslight                                   #
@@ -129,7 +129,7 @@ class statuslight(Thread):
 
             self._SetLights(0,0,0)
             self.logger.info("terminating")
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
     def SetFlash50(self, val):

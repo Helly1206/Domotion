@@ -9,7 +9,7 @@
 from base64 import b64decode
 import requests
 from threading import Lock
-from engine import localaccess
+from engine.localaccess import localaccess
 #########################################################
 
 ####################### GLOBALS #########################

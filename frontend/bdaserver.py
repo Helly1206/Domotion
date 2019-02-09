@@ -10,11 +10,11 @@
 from threading import Thread, Event, Lock
 from select import select
 import socket, errno
-import Queue
+import queue
 import logging
 import os
 from json import dumps, loads
-from apps import bdauri
+from apps.appcommon.bdauri import bdauri
 
 #########################################################
 
@@ -30,11 +30,14 @@ from apps import bdauri
 # Class : bdaserver                                     #
 #########################################################
 class bdaserver(Thread):
-    def __init__(self, callback, host="", port=60004, maxclients=20, url="/Domotion", username="", password=""):
+    def __init__(self, callback, trustedcallback, host="", port=60004, maxclients=20, url="/Domotion", username="", password="", trusted=""):
         self.callback = callback
+        self.trustedcallback = trustedcallback
         self.logger = logging.getLogger('Domotion.bdaserver')
         self.username = username
         self.password = password
+        self.trusted = trusted.split(";")
+
         if not host:
             host = bdauri.find_ip_address()
         
@@ -43,7 +46,7 @@ class bdaserver(Thread):
         Thread.__init__(self)
         self.term = Event()
         self.term.clear()
-        self.mutex = Lock()
+        self.mutexb = Lock()
         self.recd = Event()
         self.recd.clear()
 
@@ -71,7 +74,7 @@ class bdaserver(Thread):
         self.server.close()
         del self.send_buf
 
-        del self.mutex
+        del self.mutexb
         del self.term
         del self.recd
         self.logger.info("finished")
@@ -88,12 +91,12 @@ class bdaserver(Thread):
             while (not self.term.isSet()):
                 # Wait for at least one of the sockets to be ready for processing
                 try:
-                    self.mutex.acquire()
+                    self.mutexb.acquire()
                     ioutputs = self.outputs
-                    self.mutex.release()
+                    self.mutexb.release()
                     inputready, outputready, exceptready = select(self.inputs + [self.unblockselect[0]], ioutputs, self.inputs, self.timeout)
                 except:
-                    self.mutex.release()
+                    self.mutexb.release()
                     continue
 
                 if not (inputready or outputready or exceptready):
@@ -116,7 +119,7 @@ class bdaserver(Thread):
                             # A readable client socket has data
                             if self._execute(sock, data):
                                 self._addtourls(sock, data)
-                                #print 'received "%s" from %s' % (data, self.peers[sock])
+                                #print ('received "%s" from %s' % (data, self.peers[sock]))
                             #else:
                                 #print "Invalid data"
                         else:
@@ -131,10 +134,10 @@ class bdaserver(Thread):
                 for sock in outputready:
                     try:
                         next_msg = self.send_buf[sock].get_nowait()
-                    except Queue.Empty:
+                    except queue.Empty:
                         self.outputs.remove(sock)
                     else:
-                        #%print 'sending "%s" to %s' % (next_msg, self.peers[sock])
+                        #print ('sending "%s" to %s' % (next_msg, self.peers[sock]))
                         success = self._send(sock, next_msg)
                         if (not success):
                             self.outputs.remove(sock)
@@ -156,7 +159,7 @@ class bdaserver(Thread):
                 self._disconnect(sock)
             self.server.close()
             #print "terminating"
-        except Exception, e:
+        except Exception as e:
             #self.logger.exception(e)
             #print e
             pass
@@ -168,7 +171,7 @@ class bdaserver(Thread):
         except:
             return None, None
         self.inputs.append(connection)
-        self.send_buf[connection] = Queue.Queue()
+        self.send_buf[connection] = queue.Queue()
         self.peers[connection] = client_address
         return connection
 
@@ -184,36 +187,36 @@ class bdaserver(Thread):
         del self.send_buf[sock]
 
     def _addtosendbuf(self, sock, data):
-        self.mutex.acquire()
+        self.mutexb.acquire()
         if self.send_buf[sock]: 
             self.send_buf[sock].put(data)
             # Add output channel for response
             if sock not in self.outputs:
                 self.outputs.append(sock)
-        self.mutex.release()
+        self.mutexb.release()
 
     def _addtourls(self, sock, data):
         if bdauri.IsUri(data):
             self.urls[sock] = bdauri.GetDeviceUrl(data)
 
     def _receive(self, sock):
-        buf = ''
+        buf = b''
         continue_recv = True
         while continue_recv:
             try:
                 recd = sock.recv(self.bufsize)
                 buf += recd
                 continue_recv = len(recd) > 0
-            except socket.error, e:
+            except socket.error as e:
                 if e.errno != errno.EWOULDBLOCK:
                     #print 'Error: %r' % e
                     return None
                 continue_recv = False
-        return buf
+        return buf.decode("utf-8")
 
     def _send(self, sock, arg):
         try:
-            sock.sendall(arg)
+            sock.sendall(bytes(arg,"utf-8"))
             return True
         except:
             return False
@@ -223,7 +226,7 @@ class bdaserver(Thread):
         rvalue = None
         self.recd.clear()
         try:
-            sock = [k for k, v in self.urls.items() if v == bdauri.PrettyDeviceUrl(deviceurl)][0]
+            sock = [k for k, v in list(self.urls.items()) if v == bdauri.PrettyDeviceUrl(deviceurl)][0]
         except:
             sock = None
 
@@ -232,9 +235,9 @@ class bdaserver(Thread):
             os.write(self.unblockselect[1], 'x')
         
             if self.recd.wait(5):
-                self.mutex.acquire()
+                self.mutexb.acquire()
                 recddata = self.recddata
-                self.mutex.release()
+                self.mutexb.release()
                 if recddata[0] == 'STORED':
                     if (recddata[1] == tag) and (recddata[2] == value):
                         rtag = tag
@@ -251,25 +254,32 @@ class bdaserver(Thread):
         if bdauri.IsUri(data):
             if not bdauri.TestAuth(data, self.username, self.password):
                 return False
-            #print "New command from client"
             pdata = bdauri.ParseData(bdauri.GetData(data))
             if pdata[0]:
-                tag, value = self.callback(pdata)
-                if tag:
-                    if pdata[1]: #set
-                        self._addtosendbuf(sock, dumps(['STORED', tag, value]))
-                    else: #get
-                        self._addtosendbuf(sock, dumps(['VALUE', tag, value]))
+                if bdauri.IsTrusted(data, self.trusted):
+                    data = self.trustedcallback(pdata)
+                    if data:
+                        self._addtosendbuf(sock, data)
+                    else:
+                        self._addtosendbuf(sock, dumps(["ERROR", pdata[0], "NULL"]))
                 else:
-                    self._addtosendbuf(sock, dumps(["ERROR", pdata[0], "NULL"]))
+                    #print "New command from client"
+                    tag, value = self.callback(pdata)
+                    if tag:
+                        if pdata[1]: #set
+                            self._addtosendbuf(sock, dumps(['STORED', tag, value]))
+                        else: #get
+                            self._addtosendbuf(sock, dumps(['VALUE', tag, value]))
+                    else:
+                        self._addtosendbuf(sock, dumps(["ERROR", pdata[0], "NULL"]))
         else:
             #print "Response"
-            self.mutex.acquire()
+            self.mutexb.acquire()
             try:
                 self.recddata = loads(data)
             except:
                 self.recddata = None
-            self.mutex.release()
+            self.mutexb.release()
             self.recd.set()
 
         return True

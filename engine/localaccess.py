@@ -7,7 +7,7 @@
 #########################################################
 # Make reading static, but thread prottected
 ####################### IMPORTS #########################
-from database import db_read
+from database.db_read import db_read
 from threading import Lock
 import signal
 from time import localtime, strftime

@@ -69,7 +69,7 @@ then
 elif [ "$1" == "-c" ] || [ "$1" == "-C" ]
 then
 	echo "$NAME Deleting compiled files in install folder"
-	find . -name "*.pyc" -type f -delete
+	py3clean .
 elif [ "$1" == "-a" ] || [ "$1" == "-A" ]
 then
 	echo "$NAME Apache2 install script"
@@ -84,11 +84,11 @@ then
 		sudo apt-get --force-yes --yes install apache2
 	fi
 
-	PKG_OK=$(dpkg-query -W --showformat='${Status}\n' libapache2-mod-wsgi|grep "install ok installed")
-	echo Checking for libapache2-mod-wsgi: $PKG_OK
+	PKG_OK=$(dpkg-query -W --showformat='${Status}\n' libapache2-mod-wsgi-py3|grep "install ok installed")
+	echo Checking for libapache2-mod-wsgi-py3: $PKG_OK
 	if [ "" == "$PKG_OK" ]; then
-		echo "No libapache2-mod-wsgi. Setting up libapache2-mod-wsgi."
-		sudo apt-get --force-yes --yes install libapache2-mod-wsgi
+		echo "No libapache2-mod-wsgi-py3. Setting up libapache2-mod-wsgi-py3."
+		sudo apt-get --force-yes --yes install libapache2-mod-wsgi-py3
 	fi
 
 	echo "Enabling wsgi and ssl modules"
@@ -96,6 +96,7 @@ then
 	a2enmod ssl &> /dev/null
 
 	echo "Installing $NAME on $WEB_ROOT"
+	if [ -d "$DOMOWEB_ROOT" ]; then rm -rf "$DOMOWEB_ROOT"; fi
 	if [ ! -d "$DOMOWEB_ROOT" ]; then 
 		mkdir "$DOMOWEB_ROOT" 
 	fi
@@ -136,8 +137,9 @@ else
 
 	echo "Installing $NAME"
 
-	find . -name "*.pyc" -type f -delete
+	py3clean .
 
+	if [ -d "$OPTLOC" ]; then rm -rf "$OPTLOC"; fi
 	if [ ! -d "$OPTLOC" ]; then 
 		mkdir "$OPTLOC"
 		chmod 755 "$OPTLOC"
@@ -178,30 +180,43 @@ else
 		sudo apt-get --force-yes --yes install sqlite3
 	fi
 
+	PKG_OK=$(dpkg-query -W --showformat='${Status}\n' python3-pip|grep "install ok installed")
+	echo Checking for pip3: $PKG_OK
+	if [ "" == "$PKG_OK" ]; then
+		echo "No pip3. Setting up pip3."
+		sudo apt-get --force-yes --yes install python3-pip
+	fi
+
 	echo "Installing required python packages"
-	PKG_OK=$(sudo -H pip freeze| grep -i "Enum==")
+	PKG_OK=$(sudo -H pip3 freeze| grep -i "Enum34==")
 	echo Checking for Enum: $PKG_OK
 	if [ "" == "$PKG_OK" ]; then
 		echo "No Enum. Setting up Enum."
-		sudo -H pip install enum
+		sudo -H pip3 install enum34
 	fi
-	PKG_OK=$(sudo -H pip freeze| grep -i "Flask==")
+	PKG_OK=$(sudo -H pip3 freeze| grep -i "Flask==")
 	echo Checking for Flask: $PKG_OK
 	if [ "" == "$PKG_OK" ]; then
 		echo "No Flask. Setting up Flask."
-		sudo -H pip install flask
+		sudo -H pip3 install flask
 	fi
-	PKG_OK=$(sudo -H pip freeze| grep -i "Flask-Login==")
+	PKG_OK=$(sudo -H pip3 freeze| grep -i "Flask-Login==")
 	echo Checking for Flask-Login: $PKG_OK
 	if [ "" == "$PKG_OK" ]; then
 		echo "No Flask-Login. Setting up Flask-Login."
-		sudo -H pip install flask-login
+		sudo -H pip3 install flask-login
 	fi
-	PKG_OK=$(sudo -H pip freeze| grep -i "psutil==")
+	PKG_OK=$(sudo -H pip3 freeze| grep -i "psutil==")
 	echo Checking for psutil: $PKG_OK
 	if [ "" == "$PKG_OK" ]; then
 		echo "No psutil. Setting up psutil."
-		sudo -H pip install psutil
+		sudo -H pip3 install psutil
+	fi
+	PKG_OK=$(sudo -H pip3 freeze| grep -i "ifaddr==")
+	echo Checking for psutil: $PKG_OK
+	if [ "" == "$PKG_OK" ]; then
+		echo "No ifaddr. Setting up ifaddr."
+		sudo -H pip3 install ifaddr
 	fi
 
 	echo "Installing daemon $NAME"

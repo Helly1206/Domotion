@@ -1,6 +1,6 @@
 from flask import Flask, Blueprint, render_template, g, request, redirect
 from flask_login import login_required
-from webdatabase import db_edit
+from webdatabase.db_edit import db_edit
 from flask import current_app as app
 
 db_webproc = Blueprint('db_webproc', __name__, template_folder='templates')
@@ -58,7 +58,6 @@ def db_edititem(tableid,id):
         fmt = app.common.TimeNoSec()
     cols, data, editable = get_db().ReadTable(tableid)
     editingdata = get_db().BuildOptionsDicts(tableid)
-    print data
     return render_template('db_editor.html', prefix=app.getp(), cols=cols, data=data, editable=0, tableid=tableid, editing=1, editingid=id, editingdata=editingdata, format=fmt)
 
 @db_webproc.route('/database_delete/<string:tableid>/<int:id>')

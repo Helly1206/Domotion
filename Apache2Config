@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-from main import Apache2Config
+from main.Apache2Config import Apache2Config
 from sys import argv
 
 Apache2Config().run(argv[1:])

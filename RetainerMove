@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-from main import RetainerMove
+from main.RetainerMove import RetainerMove
 from sys import argv
 
 RetainerMove(argv[1:])

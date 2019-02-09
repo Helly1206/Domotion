@@ -66,17 +66,27 @@ class memorylog(object):
         else:
             return False
 
+    def _format(self,s):
+        # As python3 formatting differs from python2, we need to do something here
+        sf = ''
+        if len(s)>0:
+            if s != "\n":
+                sf = s + "\n"
+        return(sf)
+
     def write(self,s):
-        self._acquire()
-        if (self.size>0):
-            if (self.wrpos>=self.size):
-                self.Memory.pop(0)
-                for key in self.rdpos:
-                    if (self.rdpos[key]>0):
-                        self.rdpos[key]-=1
-        self.Memory.append(s)
-        self.wrpos=len(self.Memory)
-        self._release()
+        sf = self._format(s)
+        if sf:
+            self._acquire()
+            if (self.size>0):
+                if (self.wrpos>=self.size):
+                    self.Memory.pop(0)
+                    for key in self.rdpos:
+                        if (self.rdpos[key]>0):
+                            self.rdpos[key]-=1
+            self.Memory.append(sf)
+            self.wrpos=len(self.Memory)
+            self._release()
 
     def writelines(self,sl):
         for s in sl:
@@ -135,7 +145,7 @@ class memorylog(object):
         instance = 0
         if len(self.rdpos)>0:
             i=0
-            keys = self.rdpos.keys()
+            keys = list(self.rdpos.keys())
             while instance == 0:
                 if not i in keys:
                     instance = i

@@ -6,8 +6,9 @@
 #########################################################
 
 ####################### IMPORTS #########################
-from webdatabase import db_webread
+from webdatabase.db_webread import db_webread
 from hashlib import sha256
+from base64 import b64encode
 from os import access, path, urandom
 from time import localtime, struct_time, strftime, strptime
 from datetime import date, datetime
@@ -48,7 +49,7 @@ class common(db_webread):
         return self.secret_key
 
     def HashPass(self, password):
-        salted_password = password + self.secret_key
+        salted_password = (password + self.secret_key).encode("utf-8")
         return sha256(salted_password).hexdigest()
 
     def IsPassword(self, password):
@@ -60,7 +61,7 @@ class common(db_webread):
 
     def _MakeSessionPassword(self):
         if (self.sessionpassword == None):
-            self.sessionpassword = self.HashPass(urandom(32))
+            self.sessionpassword = self.HashPass(b64encode(urandom(32)).decode('utf-8'))
 
     def GetSessionPassword(self):
         if (self.sessionpassword == None):
@@ -123,7 +124,7 @@ class common(db_webread):
         return self.WeekDayDict
 
     def HM2local(self, h, m):
-        tm = struct_time((0, 0, 0, h, m, 0, 0, 0, 0))
+        tm = struct_time((0, 0, 0, int(h), int(m), 0, 0, 0, 0))
         return (strftime(self.TimeNoSec(), tm))
 
     def local2HM(self, localtime):  

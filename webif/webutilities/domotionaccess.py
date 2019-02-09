@@ -43,20 +43,20 @@ class domotionaccess(object):
                     if (self.sock):
                         self.sock.close()  
                         self.connected = False
-                    print "# Error: Incorrect socket"
+                    print("# Error: Incorrect socket")
                 else:
-                    print "# Connected to Domotion server on %s, port %d" % (self.server_address[0], self.server_address[1])
+                    print("# Connected to Domotion server on %s, port %d" % (self.server_address[0], self.server_address[1]))
                     self.connected = True
             else:
                 if (self.sock):
                     self.sock.close()
                     self.connected = False
-                print "# Error: Socket doesn't introduce itself"
+                print("# Error: Socket doesn't introduce itself")
         except:
             if (self.sock):
                 self.sock.close()
                 self.connected = False
-                #print "# Error: Trying to connect to socket"
+                print("# Error: Trying to connect to socket")
 
         return self.connected
 
@@ -64,7 +64,7 @@ class domotionaccess(object):
         if (self.sock):
             self.sock.close()
             self.connected = False
-            print "# Closing connection to Domotion server on %s, port %d" % (self.server_address[0], self.server_address[1])
+            print("# Closing connection to Domotion server on %s, port %d" % (self.server_address[0], self.server_address[1]))
 
         return self.connected        
 
@@ -170,13 +170,13 @@ class domotionaccess(object):
                 return None
             msglen = unpack('>I', raw_msglen)[0]
             # Read the message data
-            return self.receivevalue(sock, msglen)
+            return self.receivevalue(sock, msglen).decode("utf-8")
         except:
             return None
 
     def receivevalue(self, sock, n):
         # Helper function to recv n bytes or return None if EOF is hit
-        data = ''
+        data = b''
         while len(data) < n:
             if (n- len(data) > self.bufsize):
                 packet = sock.recv(self.bufsize)
@@ -189,7 +189,7 @@ class domotionaccess(object):
 
     def send(self, sock, arg):
         try:
-            msg = pack('>I', len(arg)) + arg
+            msg = pack('>I', len(arg)) + bytes(arg,"utf-8")
             sock.sendall(msg)
             return True
         except:

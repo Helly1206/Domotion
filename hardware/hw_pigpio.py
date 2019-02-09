@@ -96,7 +96,7 @@ class gpio(Thread):
                     sleep(sleeptime)
                 
             self.logger.info("terminating")
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
     def _TestGPIO(self, reset = False):

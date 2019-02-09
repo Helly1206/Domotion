@@ -12,7 +12,9 @@
 # no auto and no host bda:///deviceurl/set?...
 
 ####################### IMPORTS #########################
-import socket
+from builtins import str
+from builtins import object
+import ifaddr
 from fcntl import ioctl
 from struct import pack
 from hashlib import sha256
@@ -33,6 +35,7 @@ from hashlib import sha256
 class bdauri(object):
     prefix = "bda://"
     secret_key = "@%^&123_bdasocket_$%#!@"
+
     @classmethod
     def BuildURI(cls, deviceurl, data="", username="", password=""):
         uri = cls.prefix
@@ -59,10 +62,10 @@ class bdauri(object):
         if not address or not purl:
             return None
 
-        url = address.strip().translate(None," :/@()[]<>")
+        url = address.strip().translate((None," :/@()[]<>"))
         if purl[0] != "/":
             url += "/"
-        url += purl.strip().translate(None," :@()[]<>")
+        url += purl.strip().translate((None," :@()[]<>"))
         if purl[-1] != "/":
             url += "/"
 
@@ -131,6 +134,20 @@ class bdauri(object):
             UrlOk = (url.lower() == turl.lower())
         return UrlOk
 
+    @classmethod
+    def IsTrusted(cls, uri, trusted):
+        TrustedOk = False
+        url = ""
+        purl = cls.GetDeviceUrl(uri).split("/")
+        if len(purl)>1:
+            url = purl[1]
+        if url:
+            for turl in trusted:
+                if (url.lower() == turl.lower()):
+                    TrustedOk = True
+                    break
+        return TrustedOk
+
     @classmethod 
     def GetData(cls, uri):
         data = ""
@@ -155,9 +172,21 @@ class bdauri(object):
         return data
 
     @classmethod
+    def BuildInfoData(cls, tag=""):
+        return "getinfo?tag=" + tag
+
+    @classmethod
+    def BuildAllData(cls, tag=""):
+        return "getall?tag=" + tag
+
+    @classmethod
     def ParseData(cls, data):
         tag = ""
         value = None
+        request = ""
+        pos = data.find("?")
+        if pos >= 0:
+            request = data[0:pos]
         pos = data.find("set")
         if pos == 0:
             pos = data.find("&value=")
@@ -171,26 +200,28 @@ class bdauri(object):
             pos = data.find("tag=")
             if pos >= 0:
                 tag = data[pos+len("tag="):]
-        return tag, value
+        return tag, value, request
 
     @classmethod
     def get_ip_address(cls, ifname):
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        return socket.inet_ntoa(ioctl(s.fileno(),0x8915, pack('256s', ifname[:15]))[20:24])
+        ip = None
+        adapters = ifaddr.get_adapters()
+        for adapter in adapters:
+            if (adapter.name == ifname):
+                ip = adapter.ips[0].ip
+        return ip
 
     @classmethod
     def find_ip_address(cls):
         ip=None
         try:
             ip=cls.get_ip_address('eth0')
-        except:
-            try:
+            if not ip:
                 ip=cls.get_ip_address('wlan0')
-            except:
-                try:
+                if not ip:
                     ip=cls.get_ip_address('lo')
-                except:
-                    pass
+        except:
+            pass
         return ip
 
     @classmethod

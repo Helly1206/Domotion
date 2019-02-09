@@ -9,9 +9,9 @@
 from threading import Thread, Event, Lock
 import logging
 from time import sleep
-from localaccess import localaccess
-from commandqueue import commandqueue
-from utilities import timecalc
+from .localaccess import localaccess
+from .commandqueue import commandqueue
+from utilities.timecalc import timecalc
 #########################################################
 
 ####################### GLOBALS #########################
@@ -78,7 +78,7 @@ class timer(Thread):
                 counter -= 1
 
             self.logger.info("terminating")
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
     def UpdateAll(self, Settings=False):

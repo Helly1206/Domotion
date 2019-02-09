@@ -35,20 +35,20 @@ class DomoWebStarter(object):
         try:
             opts, args = getopt(argv,"hd",["help","debug"])
         except GetoptError:
-            print "Domotion Home control and automation web starter"
-            print "Version: " + VERSION
-            print " "
-            print "Enter 'DomoWebStarter -h' for help"
+            print("Domotion Home control and automation web starter")
+            print("Version: " + VERSION)
+            print(" ")
+            print("Enter 'DomoWebStarter -h' for help")
             exit(2)
         for opt, arg in opts:
             if opt in ("-h", "--help"):
-                print "Domotion Home control and automation web starter"
-                print "Version: " + VERSION
-                print " "
-                print "Usage:"
-                print "         DomoWebStarter <args>"
-                print "         -h, --help: this help file"
-                print "         -d, --debug: start in debug mode on port 5000"
+                print("Domotion Home control and automation web starter")
+                print("Version: " + VERSION)
+                print(" ")
+                print("Usage:")
+                print("         DomoWebStarter <args>")
+                print("         -h, --help: this help file")
+                print("         -d, --debug: start in debug mode on port 5000")
                 exit()
             elif opt in ("-d", "--debug"):
                 Debug=True
@@ -63,13 +63,13 @@ class DomoWebStarter(object):
                 name=child.tag
                 ssl=False
                 if index>4:
-                    print ("Server [%s] not started as maximum of 5 servers obtained"%name)
+                    print(("Server [%s] not started as maximum of 5 servers obtained"%name))
                     continue                  
 
                 textdep=child.find('externaldeployment')
                 if textdep != None:
                     if (textdep.text.lower() == "true"):
-                        print ("Server [%s] externally deployed"%name)
+                        print(("Server [%s] externally deployed"%name))
                         continue
                 index += 1    
                 tssl=child.find('ssl')
@@ -97,10 +97,10 @@ class DomoWebStarter(object):
                 self.ports.append(port)
 
                 if ssl:
-                    print ("Starting https server [%s] on port: %d"%(name,port))
+                    print(("Starting https server [%s] on port: %d"%(name,port)))
                     self.procs.append(subprocess.Popen(["python", self.GetDomoWeb(),"-p {p}".format(p=port), "-s", "-c {c}".format(c=cert), "-k {k}".format(k=key)]))
                 else:
-                    print ("Starting http server [%s] on port: %d"%(name,port))
+                    print(("Starting http server [%s] on port: %d"%(name,port)))
                     self.procs.append(subprocess.Popen(["python", self.GetDomoWeb(),"-p {p}".format(p=port)]))
 
         if index>0:

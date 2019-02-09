@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-from main import DomotionMain
+from main.Domotion import DomotionMain
 from sys import argv
 
 DomotionMain(argv[1:])

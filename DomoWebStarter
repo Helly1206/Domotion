@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-from main import DomoWebStarter
+from main.DomoWebStarter import DomoWebStarter
 from sys import argv
 
 DomoWebStarter().run(argv[1:])

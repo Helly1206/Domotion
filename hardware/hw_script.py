@@ -43,7 +43,7 @@ class script(object):
 
     def _test_running(self, device):
         running = False
-        if device in self.scripts.keys():
+        if device in list(self.scripts.keys()):
             # script was running
             if self.scripts[device].poll() != None:
                 # script finished, so remove
@@ -58,7 +58,7 @@ class script(object):
         return
 
     def _del_script(self, device):
-        if device in self.scripts.keys():
+        if device in list(self.scripts.keys()):
             del self.scripts[device]
 
         return

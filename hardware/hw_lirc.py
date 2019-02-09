@@ -6,7 +6,7 @@
 #########################################################
 
 ####################### IMPORTS #########################
-from lircif import lircif
+from .lircif.lircif import lircif
 from threading import Thread, Event, Lock
 import logging
 from time import sleep
@@ -81,7 +81,7 @@ class lirc(Thread):
                             self.logger.info("lircd connection established") 
 
             self.logger.info("terminating")
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
     def _TestLirc(self, reset = False):

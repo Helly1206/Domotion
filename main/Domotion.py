@@ -9,20 +9,20 @@
 import logging
 import logging.handlers
 from time import sleep
-from engine import commandqueue
-from engine import engine
-from engine import localaccess
-from engine import AppKiller
-from utilities import memorylog
-from hardware import lirc
-from hardware import pi433MHz
-from hardware import domoticz_if
-from hardware import url
-from hardware import gpio
-from hardware import script
-from frontend import domoticz_frontend
-from frontend import domoticz_api
-from frontend import webserveraccess
+from engine.commandqueue import commandqueue
+from engine.engine import engine
+from engine.localaccess import localaccess
+from engine.localaccess import AppKiller
+from utilities.memorylog import memorylog
+from hardware.hw_lirc import lirc
+from hardware.hw_pi433MHz import pi433MHz
+from hardware.hw_domoticz import domoticz_if
+from hardware.hw_url import url
+from hardware.hw_pigpio import gpio
+from hardware.hw_script import script
+from frontend.domoticz_frontend import domoticz_frontend
+from frontend.domoticz_api import domoticz_api
+from frontend.webserveraccess import webserveraccess
 import sys
 from getopt import getopt, GetoptError
 import os
@@ -32,7 +32,7 @@ import psutil
 LOG_FILENAME = 'Domotion.log'
 LOG_MAXSIZE = 100*1024*1024
 DB_FILENAME = "Domotion.db"
-VERSION = "1.12"
+VERSION = "1.20"
 LoopTime = 0.1
 RestartSleepTime = 2
 LogMemory = 100
@@ -101,7 +101,7 @@ class Domotion(object):
                 self.domoticz_if = None
 
             if (self.localaccess.GetSetting('URL')):
-                self.url = url(self.commandqueue, self.localaccess)
+                self.url = url(self.commandqueue, self.localaccess, self.memorylog)
                 self.url.start()
             else:
                 self.logger.info("URL interface disabled")
@@ -130,7 +130,7 @@ class Domotion(object):
 
             self.engine.instances(self.domoticz_api, self.domoticz_frontend, self.gpio, self.url, self.domoticz_if, self.lirc, self.pi433MHz, self.script)
             self.engine.DomoticzMessenger(1)
-        except Exception, e:
+        except Exception as e:
             if (self.logger):
                 self.logger.exception(e)
             else:
@@ -188,7 +188,7 @@ class Domotion(object):
             self.logger.info("Domotion Ready")
             logging.shutdown()
             del self.localaccess
-        except Exception, e:
+        except Exception as e:
             if (self.logger):
                 self.logger.exception(e)
             else:
@@ -201,7 +201,7 @@ class Domotion(object):
                     sleep(LoopTime)
                 if self.killer.kill_now:
                     break   
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
         return self.killer.restart
@@ -256,23 +256,23 @@ def DomotionMain(argv):
     try:
         opts, args = getopt(argv,"hv",["help","version"])
     except GetoptError:
-        print "Domotion Home control and automation"
-        print "Version: " + VERSION
-        print " "
-        print "Enter 'Domotion -h' for help"
+        print("Domotion Home control and automation")
+        print("Version: " + VERSION)
+        print(" ")
+        print("Enter 'Domotion -h' for help")
         exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
-            print "Domotion Home control and automation"
-            print "Version: " + VERSION
-            print " "
-            print "Usage:"
-            print "         Domotion <args>"
-            print "         -h, --help: this help file"
-            print "         -v, --version: print version information"
+            print("Domotion Home control and automation")
+            print("Version: " + VERSION)
+            print(" ")
+            print("Usage:")
+            print("         Domotion <args>")
+            print("         -h, --help: this help file")
+            print("         -v, --version: print version information")
             exit()
         elif opt in ("-v", "--version"):
-            print "Version: " + VERSION
+            print("Version: " + VERSION)
             exit()
 
     while (Domotion().run()):
@@ -280,7 +280,7 @@ def DomotionMain(argv):
             p = psutil.Process(os.getpid())
             for handler in p.get_open_files() + p.connections():
                 os.close(handler.fd)
-        except Exception, e:
+        except Exception as e:
             pass
         sleep(RestartSleepTime)
         python = sys.executable

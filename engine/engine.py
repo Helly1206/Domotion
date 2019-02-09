@@ -7,12 +7,12 @@
 
 ####################### IMPORTS #########################
 import logging
-from commandqueue import commandqueue
-from localaccess import localaccess
-from timer import timer
-from fuel import fuel
-from valueretainer import valueretainer
-from statuslight import statuslight
+from .commandqueue import commandqueue
+from .localaccess import localaccess
+from .timer import timer
+from .fuel import fuel
+from .valueretainer import valueretainer
+from .statuslight import statuslight
 #########################################################
 
 ####################### GLOBALS #########################

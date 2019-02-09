@@ -1,13 +1,13 @@
 from threading import Thread, Event
 from select import select
 import socket
-import Queue
+import queue
 import logging
 from json import dumps, loads
 from struct import pack, unpack
-from engine import localaccess
-from frontend import basicwebaccess
-from utilities import memorylog
+from engine.localaccess import localaccess
+from .basicwebaccess import basicwebaccess
+from utilities.memorylog import memorylog
 
 #########################################################
 # Class : webserveraccess                               #
@@ -77,7 +77,7 @@ class webserveraccess(Thread):
                             continue
                         self.logger.info('New connection from: %s:%d', client_address[0], client_address[1])
                         self.inputs.append(connection)
-                        self.return_args[connection] = Queue.Queue()
+                        self.return_args[connection] = queue.Queue()
                         self.memoryloginstances[connection] = self.memorylog.addinstance()
                         
                     else:
@@ -108,7 +108,7 @@ class webserveraccess(Thread):
                 for sock in outputready:
                     try:
                         next_msg = self.return_args[sock].get_nowait()
-                    except Queue.Empty:
+                    except queue.Empty:
                         self.outputs.remove(sock)
                     else:
                         #print 'sending "%s" to %s' % (next_msg, sock.getpeername())
@@ -133,7 +133,7 @@ class webserveraccess(Thread):
                     del self.memoryloginstances[sock] 
 
             self.logger.info("terminating")
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
     def receive(self, sock):
@@ -143,13 +143,13 @@ class webserveraccess(Thread):
                 return None
             msglen = unpack('>I', raw_msglen)[0]
             # Read the message data
-            return self.receivevalue(sock, msglen)
+            return self.receivevalue(sock, msglen).decode("utf-8")
         except:
             return None
 
     def receivevalue(self, sock, n):
         # Helper function to recv n bytes or return None if EOF is hit
-        data = ''
+        data = b''
         while len(data) < n:
             if (n- len(data) > self.bufsize):
                 packet = sock.recv(self.bufsize)
@@ -162,10 +162,11 @@ class webserveraccess(Thread):
 
     def send(self, sock, arg):
         try:
-            msg = pack('>I', len(arg)) + arg
+            msg = pack('>I', len(arg)) + bytes(arg,"utf-8")
             sock.sendall(msg)
             return True
         except:
+            self.logger.error("Cannot encode input to be sent")
             return False
 
     def execute(self, arguments, sock):
@@ -184,7 +185,7 @@ class webserveraccess(Thread):
             if (len(argin) < 1):
                 status = "Invalid number of input arguments"
             else:
-                if (type(argin[0]) != str) and (type(argin[0]) != unicode):
+                if (type(argin[0]) != str) and (type(argin[0]) != str):
                     status = "Invalid input argument type"
                 else:
                     self.commandqueue.callback(argin[0])
@@ -192,7 +193,7 @@ class webserveraccess(Thread):
             if (len(argin) < 2):
                 status = "Invalid number of input arguments"
             else:
-                if (type(argin[0]) != str) and (type(argin[0]) != unicode):
+                if (type(argin[0]) != str) and (type(argin[0]) != str):
                     status = "Invalid input argument type"
                 else:
                     argout = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).set(argin[0], argin[1])
@@ -200,7 +201,7 @@ class webserveraccess(Thread):
             if (len(argin) < 1):
                 status = "Invalid number of input arguments"
             else:
-                if (type(argin[0]) != str) and (type(argin[0]) != unicode):
+                if (type(argin[0]) != str) and (type(argin[0]) != str):
                     status = "Invalid input argument type"
                 else:
                     argout = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).get(argin[0])
@@ -258,7 +259,7 @@ class webserveraccess(Thread):
             if (len(argin) < 1):
                 status = "Invalid number of input arguments"
             else:
-                if (type(argin[0]) != str) and (type(argin[0]) != unicode):
+                if (type(argin[0]) != str) and (type(argin[0]) != str):
                     status = "Invalid input argument type"
                 else:
                     argout = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).getall(argin[0])
@@ -266,7 +267,7 @@ class webserveraccess(Thread):
             if (len(argin) < 1):
                 status = "Invalid number of input arguments"
             else:
-                if (type(argin[0]) != str) and (type(argin[0]) != unicode):
+                if (type(argin[0]) != str) and (type(argin[0]) != str):
                     status = "Invalid input argument type"
                 else:
                     argout = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).getinfo(argin[0])

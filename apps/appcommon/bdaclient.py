@@ -9,12 +9,12 @@
 ####################### IMPORTS #########################
 from threading import Thread, Event, Lock
 from select import select
-import Queue
+import queue
 import os
 import socket, errno
 from json import dumps, loads
 from time import sleep
-from bdauri import bdauri
+from .bdauri import bdauri
 import logging
 
 # todo: correct handling of true and false (also for server)
@@ -60,7 +60,7 @@ class bdaclient(Thread):
         self.introduced = False
 
         self.output = []
-        self.send_buf = Queue.Queue()
+        self.send_buf = queue.Queue()
         self.peername = ()
         self.unblockselect = os.pipe()
         self.introfail = False
@@ -160,7 +160,7 @@ class bdaclient(Thread):
                     for sock in outputready:
                         try:
                             next_msg = self.send_buf.get_nowait()
-                        except Queue.Empty:
+                        except queue.Empty:
                             self.output = []
                         else:
                             self.logger.debug('sending "%s" to %s', next_msg, self.peername)
@@ -180,7 +180,7 @@ class bdaclient(Thread):
                     sleep(1)
 
             self.logger.info("terminating")
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
     def _addtosendbuf(self, data):
@@ -190,23 +190,23 @@ class bdaclient(Thread):
         self.mutex.release()        
 
     def _receive(self, sock):
-    	buf = ''
+        buf = b''
         continue_recv = True
         while continue_recv:
             try:
                 recd = sock.recv(self.bufsize)
                 buf += recd
                 continue_recv = len(recd) > 0
-            except socket.error, e:
+            except socket.error as e:
                 if e.errno != errno.EWOULDBLOCK:
                     self.logger.exception(e)
                     return None
                 continue_recv = False
-        return buf
+        return buf.decode("utf-8")
 
     def _send(self, sock, arg):
         try:
-            sock.sendall(arg)
+            sock.sendall(bytes(arg,"utf-8"))
             return True
         except:
             return False
@@ -217,7 +217,7 @@ class bdaclient(Thread):
         self.recd.clear()
 
         self._addtosendbuf(bdauri.BuildURI(self.deviceurl, bdauri.BuildData(tag, value), self.username, self.password))
-        os.write(self.unblockselect[1], 'x')
+        os.write(self.unblockselect[1], b'x')
 
         if self.recd.wait(5):
             self.mutex.acquire()
@@ -236,6 +236,30 @@ class bdaclient(Thread):
                 self.sock.close()  
                 self.connected = False
         return rtag, rvalue  
+
+    def SendInfoRequest(self, info, tag):
+        rtag = None
+        rvalue = None
+        data = None
+        self.recd.clear()
+
+        if info:
+            data = bdauri.BuildInfoData(tag)
+        else:
+            data = bdauri.BuildAllData(tag)
+
+        self._addtosendbuf(bdauri.BuildURI(self.deviceurl, data, self.username, self.password))
+        os.write(self.unblockselect[1], b'x')
+
+        if self.recd.wait(5):
+            self.mutex.acquire()
+            recddata = self.recddata
+            self.mutex.release()
+        else:
+            if (self.sock):
+                self.sock.close()  
+                self.connected = False
+        return recddata  
 
     def _execute(self, data):
         if bdauri.IsUri(data):

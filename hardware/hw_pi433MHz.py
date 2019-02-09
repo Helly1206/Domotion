@@ -34,7 +34,7 @@ class pi433MHz(Thread):
         self.term.clear()
         self.mutex = Lock()
         if ifinstalled:
-            self.client = Pi433MHzif()
+            self.client = Pi433MHzif.Pi433MHzif()
         else:
             self.client = None
         self.Pi433MHzrunning = True # assume running
@@ -91,7 +91,7 @@ class pi433MHz(Thread):
                             sleep(sleeptime)     
 
             self.logger.info("terminating")
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
     def _IsPi433MHz(self, set = False, reset = False):

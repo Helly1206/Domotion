@@ -1,1 +1,0 @@
-from lircif import lircif

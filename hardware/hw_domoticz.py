@@ -9,9 +9,9 @@
 from threading import Thread, Event, Lock
 import logging
 from time import sleep
-from engine import localaccess
-from engine import commandqueue
-from frontend import domoticz_api
+from engine.localaccess import localaccess
+from engine.commandqueue import commandqueue
+from frontend.domoticz_api import domoticz_api
 #########################################################
 
 ####################### GLOBALS #########################
@@ -96,7 +96,7 @@ class domoticz_if(Thread):
                     counter = 0
 
             self.logger.info("terminating")
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
     def _GetSensorDevice(self, key):

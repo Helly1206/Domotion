@@ -15,13 +15,13 @@ from web_bwa import web_bwa
 from web_status import web_status 
 from web_settings import web_settings
 from web_utils import web_utils
-from webutilities import common
-from webutilities import domotionaccess
+from webutilities.common import common
+from webutilities.domotionaccess import domotionaccess
 import ssl
 import logging
 from base64 import b64decode
 import requests
-from urlparse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin
 from sys import argv, exit
 from getopt import getopt, GetoptError
 #########################################################
@@ -226,23 +226,23 @@ def main(argv):
     try:
         opts, args = getopt(argv,"hsp:c:k:",["help","ssl","port=","crt=","key="])
     except GetoptError:
-        print "Domotion Home control and automation web interface"
-        print "Version: " + VERSION
-        print " "
-        print "Enter 'DomoWeb.py -h' for help"
+        print("Domotion Home control and automation web interface")
+        print("Version: " + VERSION)
+        print(" ")
+        print("Enter 'DomoWeb.py -h' for help")
         exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
-            print "Domotion Home control and automation web interface"
-            print "Version: " + VERSION
-            print " "
-            print "Usage:"
-            print "         DomoWeb.py -s -p <portnumber> -c <certificate file> -k <key file>"
-            print "         -h, --help: Print this help file"
-            print "         -s, --ssl: Start server in ssl mode"
-            print "         -p, --port: Enter port number for server"
-            print "         -c, --crt: Location of the certificate file (required for ssl)"
-            print "         -k, --key: Location of the key file (required for ssl)"
+            print("Domotion Home control and automation web interface")
+            print("Version: " + VERSION)
+            print(" ")
+            print("Usage:")
+            print("         DomoWeb.py -s -p <portnumber> -c <certificate file> -k <key file>")
+            print("         -h, --help: Print this help file")
+            print("         -s, --ssl: Start server in ssl mode")
+            print("         -p, --port: Enter port number for server")
+            print("         -c, --crt: Location of the certificate file (required for ssl)")
+            print("         -k, --key: Location of the key file (required for ssl)")
             exit()
         elif opt in ("-s", "--ssl"):
             ssl = True
@@ -274,7 +274,7 @@ def main(argv):
             app.run(host="0.0.0.0", debug=False, use_reloader=False, port=port, ssl_context=context)
         else:
             app.run(host="0.0.0.0", debug=False, use_reloader=False, port=port)
-    except Exception, e:
+    except Exception as e:
         print(e)
 
 #########################################################

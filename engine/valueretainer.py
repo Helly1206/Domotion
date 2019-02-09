@@ -6,7 +6,7 @@
 #########################################################
 
 ####################### IMPORTS #########################
-from engine import localaccess
+from .localaccess import localaccess
 from base64 import b64encode, b64decode
 import os
 import json
@@ -85,7 +85,7 @@ class valueretainer(object):
     def _save_obj(self, obj):
         if ((self.Retainer) and (self.RetainerPath)):
             with open(self.RetainerPath, 'wb') as f:
-                f.write(b64encode(json.dumps(obj)))
+                f.write(b64encode(bytes(json.dumps(obj),"utf-8")))
         return
 
     def _load_obj(self):

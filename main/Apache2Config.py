@@ -12,8 +12,8 @@ import os
 import re
 from getopt import getopt, GetoptError
 from apt import Cache
-from urlparse import urlparse
-from database import db_read
+from urllib.parse import urlparse
+from database.db_read import db_read
 #########################################################
 
 ####################### GLOBALS #########################
@@ -34,30 +34,30 @@ class Apache2Config(object):
 
     def run(self, argv):
         quick = False
-        print "Domotion Home control and automation Apache2 configuration"
+        print("Domotion Home control and automation Apache2 configuration")
         try:
             opts, args = getopt(argv,"hq",["help","quick"])
         except GetoptError:
-            print "Version: " + VERSION
-            print " "
-            print "Enter 'Apache2Config -h' for help"
+            print("Version: " + VERSION)
+            print(" ")
+            print("Enter 'Apache2Config -h' for help")
             exit(2)
         for opt, arg in opts:
             if opt in ("-h", "--help"):
-                print "Version: " + VERSION
-                print " "
-                print "Usage:"
-                print "         Apache2Config <args>"
-                print "         -h, --help: this help file"
-                print "         -q, --quick: quick check for changes and if none, only restart"
-                print "                      (no check for Prerequisites)"
+                print("Version: " + VERSION)
+                print(" ")
+                print("Usage:")
+                print("         Apache2Config <args>")
+                print("         -h, --help: this help file")
+                print("         -q, --quick: quick check for changes and if none, only restart")
+                print("                      (no check for Prerequisites)")
                 exit()
             elif opt in ("-q", "--quick"):
                 quick = True
 
         self.IsRoot()
         if not quick:
-            print "Testing Apache2 installation ..."
+            print("Testing Apache2 installation ...")
             self.PrereqInstalled()
 
         sites=self.GetAllSites()     
@@ -72,9 +72,9 @@ class Apache2Config(object):
 
             if keep:
                 if not quick:
-                    print "Keeping site %s on port %d as it is still in DomoWeb.xml"%(site[0], site[1])
+                    print("Keeping site %s on port %d as it is still in DomoWeb.xml"%(site[0], site[1]))
             else:
-                print "Deleting site %s on port %d"%(site[0], site[1])
+                print("Deleting site %s on port %d"%(site[0], site[1]))
                 sitename = site[0].split(".")[0]
                 if site[2]:
                     self.A2DisSite(sitename)
@@ -95,9 +95,9 @@ class Apache2Config(object):
 
             if keep:
                 if not quick:
-                    print "Updating site %s on port %d"%(sitename, xmlsite[1])
+                    print("Updating site %s on port %d"%(sitename, xmlsite[1]))
             else:
-                print "Adding site %s on port %d"%(sitename, xmlsite[1])
+                print("Adding site %s on port %d"%(sitename, xmlsite[1]))
 
             email = xmlsite[5]
             server = xmlsite[6]
@@ -128,16 +128,16 @@ class Apache2Config(object):
             else: # quick and keep
                 rdcontent = self.ReadSite(sitename)
                 if (rdcontent != content):
-                    print "Site %s on port %d changed, update site"%(site[0], site[1])
+                    print("Site %s on port %d changed, update site"%(site[0], site[1]))
                     self.AddSite(sitename,content)
                     self.AddPort(xmlsite[1])
 
             if not enabled:
                 self.A2EnSite(sitename2)
 
-        print "Restarting Apache2 ..."
+        print("Restarting Apache2 ...")
         self.A2Restart()
-        print "Ready"
+        print("Ready")
         exit()
 
     def GetXML(self):
@@ -180,11 +180,11 @@ class Apache2Config(object):
 
         IsInstalled = False
         for pkg in cache:
-            if pkg.name == "libapache2-mod-wsgi":
+            if pkg.name == "libapache2-mod-wsgi-py3":
                 IsInstalled = pkg.is_installed
 
         if (not IsInstalled):
-            sys.exit("Package 'libapache2-mod-wsgi' is not installed, run 'install.sh -a' first or install manually")
+            sys.exit("Package 'libapache2-mod-wsgi-py3' is not installed, run 'install.sh -a' first or install manually")
 
     def A2Restart(self):
         if self._RunShell("systemctl restart apache2"):
@@ -222,7 +222,7 @@ class Apache2Config(object):
             if line != "":
                 valid=re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", line)
                 if not valid:
-                    print "Invalid email address, try again"
+                    print("Invalid email address, try again")
                 else:
                     email = line
             else:
@@ -252,7 +252,7 @@ class Apache2Config(object):
                     pass
 
                 if not valid:
-                    print "Invalid server name, try again"
+                    print("Invalid server name, try again")
                 else:
                     server = line
             else:
@@ -312,7 +312,7 @@ class Apache2Config(object):
             exit("Configuration file '%s' does not exist, check apache installation"%confpath)
 
         if (port == 80) or (port == 443):
-            print "Notice: system port %d not removed from apache2 config"%port
+            print("Notice: system port %d not removed from apache2 config"%port)
             return
 
         with open(confpath, 'r') as f:
@@ -377,7 +377,7 @@ class Apache2Config(object):
             ssl=False
             
             if index>4:
-                print ("Server [%s] not started as maximum of 5 servers obtained"%name)
+                print(("Server [%s] not started as maximum of 5 servers obtained"%name))
                 continue
             else:
                index += 1
@@ -385,7 +385,7 @@ class Apache2Config(object):
             textdep=child.find('externaldeployment')
             if textdep != None:
                 if (textdep.text.lower() == "false"):
-                    print ("Server [%s] not externally deployed, so not added to apache2"%name)
+                    print(("Server [%s] not externally deployed, so not added to apache2"%name))
                     continue
             tssl=child.find('ssl')
             if tssl != None:

@@ -12,7 +12,7 @@ from time import sleep
 from datetime import datetime
 import locale
 import signal
-from bdaclient import bdaclient
+from .bdaclient import bdaclient
 import xml.etree.ElementTree as ET
 import sys
 import os

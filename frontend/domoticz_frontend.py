@@ -9,9 +9,9 @@
 from threading import Thread, Event, Lock
 import logging
 from time import sleep
-from engine import localaccess
-from engine import commandqueue
-from domoticz_api import domoticz_api
+from engine.localaccess import localaccess
+from engine.commandqueue import commandqueue
+from .domoticz_api import domoticz_api
 #########################################################
 
 ####################### GLOBALS #########################
@@ -116,7 +116,7 @@ class domoticz_frontend(Thread):
                     counter = 0
 
             self.logger.info("terminating")
-        except Exception, e:
+        except Exception as e:
             self.logger.exception(e)
 
     def _updatesettings(self):
@@ -355,13 +355,13 @@ class domoticz_frontend(Thread):
                     IDx = int(device['idx'])
                     if (IDx != self.MessageIDx):
                         value = self.domoticz_api.GetValue(device)
-                        if ((IDx in self.SensorIDx.values()) and (self.sensors_poll)):
-                            id=self.SensorIDx.keys()[self.SensorIDx.values().index(IDx)]
+                        if ((IDx in list(self.SensorIDx.values())) and (self.sensors_poll)):
+                            id=list(self.SensorIDx.keys())[list(self.SensorIDx.values()).index(IDx)]
                             curval = self.localaccess.GetSensor(id)
                             if (curval != value):
                                 sensorvalues[id]=value
-                        if ((IDx in self.ActuatorIDx.values()) and (self.actuators_poll)):    
-                            id=self.ActuatorIDx.keys()[self.ActuatorIDx.values().index(IDx)]
+                        if ((IDx in list(self.ActuatorIDx.values())) and (self.actuators_poll)):    
+                            id=list(self.ActuatorIDx.keys())[list(self.ActuatorIDx.values()).index(IDx)]
                             curval = self.localaccess.GetActuator(id)
                             if (curval != value):
                                 actuatorvalues[id]=value

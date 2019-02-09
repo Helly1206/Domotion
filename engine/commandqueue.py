@@ -7,7 +7,7 @@
 # Format tuple(Hardware{key}, SysCode, GroupCode, DeviceCode, URL/Device, Tag, Value, Sensor)
 
 ####################### IMPORTS #########################
-from Queue import Queue
+from queue import Queue
 
 #########################################################
 
@@ -108,7 +108,7 @@ class commandqueue(object):
 
     def getkey(self, hardware):
         retkey = None
-        for key in self._hardware.keys():
+        for key in list(self._hardware.keys()):
             if (self._hardware[key].lower() == hardware.lower()):
                 retkey = key
                 break

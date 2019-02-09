@@ -71,7 +71,7 @@ class db_read(object):
 
     def FillTimerBuffer(self,TimerDict):
         timertups=self._SelectColumnFromTable("timers", "Id")
-        timers=map(lambda y: y[0], timertups)
+        timers=[y[0] for y in timertups]
 
         # Add new ones, don't update existing values
         for key in timers:
@@ -268,7 +268,7 @@ class db_read(object):
         cols=self._GetColNames("sensors")
         vals=self._SearchTable("sensors", "Id", SensorId, False)
         if (vals):
-            return dict(zip(cols, list(vals[0])))
+            return dict(list(zip(cols, list(vals[0]))))
         else:
             return None
 
@@ -276,7 +276,7 @@ class db_read(object):
         cols=self._GetColNames("actuators")
         vals=self._SearchTable("actuators", "Id", ActuatorId, False)
         if (vals):
-            return dict(zip(cols, list(vals[0])))
+            return dict(list(zip(cols, list(vals[0]))))
         else:
             return None
 
@@ -284,7 +284,7 @@ class db_read(object):
         cols=self._GetColNames("timers")
         vals=self._SearchTable("timers", "Id", TimerId, False)
         if (vals):
-            return dict(zip(cols, list(vals[0])))
+            return dict(list(zip(cols, list(vals[0]))))
         else:
             return None
 
@@ -353,7 +353,7 @@ class db_read(object):
             proc=self._SelectColumnFromTable("processors", "Id")
 
         if (proc):
-            procs=map(lambda y: y[0], proc)
+            procs=[y[0] for y in proc]
         else:
             procs=[]
         return procs
@@ -362,7 +362,7 @@ class db_read(object):
         cols=self._GetColNames("processors")
         vals=self._SearchTable("processors", "Id", ProcId, False)
         if (vals):
-            dictdef=dict(zip(cols, list(vals[0])))
+            dictdef=dict(list(zip(cols, list(vals[0]))))
             dictdef,dictedit = self._SplitDict(dictdef, ['Sensor','Operator','Value'])
             actiontup = self._ParseProcessor(dictedit)
             dictdef['SensorProcessor']=actiontup
@@ -374,7 +374,7 @@ class db_read(object):
         cols=self._GetColNames("combiners")
         vals=self._SearchTable("combiners", "Id", CombId, False)
         if (vals):
-            dictdef=dict(zip(cols, list(vals[0])))
+            dictdef=dict(list(zip(cols, list(vals[0]))))
             dictedit,dictdef = self._SplitDict(dictdef, ['Id','Name','Description','Dependency','Invert_Dependency'])
             actiontup = self._ParseCombiner(dictedit)
             dictdef['Combiner']=actiontup
@@ -386,7 +386,7 @@ class db_read(object):
         cols=self._GetColNames("dependencies")
         vals=self._SearchTable("dependencies", "Id", DepId, False)
         if (vals):
-            dictdef=dict(zip(cols, list(vals[0])))
+            dictdef=dict(list(zip(cols, list(vals[0]))))
             dictedit,dictdef = self._SplitDict(dictdef, ['Id','Name','Description'])
             actiontup = self._ParseDependency(dictedit)
             dictdef['Dependency']=actiontup
@@ -398,7 +398,7 @@ class db_read(object):
         cols=self._GetColNames("types")
         vals=self._SearchTable("types", "Id", TypeId, False)
         if (vals):
-            return dict(zip(cols, list(vals[0])))
+            return dict(list(zip(cols, list(vals[0]))))
         else:
             return None
 
@@ -503,6 +503,8 @@ class db_read(object):
             self._UpdateDB110()
         if (float(dbversion) < 1.11):
             self._UpdateDB111()
+        if (float(dbversion) < 1.20):
+            self._UpdateDB120()
         rowdict = {}
         rowdict['Parameter'] = "Version"
         rowdict['Value'] = version
@@ -513,9 +515,9 @@ class db_read(object):
     def _UpdateDB100(self):
         self._DeleteRowAndSort("settings", "Parameter", "Webport", "Id")
         self._DeleteRowAndSort("settings", "Parameter", "SSL", "Id")
-        self._AddRowAndSort("settings","Parameter","Timezone", "Id", (1, u'DomoWeb_port', u'Port for webserver communication (restart required)', 51402, u'INT', 2))
-        self._AddRowAndSort("settings","Parameter","DomoWeb_port", "Id", (1, u'DomoWeb_prefix', u'Prefix for webpage (restart required)', u'/', u'STRING', 2))
-        self._AddRowAndSort("types","Name","GPIO Output", "Id", (1, u'Script Output', u'Run a script output', u'-', 1))
+        self._AddRowAndSort("settings","Parameter","Timezone", "Id", (1, 'DomoWeb_port', 'Port for webserver communication (restart required)', 51402, 'INT', 2))
+        self._AddRowAndSort("settings","Parameter","DomoWeb_port", "Id", (1, 'DomoWeb_prefix', 'Prefix for webpage (restart required)', '/', 'STRING', 2))
+        self._AddRowAndSort("types","Name","GPIO Output", "Id", (1, 'Script Output', 'Run a script output', '-', 1))
         rowdict = {}
         rowdict['Restart'] = "2"
         self._UpdateRow("settings", rowdict, "Parameter", "Username")
@@ -524,8 +526,8 @@ class db_read(object):
 
     def _UpdateDB110(self):
         self._DeleteRowAndSort("settings", "Parameter", "URL_SSL", "Id")
-        self._AddRowAndSort("settings","Parameter","Timezone", "Id", (1, u'URL_port', u'Port for BDA URL communication (restart required)', 60004, u'INT', 2))
-        self._AddRowAndSort("settings","Parameter","URL_port", "Id", (1, u'URL_maxclients', u'Maximum Clients for BDA URL communication (restart required)', 20, u'INT', 2))
+        self._AddRowAndSort("settings","Parameter","Timezone", "Id", (1, 'URL_port', 'Port for BDA URL communication (restart required)', 60004, 'INT', 2))
+        self._AddRowAndSort("settings","Parameter","URL_port", "Id", (1, 'URL_maxclients', 'Maximum Clients for BDA URL communication (restart required)', 20, 'INT', 2))
         rowdict = {}
         rowdict['Description'] = "Username for BDA URL login or leave empty (restart required)"
         rowdict['Restart'] = "2"
@@ -538,6 +540,10 @@ class db_read(object):
         self._AddColumn("sensors", "MuteLog", "INTEGER", 0)
         self._AddColumn("actuators", "MuteLog", "INTEGER", 0)
         self._AddColumn("timers", "MuteLog", "INTEGER", 0)
+        return
+
+    def _UpdateDB120(self):
+        self._AddRowAndSort("settings","Parameter","URL_password", "Id", (1, 'URL_trusted', 'Trusted devices for trusted BDA URL login separated by ; (restart required)', '', 'STRING', 2))
         return
 
     def _GetColNames(self, table_name):

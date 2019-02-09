@@ -130,7 +130,7 @@ class timecalc(object):
     # A macro to compute the number of days elapsed since 2000 Jan 0.0 
     # (which is equal to 1999 Dec 31, 0h UT)                           
     def _DaysSince2000Jan0(self, y, m, d):
-        return (367L*(y)-((7*((y)+(((m)+9)/12)))/4)+((275*(m))/9)+(d)-730530L)
+        return (367*(y)-((7*((y)+(((m)+9)/12)))/4)+((275*(m))/9)+(d)-730530)
 
 
     #*****************************************/

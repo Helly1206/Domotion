@@ -7,7 +7,7 @@
 #########################################################
 
 ####################### IMPORTS #########################
-from sqlitedb import sqlitedb
+from .sqlitedb import sqlitedb
 from base64 import b64encode
 
 #########################################################

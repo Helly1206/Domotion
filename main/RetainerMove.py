@@ -80,11 +80,11 @@ def FindVLocRead():
     return (Vpath)                  
 
 def MoveBack():
-    print ("Move from '" + FindNVLocRead() + "' to '" + FindVLocWrite() + "'")
+    print(("Move from '" + FindNVLocRead() + "' to '" + FindVLocWrite() + "'"))
     shutil.move(FindNVLocRead(), FindVLocWrite())
 
 def MoveForward():
-    print ("Move from '" + FindVLocRead() + "' to '" + FindNVLocWrite() + "'")
+    print(("Move from '" + FindVLocRead() + "' to '" + FindNVLocWrite() + "'"))
     shutil.move(FindVLocRead(), FindNVLocWrite())
 
 def RetainerMove(argv):
@@ -95,12 +95,12 @@ def RetainerMove(argv):
         if (('-f' in argv[0]) or ('--forward' in argv)):
             MoveForward()
             exit(0)
-    print "Domotion Home control and automation, Retainer move tool"
-    print ""
-    print "Usage:"
-    print "         RetainerMove <args>"
-    print "         -b: move back to it's desired volatile location (when starting)"
-    print "         -f: move forward to non volatile location (when shutting down)"
+    print("Domotion Home control and automation, Retainer move tool")
+    print("")
+    print("Usage:")
+    print("         RetainerMove <args>")
+    print("         -b: move back to it's desired volatile location (when starting)")
+    print("         -f: move forward to non volatile location (when shutting down)")
     exit(1)    
 
 if __name__ == '__main__':

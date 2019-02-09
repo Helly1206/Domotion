@@ -8,9 +8,10 @@
 ####################### IMPORTS #########################
 from threading import Lock
 import logging
-from engine import localaccess
-from engine import commandqueue
-from frontend import bdaserver
+from engine.localaccess import localaccess
+from engine.commandqueue import commandqueue
+from frontend.bdaserver import bdaserver
+from frontend.basicwebaccess import basicwebaccess
 #########################################################
 
 ####################### GLOBALS #########################
@@ -19,15 +20,19 @@ from frontend import bdaserver
 # Class : url                                           #
 #########################################################
 class url(bdaserver):
-    def __init__(self, commandqueue, localaccess):
+    def __init__(self, commandqueue, localaccess, memorylog):
         self.commandqueue=commandqueue
         self.localaccess=localaccess
+        self.memorylog=memorylog
         self.logger = logging.getLogger('Domotion.url')
         self.sensors = []
         self.actuators = []
         self.mutex = Lock()
         self.updatesettings()
-        super(url, self).__init__(self._update, port=int(self.localaccess.GetSetting('URL_port')), maxclients=int(self.localaccess.GetSetting('URL_maxclients')), username=self.localaccess.GetSetting('URL_username'), password=self.localaccess.GetSetting('URL_password'))
+        super(url, self).__init__(self._update, self._trustedupdate, port=int(self.localaccess.GetSetting('URL_port')), 
+            maxclients=int(self.localaccess.GetSetting('URL_maxclients')), 
+            username=self.localaccess.GetSetting('URL_username'), password=self.localaccess.GetSetting('URL_password'),
+            trusted=self.localaccess.GetSetting('URL_trusted'))
         
     def __del__(self):
         super(url, self).__del__()
@@ -80,9 +85,22 @@ class url(bdaserver):
                         else: # Set request
                             value=data[1]
                             #if (curval != value):
-                            self.commandqueue.put_id("Url", actuator, value, False)
+                            self.commandqueue.put_id("None", actuator, value, False)
         self.mutex.release()
         return tag, value
+
+    # Callback
+    def _trustedupdate(self, data):
+        ReturnData = None
+        if data[2].lower() == "set":
+            ReturnData = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).set(data[0], data[1])
+        elif data[2].lower() == "get":
+            ReturnData = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).get(data[0])
+        elif data[2].lower() == "getall":
+            ReturnData = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).getall(data[0])
+        elif data[2].lower() == "getinfo":
+            ReturnData = basicwebaccess(self.commandqueue, self.localaccess, self.memorylog).getinfo(data[0])
+        return ReturnData
 
     def _SetSensorURL(self, key, value):
         success = True

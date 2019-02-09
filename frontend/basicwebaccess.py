@@ -7,8 +7,8 @@
 
 ####################### IMPORTS #########################
 from json import dumps, loads
-from engine import localaccess
-from engine import commandqueue
+from engine.localaccess import localaccess
+from engine.commandqueue import commandqueue
 #########################################################
 
 ####################### GLOBALS #########################

@@ -7,7 +7,7 @@
 
 ####################### IMPORTS #########################
 
-from sqlitedb import sqlitedb
+from .sqlitedb import sqlitedb
 import random
 
 #########################################################

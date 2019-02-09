@@ -1,6 +1,6 @@
 from flask import Flask, Blueprint, render_template, g, request, redirect
 from flask_login import login_required
-from webdatabase import db_settings
+from webdatabase.db_settings import db_settings
 from flask import current_app as app
 
 web_settings = Blueprint('web_settings', __name__, template_folder='templates')
