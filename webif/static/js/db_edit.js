@@ -143,8 +143,8 @@ function ProcSensorChanged(sensors, digi) {
 	var IsDigital = false;
 
 	for (key in sensors) {
-		if (sensors[key][1].toLowerCase() == val.toLowerCase()) {
-			IsDigital=digi[key][1];
+		if (sensors[key].toLowerCase() == val.toLowerCase()) {
+			IsDigital=digi[key];
 		}
 	}
 
@@ -167,8 +167,8 @@ function DepActuatorChanged(index, actuators, digi) {
 	var IsDigital = false;
 
 	for (key in actuators) {
-		if (actuators[key][1].toLowerCase() == val.toLowerCase()) {
-			IsDigital=digi[key][1];
+		if (actuators[key].toLowerCase() == val.toLowerCase()) {
+			IsDigital=digi[key];
 		}
 	}
 
@@ -191,8 +191,8 @@ function CombActuatorChanged(index, actuators, digi) {
 	var IsDigital = false;
 
 	for (key in actuators) {
-		if (actuators[key][1].toLowerCase() == val.toLowerCase()) {
-			IsDigital=digi[key][1];
+		if (actuators[key].toLowerCase() == val.toLowerCase()) {
+			IsDigital=digi[key];
 		}
 	}
 

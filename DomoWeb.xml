@@ -12,7 +12,7 @@
 	<httpsserver>
 		<ssl>true</ssl>
 		<port>4043</port>
-		<certificate>/etc/letsencrypt/live/example.com/cert.pem</certificate>
+		<certificate>/etc/letsencrypt/live/example.com/fullchain.pem</certificate>
 		<privatekey>/etc/letsencrypt/live/example.com/privkey.pem</privatekey>
 		<externaldeployment>false</externaldeployment>
 		<serveradmin>admin@localhost</serveradmin>

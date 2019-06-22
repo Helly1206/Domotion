@@ -306,7 +306,7 @@
 								</select> or
   								</td>
   								<td class="d7">(
-  									<select name="Sensor" id="ProcSensor" onchange='ProcSensorChanged({{editingdata[1].items()|tojson|safe}},{{editingdata[2].items()|tojson|safe}})'>
+  									<select name="Sensor" id="ProcSensor" onchange='ProcSensorChanged({{editingdata[1]|tojson|safe}},{{editingdata[2]|tojson|safe}})'>
   										{% for key, value in editingdata[1].items() %}
         								<option value="{{key}}" {% if (value == sensor|trim ) %} selected="selected" {% endif %}>
         									{{ value }}
@@ -388,7 +388,7 @@
         				<tbody>
           				<tr class="d5">
           					<td class="d7">(
-          						<select name="ActuatorId{{i}}" id="DepActuator{{i}}" onchange='DepActuatorChanged({{i}},{{editingdata[0].items()|tojson|safe}},{{editingdata[1].items()|tojson|safe}})'>
+          						<select name="ActuatorId{{i}}" id="DepActuator{{i}}" onchange='DepActuatorChanged({{i}},{{editingdata[0]|tojson|safe}},{{editingdata[1]|tojson|safe}})'>
 									{% for key, value in editingdata[0].items() %}
        									<option value="{{key}}" {% if (value == actuator|trim ) %} selected="selected" {% endif %}>
        										{{ value }}
@@ -468,7 +468,7 @@
         				<tbody>
           				<tr class="d5">
           					<td class="d7">(
-          						<select name="ActuatorId{{i}}" id="CombActuator{{i}}" onchange='CombActuatorChanged({{i}},{{editingdata[1].items()|tojson|safe}},{{editingdata[2].items()|tojson|safe}})'> <!-- 2 TBD -->
+          						<select name="ActuatorId{{i}}" id="CombActuator{{i}}" onchange='CombActuatorChanged({{i}},{{editingdata[1]|tojson|safe}},{{editingdata[2]|tojson|safe}})'> <!-- 2 TBD -->
 									{% for key, value in editingdata[1].items() %}
        									<option value="{{key}}" {% if (value == act|trim ) %} selected="selected" {% endif %}>
        										{{ value }}

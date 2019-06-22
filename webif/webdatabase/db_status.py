@@ -98,13 +98,16 @@ class db_status(object):
         dtype = {}
         if (table.lower() == "sensors"):
             stypes = dict(self.db.SelectColumnFromTable("sensors", "Id,SensorType"))
+            print(stypes)
             types = dict(self.db.SelectColumnFromTable("sensortypes", "Id,Digital"))
+            print(types)
         elif (table.lower() == "actuators"):
             stypes = dict(self.db.SelectColumnFromTable("actuators", "Id,ActuatorType"))
             types = dict(self.db.SelectColumnFromTable("actuatortypes", "Id,Digital"))
         for key in stypes:
-            digital[key] = types[int(stypes[key])]
-            dtype[key] = int(stypes[key])
+            if (key > 0):
+                digital[key] = types[int(stypes[key])]
+                dtype[key] = int(stypes[key])
         return digital, dtype
 
     def _GetColumn(self, cols, name):
