@@ -1,3 +1,7 @@
+[B]1.2.2[/B]
+- Bug fix basic auth python3
+- Small fix in bda client
+
 [B]1.2.1[/B]
 - Select fullchain.pem by default for ssl access
 - fixed bug introduced by python 3 conversion on editing process settings from web interface

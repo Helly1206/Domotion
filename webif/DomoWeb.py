@@ -138,7 +138,7 @@ def load_user_from_request(request):
     # first, try to login using the api_key url arg
     api_key = request.args.get('api_key')
     if api_key:
-        userdata = api_key.split(":")
+        userdata = api_key.decode().split(":")
         user = None
         if (len(userdata) > 1):
             user = User.check(userdata[0], userdata[1])
@@ -153,7 +153,7 @@ def load_user_from_request(request):
             api_key = b64decode(api_key)
         except TypeError:
             pass
-        userdata = api_key.split(":")
+        userdata = api_key.decode().split(":")
         user = None
         if (len(userdata) > 1):
             user = User.check(userdata[0], userdata[1])

@@ -43,7 +43,7 @@ class bdaclient(Thread):
 
         if not host:
             host = bdauri.find_ip_address()
-        
+
         self.deviceurl = bdauri.BuildURL(host, url)
         self.server_address = (server, int(port))
 
@@ -121,7 +121,7 @@ class bdaclient(Thread):
                         inputready, outputready, exceptready = select([self.sock, self.unblockselect[0]], self.output, [self.sock], self.timeout)
                     except:
                         continue
-    
+
                     if not (inputready or outputready or exceptready):
                         continue
 
@@ -135,7 +135,7 @@ class bdaclient(Thread):
                                 if (not self.introduced):
                                     if not bdauri.TestAuth(data, self.username, self.password) or not bdauri.TestDeviceUrl(data,self.server_address[0],"/Domotion/"):
                                         if (self.sock):
-                                            self.sock.close()  
+                                            self.sock.close()
                                         self.connected = False
                                         self.logger.error("Error: Incorrect socket introduction")
                                         self.logger.info("Disconnected from %s",self.peername)
@@ -153,9 +153,9 @@ class bdaclient(Thread):
                             else:
                                 self.logger.info('Disconnected from %s', self.peername)
                                 if (self.sock):
-                                    self.sock.close()  
+                                    self.sock.close()
                                     self.connected = False
-    
+
                     # Handle outputs
                     for sock in outputready:
                         try:
@@ -168,7 +168,7 @@ class bdaclient(Thread):
                             if (not success):
                                 self.output = []
                                 continue
-    
+
                     # Handle "exceptional conditions"
                     for sock in exceptready:
                         self.logger.error('Handling exceptional condition for %s', self.peername)
@@ -185,9 +185,9 @@ class bdaclient(Thread):
 
     def _addtosendbuf(self, data):
         self.mutex.acquire()
-        if self.send_buf: 
+        if self.send_buf:
             self.send_buf.put(data)
-        self.mutex.release()        
+        self.mutex.release()
 
     def _receive(self, sock):
         buf = b''
@@ -224,7 +224,7 @@ class bdaclient(Thread):
             recddata = self.recddata
             self.mutex.release()
             if recddata[0] == 'STORED':
-                if (recddata[1] == tag) and (recddata[2] == value):
+                if (recddata[1] == tag):
                     rtag = tag
                     rvalue = value
             elif recddata[0] == 'VALUE':
@@ -233,9 +233,9 @@ class bdaclient(Thread):
                     rvalue = recddata[2]
         else:
             if (self.sock):
-                self.sock.close()  
+                self.sock.close()
                 self.connected = False
-        return rtag, rvalue  
+        return rtag, rvalue
 
     def SendInfoRequest(self, info, tag):
         rtag = None
@@ -257,9 +257,9 @@ class bdaclient(Thread):
             self.mutex.release()
         else:
             if (self.sock):
-                self.sock.close()  
+                self.sock.close()
                 self.connected = False
-        return recddata  
+        return recddata
 
     def _execute(self, data):
         if bdauri.IsUri(data):
