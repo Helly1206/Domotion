@@ -1,0 +1,13 @@
+domotion (1.30) stable; urgency=low
+
+  * Added MQTT client support (hardware) with corresponding system, database and web-updates
+  * Changing installation for DPKG/ APT compatibility
+  * Added scripting for easier processing of complex systems
+
+ -- Helly1206 <hellyrulez@hotmail.com>  Sun, 11 Jul 2021 08:45:29 +0100
+
+xnas (1.22) stable; urgency=low
+
+  * Previous XNAS release
+
+ -- Helly1206 <hellyrulez@hotmail.com>  Mon, 02 Nov 2020 20:24:12 +0100

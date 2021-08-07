@@ -1,0 +1,93 @@
+<!-- Edit forms for all tables -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta content="helly" name="author">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/settings_edit.js') }}"></script>
+  </head>
+  <body onload='OnLoadWindow("{{editingdata[datum[0]]}}",{{datum|tojson|safe}});'>
+  	<form method="post" action="{{prefix}}/settings_edited/{{ editingid }}">
+  		<tr class="d5">
+  			<td class="d5"> <!-- ID, fixed -->
+  				{{ datum[0] }}
+  			</td>
+  			<td class="d5"> <!-- Parameter, fixed -->
+  				{{ datum[1] }}
+  			</td>
+  			<td class="d5"> <!-- Description, fixed -->
+  				{{ datum[2] }}
+  			</td>
+  			<!-- here table dependent info ... -->
+  			<td class="d5"> <!--Value -->
+  				{% if editingdata[datum[0]] == "BOOL" %}
+  					<label>
+  						<input type="checkbox" value="1" name="BoolValue" id="TFBV" onchange="TFChanged('TFBV')"><br>
+  						<span>xxx</span>
+  						<input type="hidden" value="0" name="BoolValue">
+  					</label>
+  				{% elif editingdata[datum[0]] == "PDSTRING" or editingdata[datum[0]] == "PSTRING" %}
+  					<br>
+  				{% elif editingdata[datum[0]] == "INT" %}
+  					<input style="width: 80px;" type="number" name="IntValue" min="0" max="65535" value="{{ datum[3] }}">
+  				{% elif editingdata[datum[0]] == "INTTZ" %}
+  					<input style="width: 80px;" type="number" name="IntValue" min="-11" max="14" value="{{ datum[3] }}">
+                {% elif editingdata[datum[0]] == "INTQOS" %}
+  					<input style="width: 80px;" type="number" name="IntValue" min="0" max="2" value="{{ datum[3] }}">
+                {% elif editingdata[datum[0]] == "FLOATLON" %}
+  					<input style="width: 80px;" type="number" name="FloatValue" value="{{ datum[3] }}" id="ProcVal" min="-180" max="180" step="0.01">
+  				{% elif editingdata[datum[0]] == "FLOATLAT" %}
+  					<input style="width: 80px;" type="number" name="FloatValue" value="{{ datum[3] }}" id="ProcVal" min="-90" max="90" step="0.01">
+  				{% else %}
+  					<input type="text" size="{% if datum[3] %}{{ datum[3]|length }}{% else %} 10 {% endif %}" name="StringValue" value="{{ datum[3] }}">
+  				{% endif %}
+  			</td>
+  		</tr>
+  		{% if editingdata[datum[0]] == "PDSTRING"  or editingdata[datum[0]] == "PSTRING" %}
+  			<tr class="d5">
+  				<!-- 2 empty columns -->
+  				{% for n in range(2) %}
+  					<td class="d7">
+  					</td>
+  				{% endfor %}
+  				<td class="d4">
+  					Enter new password:
+  				</td>
+  				<td class="d7">
+  					<input type="password" size="10" name="PasswordValue1" id="PW1" value="" onchange="PWChanged()" onkeyup="PWChanged()">
+  				</td>
+  			</tr>
+  			<tr class="d5">
+  				<!-- 2 empty columns -->
+  				{% for n in range(2) %}
+  					<td class="d7">
+  					</td>
+  				{% endfor %}
+  				<td class="d4">
+  					Enter new password again:
+  				</td>
+  				<td class="d7">
+  					<input type="password" size="10" name="PasswordValue2" id="PW2" value="" onchange="PWChanged()" onkeyup="PWChanged()">
+  				</td>
+  			</tr>
+  		{% endif %}
+  		<tr class="d5">
+  	  	  <td  class="d5" colspan="100%" style="text-align: left;">
+      		<table>
+        		<tbody>
+          		<tr class="d5">
+          			<td class="d6" style="width: 70%;">Store changes?
+                </td>
+            		<td class="d6" style="width: 15%;"><input name="Button" value="Ok" id="OkButton" type="submit">
+	            	</td>
+  	          	<td class="d6" style="width: 15%;"><input name="Button" value="Cancel" type="submit">
+    	      		</td>
+      	    	</tr>
+        		</tbody>
+	      	</table>
+	      </td>
+  	    </tr>
+  	  </form>
+  </body>
+</html>
