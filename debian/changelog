@@ -2,7 +2,7 @@ domotion (1.31) stable; urgency=low
 
   * Solved small bug in logging
 
-  -- Helly1206 <hellyrulez@hotmail.com>  Sun, 7 Aug 2021 13:33:57 +0100
+ -- Helly1206 <hellyrulez@hotmail.com>  Sun, 7 Aug 2021 13:33:57 +0100
 
 domotion (1.30) stable; urgency=low
 
@@ -12,7 +12,7 @@ domotion (1.30) stable; urgency=low
 
  -- Helly1206 <hellyrulez@hotmail.com>  Sun, 11 Jul 2021 08:45:29 +0100
 
-xnas (1.22) stable; urgency=low
+domotion (1.22) stable; urgency=low
 
   * Previous XNAS release
 
