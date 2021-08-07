@@ -12,7 +12,7 @@ from flask import Flask, Blueprint, request, redirect, render_template, g, sessi
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user, UserMixin
 from db_webproc import db_webproc
 from web_bwa import web_bwa
-from web_status import web_status 
+from web_status import web_status
 from web_settings import web_settings
 from web_utils import web_utils
 from webutilities.common import common
@@ -28,7 +28,7 @@ from getopt import getopt, GetoptError
 
 ####################### GLOBALS #########################
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-VERSION = "1.00"
+VERSION = "1.10"
 
 #########################################################
 # Class : FalskApp                                      #
@@ -57,8 +57,8 @@ class FlaskApp(Flask):
             self.config['LOGIN_DISABLED'] = True
         #Tell the login manager where to redirect users to display the login page
         login_manager.login_view = self.p("/login/")
-        #Setup the login manager. 
-        login_manager.setup_app(self) 
+        #Setup the login manager.
+        login_manager.setup_app(self)
 
     def is_safe_url(self, target):
         ref_url = urlparse(request.host_url)
@@ -103,7 +103,7 @@ class User(UserMixin):
     def __init__(self, userid, password):
         self.id = userid
         self.password = password
- 
+
     @staticmethod
     def get(userid):
         duser = app.common.GetSetting('Username')
@@ -165,7 +165,7 @@ def load_user_from_request(request):
 
 #########################################################
 # app functions                                         #
-#########################################################    
+#########################################################
 @app.errorhandler(400)
 def page_not_found(e):
     return render_template('400.html', prefix=app.getp()), 400
@@ -200,11 +200,11 @@ def logout_page():
     logout_user()
     session['logged_in'] = False
     return redirect(app.p("/"))
- 
+
 @app.route(app.pr("/login/"), methods=["GET", "POST"])
 def login_page():
     if request.method == "GET":
-        return render_template("login.html", prefix=app.getp())    
+        return render_template("login.html", prefix=app.getp())
     if request.method == "POST":
         user = User.check(request.form['username'], request.form['password'])
         if user:
@@ -266,7 +266,7 @@ def main(argv):
         elif (not path.isfile(key)):
             ssl = False
             print ("Invalid or non existing key file, ssl disabled")
-        else:   
+        else:
             context.load_cert_chain(crt, key)
 
     try:

@@ -1,3 +1,9 @@
+domotion (1.31) stable; urgency=low
+
+  * Solved small bug in logging
+
+  -- Helly1206 <hellyrulez@hotmail.com>  Sun, 7 Aug 2021 13:33:57 +0100
+
 domotion (1.30) stable; urgency=low
 
   * Added MQTT client support (hardware) with corresponding system, database and web-updates

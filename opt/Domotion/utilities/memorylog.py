@@ -71,13 +71,13 @@ class memorylog(object):
         sf = ''
         if len(s)>0:
             if s.endswith("\n"):
-                sf =s
+                sf = s
             else:
                 sf = s + "\n"
         return(sf)
 
     def write(self,s):
-        sf = self._format(s)
+        sf = self._format(s.strip())
         if sf:
             self._acquire()
             if (self.size>0):
