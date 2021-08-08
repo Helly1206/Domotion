@@ -1,8 +1,15 @@
+domotion (1.32) stable; urgency=low
+
+  * Prevent crashing on duplicate names (names are always made unique)
+  * Update Apache2Config to work with multiple processes
+
+ -- Helly1206 <hellyrulez@hotmail.com>  Sun, 8 Aug 2021 9:21:43 +0100
+
 domotion (1.31) stable; urgency=low
 
   * Solved small bug in logging
 
- -- Helly1206 <hellyrulez@hotmail.com>  Sun, 7 Aug 2021 13:33:57 +0100
+ -- Helly1206 <hellyrulez@hotmail.com>  Sat, 7 Aug 2021 13:33:57 +0100
 
 domotion (1.30) stable; urgency=low
 

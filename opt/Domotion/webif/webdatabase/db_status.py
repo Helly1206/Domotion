@@ -26,7 +26,7 @@ class db_status(object):
     def __del__(self):
         del self.db
 
-    def GetDevices(self, tableid): 
+    def GetDevices(self, tableid):
         # Id, Name, Description : Digital
         if (tableid == 'devices'):
             cols=self.db.GetColNames("actuators")[:3]
@@ -64,7 +64,7 @@ class db_status(object):
 
     def DeleteHolidaysRow(self, id):
         self.db.DeleteRow("holidays", "Id", id)
-        return 
+        return
 
     def EditHolidaysRow(self, id, result):
         if not result['Button'] == 'Ok':
@@ -82,32 +82,34 @@ class db_status(object):
 
     def BuildOptionsDicts(self, tableid):
         DictList = []
-        
+
         if (tableid.lower() == "holidays"):
             DictList.append(HolidayDict)
         return DictList
 
     def GetTodayString(self):
         error, today = self.app.domotionaccess.Call("GetToday")
-        if error:            
+        if error:
             today = -1
-        return DaytypeDict[today] 
+        return DaytypeDict[today]
 
     def _GetDigitalType(self,table):
         digital = {}
         dtype = {}
         if (table.lower() == "sensors"):
             stypes = dict(self.db.SelectColumnFromTable("sensors", "Id,SensorType"))
-            print(stypes)
             types = dict(self.db.SelectColumnFromTable("sensortypes", "Id,Digital"))
-            print(types)
         elif (table.lower() == "actuators"):
             stypes = dict(self.db.SelectColumnFromTable("actuators", "Id,ActuatorType"))
             types = dict(self.db.SelectColumnFromTable("actuatortypes", "Id,Digital"))
         for key in stypes:
             if (key > 0):
-                digital[key] = types[int(stypes[key])]
-                dtype[key] = int(stypes[key])
+                if int(stypes[key]) > 0:
+                    digital[key] = types[int(stypes[key])]
+                    dtype[key] = int(stypes[key])
+                else:
+                    digital[key] = 0
+                    dtype[key] = 0
         return digital, dtype
 
     def _GetColumn(self, cols, name):
@@ -141,7 +143,7 @@ class db_status(object):
                 today = "False"
             newrow = row + (today,)
             newdata.append(newrow)
-        return newdata    
+        return newdata
 
     def _LookupAscDates(self, cols, data):
         start_col = self._GetColumn(cols,"start")
@@ -156,7 +158,7 @@ class db_status(object):
 
     def _AddActuatorValues(self, cols, data):
         newcol = cols + ["Value"]
-        error, vals = self.app.domotionaccess.Call("GetActuatorValues") 
+        error, vals = self.app.domotionaccess.Call("GetActuatorValues")
         newdata = []
         for row in data:
             addval = 0

@@ -57,7 +57,12 @@ class db_edit(object):
             rowdict['DeviceURL'] = "-"
             rowdict['KeyTag'] = "-"
             for col in cols:
-                if col == "SysCode":
+                if (col == "Name"):
+                    if col in result:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                    else:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
+                elif col == "SysCode":
                     if ('rf' in typename):
                         rowdict[col] = result[col]
                 elif col == "GroupCode":
@@ -87,7 +92,12 @@ class db_edit(object):
             rowdict['DeviceURL'] = "-"
             rowdict['KeyTag'] = "-"
             for col in cols:
-                if col == "SysCode":
+                if (col == "Name"):
+                    if col in result:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                    else:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
+                elif col == "SysCode":
                     if ('rf' in typename):
                         rowdict[col] = result[col]
                 elif col == "GroupCode":
@@ -111,7 +121,12 @@ class db_edit(object):
             rowdict['Time'] = "0"
             rowdict['Minutes_Offset'] = "0"
             for col in cols:
-                if col == "Time":
+                if (col == "Name"):
+                    if col in result:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                    else:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
+                elif col == "Time":
                     if ('sunrise' in method) or ('sunset' in method) or ('offset' in method):
                         rowdict[col] = "0"
                     else:
@@ -129,9 +144,9 @@ class db_edit(object):
             for col in cols:
                 if (col == "Name"):
                     if col in result:
-                        rowdict[col] = result[col]
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
                     else:
-                        rowdict[col] = "_" + str(random.randint(0, 100000)) + "_"
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
                 elif (col == "Description"):
                     if col in result:
                         rowdict[col] = result[col]
@@ -153,16 +168,28 @@ class db_edit(object):
             rowdict = self._SetSensorValue(result, rowdict)
             self.db.UpdateRow(tableid, rowdict, "Id", id)
         elif (tableid.lower() == "scripts"):
-            error, commres = self.app.domotionaccess.Call("SetScript", result["Name"], result["Script"].replace("\r", ""))
+            if "Name" in result:
+                name = self._checkDuplicateName(tableid.lower(), result["Name"])
+            else:
+                name = self._checkDuplicateName(tableid.lower(), self._generateName())
+            if "Script" in result:
+                error, commres = self.app.domotionaccess.Call("SetScript", name, result["Script"].replace("\r", ""))
         elif (tableid.lower() == "dependencies"):
             for col in cols:
-                if (col == "Name") or (col == "Description"):
+                if (col == "Name"):
+                    rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                elif (col == "Description"):
                     rowdict[col] = result[col]
             rowdict = self._SetDependencyValues(result, rowdict)
             self.db.UpdateRow(tableid, rowdict, "Id", id)
         elif (tableid.lower() == "combiners"):
             for col in cols:
-                if (col == "Name") or (col == "Description") or (col == "Dependency") or (col == "Invert_Dependency"):
+                if (col == "Name"):
+                    if col in result:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                    else:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
+                elif (col == "Description") or (col == "Dependency") or (col == "Invert_Dependency"):
                     rowdict[col] = result[col]
             rowdict = self._SetCombinerValues(result, rowdict)
             self.db.UpdateRow(tableid, rowdict, "Id", id)
@@ -186,7 +213,7 @@ class db_edit(object):
         retval = 0
         if (tableid.lower() != "scripts"):
             rowdict = {}
-            rowdict['Name'] = "_" + str(random.randint(0, 100000)) + "_"
+            rowdict['Name'] = self._checkDuplicateName(tableid.lower(), self._generateName())
             retval = (self.db.AddRow(tableid, rowdict))
         else:
             data = self._getScriptsData()
@@ -198,7 +225,7 @@ class db_edit(object):
         error, content = self.app.domotionaccess.Call("GetScript", "___nonexistingscript___")
         if not error:
             DictList.append(content)
-            name = "_" + str(random.randint(0, 100000)) + "_"
+            name = self._checkDuplicateName("scripts", self._generateName())
             data.append((id, name, "<shown when editing>"))
         return DictList
 
@@ -754,3 +781,12 @@ class db_edit(object):
                     else:
                         data.append((id, name, "<shown when editing>"))
         return data
+
+    def _generateName(self):
+        return "_" + str(random.randint(0, 100000)) + "_"
+
+    def _checkDuplicateName(self, tableid, name):
+        names = list(map(lambda x: x[0], self.db.SelectColumnFromTable(tableid, "Name")))
+        while name in names:
+            name = self._generateName()
+        return name

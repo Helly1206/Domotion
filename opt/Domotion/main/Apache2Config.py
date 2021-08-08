@@ -131,12 +131,12 @@ class Apache2Config(object):
             else: #http
                 content = self.GenConfHttp(xmlsite[1], email, server, lctime, prefix)
 
-            if not quick or (quick and not keep):
+            if not keep:
                 self.AddSite(sitename,content)
                 self.AddPort(xmlsite[1])
-            else: # quick and keep
+            else: # keep (same for quick and not quick)
                 rdcontent = self.ReadSite(sitename)
-                if (rdcontent != content):
+                if not content in rdcontent:
                     print("Site %s on port %d changed, update site"%(site[0], site[1]))
                     self.AddSite(sitename,content)
                     self.AddPort(xmlsite[1])
