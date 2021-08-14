@@ -169,9 +169,9 @@ class db_edit(object):
             self.db.UpdateRow(tableid, rowdict, "Id", id)
         elif (tableid.lower() == "scripts"):
             if "Name" in result:
-                name = self._checkDuplicateName(tableid.lower(), result["Name"])
+                name = result["Name"]
             else:
-                name = self._checkDuplicateName(tableid.lower(), self._generateName())
+                name = self._generateName()
             if "Script" in result:
                 error, commres = self.app.domotionaccess.Call("SetScript", name, result["Script"].replace("\r", ""))
         elif (tableid.lower() == "dependencies"):

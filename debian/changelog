@@ -1,3 +1,9 @@
+domotion (1.33) stable; urgency=low
+
+  * Disable duplicate name check for scripts
+
+ -- Helly1206 <hellyrulez@hotmail.com>  Sat, 14 Aug 2021 10:49:13 +0100
+
 domotion (1.32) stable; urgency=low
 
   * Prevent crashing on duplicate names (names are always made unique)
