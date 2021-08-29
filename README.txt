@@ -108,7 +108,7 @@ Exernal deployment can be used to deploy the webserver on an external server lik
 
 If you would like to use external deployment by Apache2:
 - First make <externaldeployment> true for the required sites in /etc/DomoWeb.xml and take care that all the other fields are correctly filled in (e.g. when using ssl, make the servername equal to the website host).
-- Enter: 'sudo /opt/apashe2_install.sh'
+- Enter: 'sudo /opt/Domotion/apache2_install.sh'
 - The webserver(s) are now installed in Apache2 and enabled. Take care that you open the required ports in the firewall when accessing from another computer.
 
 Apps:
@@ -122,14 +122,14 @@ sudo ./install.sh    --> Installs Domotion
 sudo ./install.sh -u --> Uninstalls Domotion
 sudo ./install.sh -c --> Deletes compiled files in install folder (only required when copying or zipping the install folder)
 
-sudo /opt/apache2_install.sh --> Install Apache2 and/ or configures Apache2 with the Domotion Webserver
-sudo opt/apache2_install.sh -u --> Removes the Domotion Webserver form the Apache2 folder, it doesn't uninstall Apache2, neither removes entries. Remove the entries in /etc/Domotion/DomoWeb.xml and run sudo /opt/apache2_install.sh -a to remove the entries first, before running sudo opt/apache2_install.sh -u
+sudo /opt/Domotion/apache2_install.sh --> Install Apache2 and/ or configures Apache2 with the Domotion Webserver
+sudo opt/Domotion/apache2_install.sh -u --> Removes the Domotion Webserver form the Apache2 folder, it doesn't uninstall Apache2, neither removes entries. Remove the entries in /etc/Domotion/DomoWeb.xml and run sudo /opt/Domotion/apache2_install.sh to remove the entries first, before running sudo opt/Domotion/apache2_install.sh -u
 
 Package install:
 ------- --------
 Domotion installs automatically from deb package/ apt repository (only for debian based distros like debian or ubuntu).
 If external deployment is set true in at least one of the entries in /etc/DomoWeb.xml, then the apache2 installer is executed automatically.
-After changing DomoWeb.xml, /opt/apache2_install.sh needs to be executed manually.
+After changing DomoWeb.xml, /opt/Domotion/apache2_install.sh needs to be executed manually.
 
 Security:
 ---------

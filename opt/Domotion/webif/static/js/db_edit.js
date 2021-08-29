@@ -49,6 +49,38 @@ function dSensorTypeChanged() {
 	SensorDisableBydType(val);
 }
 
+function SensorFeedBackChanged(sdigital, adigi) {
+    var e = document.getElementById("SensFB");
+	var val = e.options[e.selectedIndex].value;
+    var s = document.getElementById("SensSens");
+    var adigital = adigi[val];
+
+    if (val > 0) {
+        s.innerHTML = "sensor-value";
+    } else {
+        s.innerHTML = "-";
+    }
+
+    if (adigital) {
+        if (sdigital) {
+            document.getElementById("SensOp").hidden = true;
+            document.getElementById("SensEq").hidden = false;
+            document.getElementById("SensVal").hidden = true;
+            document.getElementById("SensValTF").hidden = false;
+        } else {
+            document.getElementById("SensOp").hidden = false;
+            document.getElementById("SensEq").hidden = true;
+            document.getElementById("SensVal").hidden = false;
+            document.getElementById("SensValTF").hidden = true;
+        }
+    } else {
+        document.getElementById("SensOp").hidden = true;
+        document.getElementById("SensEq").hidden = true;
+        document.getElementById("SensVal").hidden = true;
+        document.getElementById("SensValTF").hidden = true;
+    }
+}
+
 function SensorDisableBydType(val) {
 	if ((val.toLowerCase() == "key") || (val == '-')) {
 		document.getElementById("TF3").disabled = false;
@@ -251,7 +283,7 @@ function OnLoadWindow(id, datum) { /* do stuff on page load */
 		SensorDisableBydType(datum[9]);
 		TFSet("TF2",datum[10]);
 		TFSet("TF3",datum[11]);
-		TFSet("TF8",datum[12]);
+		TFSet("TF11",datum[12]);
 	} else if (id == "actuators") {
 		ActuatorDisableByType(datum[3]);
 		TFSet("TF4",datum[9]);

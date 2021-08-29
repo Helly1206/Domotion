@@ -4,6 +4,7 @@
 Description=Domotion (Home control and automation)
 Wants=Pi433MHzd.service
 After=Pi433MHzd.service
+After=network-online.target
 
 [Service]
 Type=simple

@@ -35,12 +35,13 @@ class fuel(object):
 
     def process(self, timer, sensor, value):
         if (sensor):
-            value = self._CheckToggle(sensor, value)
+            props=self.localaccess.GetSensorProperties(sensor)
+            value = self._CheckToggle(sensor, value, props)
             if (self.domoticz_frontend):
                 self.domoticz_frontend.SetSensor(sensor, value)
             self.localaccess.SetSensor(sensor, value)
+            self._SetFeedback(sensor, value, props)
             self.valueretainer.SetDevices()
-            props=self.localaccess.GetSensorProperties(sensor)
             if not props['MuteLog']:
                 self.logger.info("Sensor: %s, value: %f", self.localaccess.GetSensorName(sensor), value)
         if (timer):
@@ -258,13 +259,22 @@ class fuel(object):
     def _DecRepeats(self, Id):
         self.ActuatorRepeats[Id]=(self.ActuatorRepeats[Id]-1)
 
-    def _CheckToggle(self, sensor, value):
+    def _CheckToggle(self, sensor, value, props):
         newval = value
-        if ((self.localaccess.GetSensorProperties(sensor)['Toggle']) and (self.localaccess.GetSensorDigital(sensor))):
+        if ((props['Toggle']) and (self.localaccess.GetSensorDigital(sensor))):
             curval = self.localaccess.GetSensor(sensor)
             if (curval == value):
                 newval = (not value)
         return (newval)
+
+    def _SetFeedback(self, sensor, value, props):
+        if props["Feedback"] > 0:
+            if self.localaccess.GetActuatorDigital(props["Feedback"]):
+                process = (sensor, props["Operator"], props["Value"])
+                self.localaccess.SetActuator(props['Feedback'], self._arithmic(process, sensor, value))
+            else:
+                self.localaccess.SetActuator(props['Feedback'], value)
+
 
     def _UpdateFlash50(self, props, value, oldval):
         if (props['StatusLightFlash']):

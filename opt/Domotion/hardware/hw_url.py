@@ -37,7 +37,7 @@ class url(bdaserver):
     def __del__(self):
         super(url, self).__del__()
         del self.mutex
-        self.logger.info("finished")
+        #self.logger.info("finished")
 
     def UpdateDevices(self, sensors, actuators):
         self.mutex.acquire()

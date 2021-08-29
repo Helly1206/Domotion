@@ -3,6 +3,8 @@
 [Unit]
 Description=Domotion (Home control and automation) Apps Starter
 Wants=Domotion.service
+After=Domotion.service
+After=network-online.target
 
 [Service]
 Type=simple

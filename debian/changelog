@@ -1,3 +1,14 @@
+domotion (1.34) stable; urgency=low
+
+  * Solved bug on not being able to obtain URL
+  * Updated Apache2Config for better compatibility with other tools
+  * Updated starting order for systemd
+  * Added feedback option on current actuator status on sensors (e.g. for MQTT)
+  * Fixed issue on renaming devices on updating
+  * Updated BDA server and client on missing IP addresses op startup
+
+ -- Helly1206 <hellyrulez@hotmail.com>  Sun, 29 Aug 2021 10:32:48 +0100
+
 domotion (1.33) stable; urgency=low
 
   * Disable duplicate name check for scripts

@@ -14,6 +14,7 @@ import queue
 import logging
 import os
 from json import dumps, loads
+from time import sleep
 from apps.appcommon.bdauri import bdauri
 
 #########################################################
@@ -37,11 +38,11 @@ class bdaserver(Thread):
         self.username = username
         self.password = password
         self.trusted = trusted.split(";")
-
-        if not host:
-            host = bdauri.find_ip_address()
-        
-        self.deviceurl = bdauri.BuildURL(host, url)
+        self.host = host
+        self.port = port
+        self.url = url
+        self.deviceurl = url
+        self.maxclients = maxclients
 
         Thread.__init__(self)
         self.term = Event()
@@ -56,11 +57,6 @@ class bdaserver(Thread):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.setblocking(0)
-        self.server_address = (host, port)
-        self.logger.info('starting up on %s, port %d', self.server_address[0], self.server_address[1])
-        #print 'starting up on %s port %s' % self.server_address
-        self.server.bind(self.server_address)
-        self.server.listen(maxclients)
 
         self.inputs = [ self.server ]
         self.outputs = [ ]
@@ -78,15 +74,24 @@ class bdaserver(Thread):
         del self.term
         del self.recd
         self.logger.info("finished")
-        #print "finished"
 
     def terminate(self):
         self.term.set()
 
     def run(self):
         try:
+            #wait until IP address is up ...
             self.logger.info("running")
-            #print "running"
+            while (not self.term.isSet()) and (not self.host):
+                self.host = bdauri.find_ip_address()
+                sleep(self.timeout)
+
+            if not self.term.isSet():
+                self.deviceurl = bdauri.BuildURL(self.host, self.url)
+                self.server_address = (self.host, self.port)
+                self.server.bind(self.server_address)
+                self.server.listen(self.maxclients)
+                self.logger.info('Listening on %s, port %d', self.server_address[0], self.server_address[1])
 
             while (not self.term.isSet()):
                 # Wait for at least one of the sockets to be ready for processing
@@ -158,11 +163,8 @@ class bdaserver(Thread):
             for sock in exceptready:
                 self._disconnect(sock)
             self.server.close()
-            #print "terminating"
         except Exception as e:
-            #self.logger.exception(e)
-            #print e
-            pass
+            self.logger.exception(e)
 
     def _connect(self, sock):
         try:
@@ -188,7 +190,7 @@ class bdaserver(Thread):
 
     def _addtosendbuf(self, sock, data):
         self.mutexb.acquire()
-        if self.send_buf[sock]: 
+        if self.send_buf[sock]:
             self.send_buf[sock].put(data)
             # Add output channel for response
             if sock not in self.outputs:
@@ -233,7 +235,7 @@ class bdaserver(Thread):
         if sock:
             self._addtosendbuf(sock, bdauri.BuildURI(self.deviceurl, bdauri.BuildData(tag, value), self.username, self.password))
             os.write(self.unblockselect[1], 'x')
-        
+
             if self.recd.wait(5):
                 self.mutexb.acquire()
                 recddata = self.recddata

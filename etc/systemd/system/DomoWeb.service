@@ -4,6 +4,7 @@
 Description=Domotion (Home control and automation) Web Server
 Wants=Domotion.service
 After=Domotion.service
+After=network-online.target
 
 [Service]
 Type=simple

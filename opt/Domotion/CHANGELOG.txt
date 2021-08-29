@@ -1,3 +1,11 @@
+[B]1.3.4[/B]
+- Solved bug on not being able to obtain URL
+- Updated Apache2Config for better compatibility with other tools
+- Updated starting order for systemd
+- Added feedback option on current actuator status on sensors (e.g. for MQTT)
+- Fixed issue on renaming devices on updating
+- Updated BDA server and client on missing IP addresses op startup
+
 [B]1.3.3[/B]
 - Disable duplicate name check for scripts
 

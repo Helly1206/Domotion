@@ -15,13 +15,9 @@ import random
 ####################### GLOBALS #########################
 
 MethodDict = {0: "Fixed", 1: "Sunrise", 2: "Sunset", 3: "Offset"}
-#WeekDayDict = {0: "Sunday", 1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday"}
 ActiveDict = {0: "-", 1: "Active", 2: "Inactive"}
 OperatorDict = {0: "-", 1: "eq", 2: "ne", 3: "gt", 4: "ge", 5: "lt", 6: "le"}
 DepCombDict = {0: "-", 1: "and", 2: "nand", 3: "or", 4: "nor", 5: "xor", 6: "xnor"}
-#SensorValDict = {0: "-", 1: "False", 2: "True", 3: "0.0", 4: "1.0", 5: "2.0", 6: "3.0", 7: "4.0", 9: "5.0"}
-#ActuatorValDict = {0: "-", 1: "Off", 2: "On", 3: "0.0", 4: "1.0", 5: "2.0", 6: "3.0", 7: "4.0", 9: "5.0"}
-#TableDict = {0: "-", 1: "sensors", 2: "actuators", 3: "timers", 4: "processors", 5: "dependencies", 6: "combiners", 7: "types"}
 
 #########################################################
 # Class : db_edit                                       #
@@ -59,9 +55,9 @@ class db_edit(object):
             for col in cols:
                 if (col == "Name"):
                     if col in result:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col], id)
                     else:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName(), id)
                 elif col == "SysCode":
                     if ('rf' in typename):
                         rowdict[col] = result[col]
@@ -77,9 +73,10 @@ class db_edit(object):
                 elif col == "KeyTag":
                     if ('url' in typename) or ('ir' in typename) or ('mqtt' in typename):
                         rowdict[col] = result[col]
-                elif not col == "Id":
+                elif not col == "Id" and not col == "Feedback" and not col == "Operator" and not col == "Value" and not col == "NValue":
                     if (result[col]):
                         rowdict[col] = result[col]
+            rowdict = self._SetFeedbackValue(result, rowdict, id)
             self.db.UpdateRow(tableid, rowdict, "Id", id)
         elif (tableid.lower() == "actuators"):
             types = dict(self.db.SelectColumnFromTable("types", "Id,Name"))
@@ -94,9 +91,9 @@ class db_edit(object):
             for col in cols:
                 if (col == "Name"):
                     if col in result:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col], id)
                     else:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName(), id)
                 elif col == "SysCode":
                     if ('rf' in typename):
                         rowdict[col] = result[col]
@@ -123,9 +120,9 @@ class db_edit(object):
             for col in cols:
                 if (col == "Name"):
                     if col in result:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col], id)
                     else:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName(), id)
                 elif col == "Time":
                     if ('sunrise' in method) or ('sunset' in method) or ('offset' in method):
                         rowdict[col] = "0"
@@ -144,9 +141,9 @@ class db_edit(object):
             for col in cols:
                 if (col == "Name"):
                     if col in result:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col], id)
                     else:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName(), id)
                 elif (col == "Description"):
                     if col in result:
                         rowdict[col] = result[col]
@@ -177,7 +174,10 @@ class db_edit(object):
         elif (tableid.lower() == "dependencies"):
             for col in cols:
                 if (col == "Name"):
-                    rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                    if col in result:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col], id)
+                    else:
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName(), id)
                 elif (col == "Description"):
                     rowdict[col] = result[col]
             rowdict = self._SetDependencyValues(result, rowdict)
@@ -186,9 +186,9 @@ class db_edit(object):
             for col in cols:
                 if (col == "Name"):
                     if col in result:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col])
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), result[col], id)
                     else:
-                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName())
+                        rowdict[col] = self._checkDuplicateName(tableid.lower(), self._generateName(), id)
                 elif (col == "Description") or (col == "Dependency") or (col == "Invert_Dependency"):
                     rowdict[col] = result[col]
             rowdict = self._SetCombinerValues(result, rowdict)
@@ -238,6 +238,15 @@ class db_edit(object):
             DictList.append(types)
             sensortypes=dict(self.db.SelectColumnFromTable("sensortypes", "Id,Name"))
             DictList.append(sensortypes)
+            sendig=self._GetDigital("sensors")
+            DictList.append(sendig)
+            actuators=dict(self.db.SelectColumnFromTable("actuators", "Id,Name"))
+            actuators.update({0: "-"})
+            DictList.append(actuators)
+            actdig=self._GetDigital("actuators")
+            actdig.update({0: 0})
+            DictList.append(actdig)
+            DictList.append(OperatorDict)
         elif (tableid.lower() == "actuators"):
             # options: type, actuatortype
             types=self._getTypes(True)
@@ -311,6 +320,28 @@ class db_edit(object):
                 del types[key]
 
         return types
+
+    def _SetFeedbackValue(self, result, rowdict, id):
+        rowdict["Feedback"]="0"
+        rowdict["Operator"]="-"
+        rowdict["Value"]="0"
+        if 'Feedback' in result:
+            if (result['Feedback'] != "0"):
+                rowdict["Feedback"] = result["Feedback"]
+                digital = self._GetDigital("actuators")
+                FBDigital=digital[int(result['Feedback'])]
+                if (FBDigital):
+                    digital = self._GetDigital("sensors")
+                    IsDigital=digital[id]
+                    if (IsDigital):
+                        if 'Value' in result:
+                            rowdict["Operator"]="eq"
+                            rowdict["Value"]=result['Value']
+                    else:
+                        if ('NValue' in result) and ('Operator' in result):
+                            rowdict["Operator"]=OperatorDict[int(result['Operator'])]
+                            rowdict["Value"]=result['NValue']
+        return (rowdict)
 
     def _SetSensorValue(self, result, rowdict):
         rowdict["Sensor"]="0"
@@ -427,6 +458,7 @@ class db_edit(object):
             data = self._LookupBoolean(cols, data, "poll")
             data = self._LookupBoolean(cols, data, "toggle")
             data = self._LookupBoolean(cols, data, "mutelog")
+            cols, data = self._LookupFeedback(cols, data)
         elif (tableid.lower() == "actuators"):
             # Lookup types, boolean
             data = self._LookupType(cols, data)
@@ -445,15 +477,15 @@ class db_edit(object):
             data = self._LookupBoolean(cols, data, "mutelog")
         elif (tableid.lower() == "processors"):
             # Lookup arithmic, combiner
-            cols,data = self._LookupProcessorsArithmic(cols, data)
+            cols, data = self._LookupProcessorsArithmic(cols, data)
             data = self._LookupCombiner(cols, data)
             data = self._LookupScript(cols, data)
         elif (tableid.lower() == "dependencies"):
             # Lookup arithmic
-            cols,data = self._LookupDependencyArithmic(cols, data)
+            cols, data = self._LookupDependencyArithmic(cols, data)
         elif (tableid.lower() == "combiners"):
             # Lookup arithmic, dependencies, boolean
-            cols,data = self._LookupCombinerArithmic(cols,data)
+            cols, data = self._LookupCombinerArithmic(cols,data)
             data = self._LookupDependency(cols, data)
             data = self._LookupBoolean(cols, data, "Invert_Dependency")
         elif (tableid.lower() == "types"):
@@ -533,6 +565,36 @@ class db_edit(object):
             newrow = row[:type_col] + type + row[type_col+1:]
             newdata.append(newrow)
         return newdata
+
+    def _LookupFeedback(self, cols, data):
+        Feedback_col = self._GetColumn(cols,"Feedback")
+        newcols = cols[:Feedback_col+1] + ["Feedback_value"]
+
+        newdata = []
+        for row in data:
+            Feedback = "-"
+            Value = "-"
+            Feedback = self._GetIdName("actuators", row[Feedback_col])[0]
+            if row[Feedback_col] > 0:
+                Digital = self._GetIdDigital("actuators", row[Feedback_col])
+                if Digital:
+                    Sdigital = self._GetIdDigital("sensors", row[0])
+                    operator = row[Feedback_col+1].lower()
+                    if Sdigital:
+                        if row[Feedback_col+2]:
+                            cvalue="True"
+                        else:
+                            cvalue="False"
+                    else:
+                        cvalue = str(row[Feedback_col+2])
+                    Value = "sensor-value " + operator + " " + cvalue
+                else:
+                    Value = "sensor-value"
+
+            newrow = row[:Feedback_col] + (Feedback, Value)
+            newdata.append(newrow)
+
+        return newcols, newdata
 
     def _LookupActuatorType(self, cols, data):
         type_col = self._GetColumn(cols,"actuatortype")
@@ -785,8 +847,14 @@ class db_edit(object):
     def _generateName(self):
         return "_" + str(random.randint(0, 100000)) + "_"
 
-    def _checkDuplicateName(self, tableid, name):
-        names = list(map(lambda x: x[0], self.db.SelectColumnFromTable(tableid, "Name")))
-        while name in names:
-            name = self._generateName()
+    def _checkDuplicateName(self, tableid, name, id = 0):
+        names = dict(self.db.SelectColumnFromTable(tableid, "Id,Name"))
+        unique = False
+        while not unique:
+            unique = True
+            for key, kname in names.items():
+                if name == kname and id != key:
+                    name = self._generateName()
+                    unique = False
+                    break
         return name

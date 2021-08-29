@@ -509,6 +509,8 @@ class db_read(object):
             self._UpdateDB120()
         if (float(dbversion) < 1.30):
             self._UpdateDB130()
+        if (float(dbversion) < 1.34):
+            self._UpdateDB134()
         rowdict = {}
         rowdict['Parameter'] = "Version"
         rowdict['Value'] = version
@@ -560,7 +562,13 @@ class db_read(object):
         self._AddRowAndSort("settings","Parameter","MQTT_QOS", "Id", (1, 'MQTT_retain', 'MQTT retain for publishing', 0, 'BOOL', 0))
         self._AddRowAndSort("types","Name","Script Output", "Id", (1, 'MQTT Input', 'MQTT subscribe (input)', 'MQTT', 0))
         self._AddRowAndSort("types","Name","MQTT Input", "Id", (1, 'MQTT Output', 'MQTT publish (output)', 'MQTT', 1))
-        self._AddColumn("processors", "Script", "STRING", "")
+        self._AddColumn("processors", "Script", "STRING", None)
+        return
+
+    def _UpdateDB134(self):
+        self._AddColumn("sensors", "Feedback", "INTEGER", 0)
+        self._AddColumn("sensors", "Operator", "STRING", "-")
+        self._AddColumn("sensors", "Value", "INTEGER", 0)
         return
 
     def _GetColNames(self, table_name):
@@ -622,12 +630,15 @@ class db_read(object):
         self.conn.commit()
         return
 
-    def _AddColumn(self, table_name, name, type, default):
+    def _AddColumn(self, table_name, name, Type, default):
         c = self.conn.cursor()
-        if default:
-            c.execute("ALTER TABLE {tn} ADD COLUMN {cn} {tp} NOT NULL DEFAULT {df}".format(tn=table_name, cn=name, tp=type, df=default))
+        if default != None:
+            if type(default) == str:
+                c.execute("ALTER TABLE {tn} ADD COLUMN {cn} {tp} NOT NULL DEFAULT '{df}'".format(tn=table_name, cn=name, tp=Type, df=default))
+            else:
+                c.execute("ALTER TABLE {tn} ADD COLUMN {cn} {tp} NOT NULL DEFAULT {df}".format(tn=table_name, cn=name, tp=Type, df=default))
         else:
-            c.execute("ALTER TABLE {tn} ADD COLUMN {cn} {tp}".format(tn=table_name, cn=name, tp=type))
+            c.execute("ALTER TABLE {tn} ADD COLUMN {cn} {tp}".format(tn=table_name, cn=name, tp=Type))
         self.conn.commit()
         return
 

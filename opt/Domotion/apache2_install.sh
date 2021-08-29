@@ -19,9 +19,9 @@ if [ "$1" == "-u" ] || [ "$1" == "-U" ]
 then
     echo "$NAME Apache2 uninstall script"
 	echo "WARNING: Apache2 itself is not uninstalled, evenso conf files are not removed"
-	echo "         If you want to do so, remove all externaldeployment entries"
-	echo "         in /etc/Domotion/DomoWeb.xml and run sudo /opt/apache2_install.sh -a"
-	echo "         This uninstaller only removes Domotion files from apache's www folder"
+	echo "    If you want to do so, remove all externaldeployment entries"
+	echo "    in /etc/Domotion/DomoWeb.xml and run sudo /opt/Domotion/apache2_install.sh"
+	echo "    This uninstaller only removes Domotion files from apache's www folder"
 	read -p "Do you want to continue (Y/n)? " -n 1 -r
 	echo    # (optional) move to a new line
 	if [[ $REPLY =~ ^[Nn]$ ]]
@@ -37,9 +37,9 @@ elif [ "$1" == "-f" ] || [ "$1" == "-F" ]
 then
     echo "$NAME Apache2 uninstall script (forced)"
 	echo "WARNING: Apache2 itself is not uninstalled, evenso conf files are not removed"
-	echo "         If you want to do so, remove all externaldeployment entries"
-	echo "         in /etc/Domotion/DomoWeb.xml and run sudo /opt/apache2_install.sh -a"
-	echo "         This uninstaller only removes Domotion files from apache's www folder"
+	echo "    If you want to do so, remove all externaldeployment entries"
+	echo "    in /etc/Domotion/DomoWeb.xml and run sudo /opt/Domotion/apache2_install.sh"
+	echo "    This uninstaller only removes Domotion files from apache's www folder"
 	echo "Running Apache2 uninstall script"
 	echo "Uninstalling $NAME from $WEB_ROOT"
 

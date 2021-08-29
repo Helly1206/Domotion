@@ -34,9 +34,7 @@ class webserveraccess(Thread):
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.setblocking(0)
         self.server_address = ('localhost', port)
-        self.logger.info('starting up on %s, port %d', self.server_address[0], self.server_address[1])
-        self.server.bind(self.server_address)
-        self.server.listen(maxclients)
+        self.maxclients = maxclients
 
         self.inputs = [ self.server ]
         self.outputs = [ ]
@@ -55,6 +53,10 @@ class webserveraccess(Thread):
     def run(self):
         try:
             self.logger.info("running")
+
+            self.server.bind(self.server_address)
+            self.server.listen(self.maxclients)
+            self.logger.info('Listening up on %s, port %d', self.server_address[0], self.server_address[1])
 
             while (not self.term.isSet()):
                 # Wait for at least one of the sockets to be ready for processing

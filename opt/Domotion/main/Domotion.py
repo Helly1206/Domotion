@@ -34,7 +34,7 @@ import psutil
 LOG_FILENAME = 'Domotion.log'
 LOG_MAXSIZE = 100*1024*1024
 DB_FILENAME = "Domotion.db"
-VERSION = "1.33"
+VERSION = "1.34"
 LoopTime = 0.1
 RestartSleepTime = 2
 LogMemory = 100
@@ -67,6 +67,8 @@ class Domotion(object):
             mh.setFormatter(formatter)
             self.logger.info("Starting Domotion")
             self.killer = AppKiller()
+
+            self.webserveraccess = None
 
             #test DB and update if required
             result = self.localaccess.UpdateDB(VERSION)

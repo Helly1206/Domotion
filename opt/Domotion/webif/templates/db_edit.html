@@ -50,7 +50,7 @@
   					<input type="text" size="{% if datum[8] %}{{ datum[8]|length }}{% else %} 10 {% endif %}" name="KeyTag" id="sTag" value="{{ datum[8] }}">
   				</td>
   				<td class="d5"> <!--SensorType -->
-  					<select name="SensorType" id="dSensorType"  onchange="dSensorTypeChanged()">
+  					<select name="SensorType" id="dSensorType" onchange="dSensorTypeChanged()">
   						{% for key, value in editingdata[1].items() %}
         				<option value="{{key}}" {% if (value == datum[9]) %} selected="selected" {% endif %}>
         					{{ value }}
@@ -74,10 +74,22 @@
   				</td>
                 <td class="d5"> <!-- MuteLog -->
                     <label>
-                        <input type="checkbox" value="1" name="MuteLog" id="TF8" onchange="TFChanged('TF8')"><br>
+                        <input type="checkbox" value="1" name="MuteLog" id="TF11" onchange="TFChanged('TF11')"><br>
                         <span>xxx</span>
                         <input type="hidden" value="0" name="MuteLog">
                     </label>
+                </td>
+                <td class="d5"> <!-- Feedback -->
+                    <select name="Feedback" id="SensFB" onchange='SensorFeedBackChanged({{editingdata[2][datum[0]]}},{{editingdata[4]|tojson|safe}})'>
+  					    {% for key, value in editingdata[3].items() %}
+        				<option value="{{key}}" {% if (value == datum[13]) %} selected="selected" {% endif %}>
+        					{{ value }}
+        				</option>
+    					{% endfor %}
+					</select>
+  				</td>
+                <td  class="d7"> <!-- Processors -->
+          	         Select value:
                 </td>
   			{% elif tableid == "actuators" %}
   				<td class="d5"> <!--Type -->
@@ -241,8 +253,65 @@
         	    </td>
   			{% endif %}
   		</tr>
-  		<!-- add rows for timers (weekdays), dependencies, combiners -->
-  		{% if tableid == "timers" %}
+  		<!-- add rows for sensors (feedback), timers (weekdays), dependencies, combiners -->
+        {% if tableid == "sensors" %}
+            {% if datum[14] == "sensor-value" %}
+                {% set sensor = datum[14] %}
+            {% elif datum[14] != "-" %}
+                {% set sensor,operator,svalue = datum[14].split(' ') %}
+            {% endif %}
+            {% if not sensor %}
+                {% set sensor = '-' %}
+            {% endif %}
+            {% if not operator %}
+                {% set operator = editingdata[5][1] %}
+            {% endif %}
+            {% if not svalue %}
+                {% set svalue = 0 %}
+            {% endif %}
+            {% set vars = {'sdigital': 0, 'adigital': 0} %}
+            {% if vars.update({'sdigital': editingdata[2][datum[0]]}) %} {% endif %}
+  			{% for key, value in editingdata[3].items() %}
+  				{% if (value == datum[13]|trim) %}
+  					{% if vars.update({'adigital': editingdata[4][key]}) %} {% endif %}
+  				{% endif %}
+  			{% endfor %}
+            <tr class="d5">
+                <!-- 3 empty columns -->
+                {% for n in range(14) %}
+                    <td class="d7">
+                    </td>
+                {% endfor %}
+                <td class="d7">
+  					<table>
+        				<tbody>
+              				<tr class="d5">
+                                <td class="d7" id="SensSens">{{sensor}}
+                                </td>
+                                <td class="d7" style="width: 40px; height: 22px;">
+                                    <select name="Operator" id="SensOp" {% if vars.sdigital or not vars.adigital %}hidden{% endif %}>
+                                        {% for key, value in editingdata[5].items() %}
+                                            <option value="{{key}}" {% if (value == operator|trim ) %} selected="selected" {% endif %}>
+                                                {{ value }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="SensEq" {% if not vars.sdigital or not vars.adigital %}hidden{% endif %}>eq</span>
+                                </td>
+                                <td class="d7" style="width: 70px; height: 22px;">
+                                    <input style="width: 50px;" type="number" name="NValue" value="{{svalue|trim}}" id="SensVal" step="0.01" {% if vars.sdigital or not vars.adigital %}hidden{% endif %}>
+                                    <label id="SensValTF" {% if not vars.sdigital or not vars.adigital %}hidden{% endif %}>
+                                        <input type="checkbox" {% if svalue|trim == "True" %} checked="checked" {% endif %} value="1" name="Value" id="TF12" onchange="TFChanged('TF12')">
+                                        <span>{% if svalue|trim == "True" %}True{% else %}False{% endif %}</span>
+                                        <input type="hidden" value="0" name="Value">
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+  		{% elif tableid == "timers" %}
   			{% for key, value in editingdata[1].items() %}
   				<tr class="d5">
   					<!-- 6 empty columns -->
@@ -310,15 +379,15 @@
   				<td class="d7">
   					<table>
         				<tbody>
-          				<tr class="d5">
-          					<td class="d7">
-  								<select name="Timer" id="ProcTimer" onchange="ProcTimerChanged()">
-  									{% for key, value in editingdata[0].items() %}
-        								<option value="{{key}}" {% if (value == timer|trim ) %} selected="selected" {% endif %}>
-        									{{ value }}
-        								</option>
-    								{% endfor %}
-								</select> or
+              				<tr class="d5">
+              					<td class="d7">
+      								<select name="Timer" id="ProcTimer" onchange="ProcTimerChanged()">
+      									{% for key, value in editingdata[0].items() %}
+            								<option value="{{key}}" {% if (value == timer|trim ) %} selected="selected" {% endif %}>
+            									{{ value }}
+            								</option>
+        								{% endfor %}
+    								</select> or
   								</td>
   								<td class="d7">(
   									<select name="Sensor" id="ProcSensor" onchange='ProcSensorChanged({{editingdata[1]|tojson|safe}},{{editingdata[2]|tojson|safe}})'>

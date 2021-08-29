@@ -80,7 +80,6 @@ class mqtt(object):
                 try:
                     self.client.connect(self.localaccess.GetSetting('MQTT_brokeraddress'), port=int(self.localaccess.GetSetting('MQTT_port'))) #connect to broker
                     self.client.loop_start() #start the loop
-                    #self.client.subscribe("myhome/iotblindsctrl/pos_status")
                 except:
                     self.logger.error("Invalid connection, check server address")
         except Exception as e:
