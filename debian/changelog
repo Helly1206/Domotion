@@ -1,3 +1,11 @@
+domotion (1.35) stable; urgency=low
+
+  * Solved bug in adding new script
+  * Always update on edge options in scripts
+  * Added eitherEdge option to script to overcome multiple edge request issues
+
+ -- Helly1206 <hellyrulez@hotmail.com>  Fri, 03 Dec 2021 09:15:28 +0100
+
 domotion (1.34) stable; urgency=low
 
   * Solved bug on not being able to obtain URL

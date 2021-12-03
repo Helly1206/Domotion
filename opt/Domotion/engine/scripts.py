@@ -19,7 +19,7 @@ from frontend.domotion_scripts import domotion_scripts
 etcpath = "/etc/Domotion/"
 scriptsfolder = "process"
 scriptsext = "*.py"
-classfunctions = ["getSensor", "setSensor", "getActuator", "setActuator", "log", "currentValue", "posEdge", "negEdge"]
+classfunctions = ["getSensor", "setSensor", "getActuator", "setActuator", "log", "currentValue", "posEdge", "negEdge", "eitherEdge"]
 
 #########################################################
 # Class : scripts                                       #
@@ -125,7 +125,7 @@ class scripts(object):
 # Functions: getSensor(name, edge = currentValue), setSensor(name, value)
 #            getActuator(name, edge = currentValue), setActuator(name, value)
 #            log(logString)
-# Edges:     currentValue, posEdge, negEdge
+# Edges:     currentValue, posEdge, negEdge, eitherEdge
 if True:
     pass
 """

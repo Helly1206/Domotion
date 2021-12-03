@@ -848,7 +848,10 @@ class db_edit(object):
         return "_" + str(random.randint(0, 100000)) + "_"
 
     def _checkDuplicateName(self, tableid, name, id = 0):
-        names = dict(self.db.SelectColumnFromTable(tableid, "Id,Name"))
+        if tableid == "scripts":
+            names = dict(self._getScriptsData(True))
+        else:
+            names = dict(self.db.SelectColumnFromTable(tableid, "Id,Name"))
         unique = False
         while not unique:
             unique = True

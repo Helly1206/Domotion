@@ -1,3 +1,8 @@
+[B]1.3.5[/B]
+- Solved bug in adding new script
+- Always update on edge options in scripts
+- Added eitherEdge option to script to overcome multiple edge request issues
+
 [B]1.3.4[/B]
 - Solved bug on not being able to obtain URL
 - Updated Apache2Config for better compatibility with other tools

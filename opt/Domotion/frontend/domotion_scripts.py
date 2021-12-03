@@ -20,6 +20,7 @@ class domotion_scripts(object):
     currentValue = 0
     posEdge = 1
     negEdge = 2
+    eitherEdge = 3
 
     def __init__(self):
         pass
@@ -41,19 +42,22 @@ class domotion_scripts(object):
         value = self.localaccess.GetSensor(id)
         if edge == self.posEdge:
             if value > self.sensorvalues[id]:
-                self.sensorvalues[id] = value
                 retval = True
             else:
                 retval = False
         elif edge == self.negEdge:
             if value < self.sensorvalues[id]:
-                self.sensorvalues[id] = value
+                retval = True
+            else:
+                retval = False
+        elif edge == self.eitherEdge:
+            if value != self.sensorvalues[id]:
                 retval = True
             else:
                 retval = False
         else:
-            self.sensorvalues[id] = value
             retval = value
+        self.sensorvalues[id] = value
         return retval
 
     def getActuator(self, name, edge = currentValue):
@@ -62,19 +66,22 @@ class domotion_scripts(object):
         value = self.localaccess.GetActuator(id)
         if edge == self.posEdge:
             if value > self.actuatorvalues[id]:
-                self.actuatorvalues[id] = value
                 retval = True
             else:
                 retval = False
         elif edge == self.negEdge:
             if value < self.actuatorvalues[id]:
-                self.actuatorvalues[id] = value
+                retval = True
+            else:
+                retval = False
+        elif edge == self.eitherEdge:
+            if value != self.actuatorvalues[id]:
                 retval = True
             else:
                 retval = False
         else:
-            self.actuatorvalues[id] = value
             retval = value
+        self.actuatorvalues[id] = value
         return retval
 
     def setSensor(self, name, value):

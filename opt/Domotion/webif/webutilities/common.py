@@ -30,7 +30,7 @@ class common(db_webread):
         db_webread.__del__(self)
 
     def ErrorHtml(self, error):
-        return "%d.html"%error
+        return "{}.html".format(error)
 
     def GetSetting(self, Setting):
         Value, Format =  db_webread.GetSetting(self, Setting)
