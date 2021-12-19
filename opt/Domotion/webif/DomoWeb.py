@@ -28,7 +28,7 @@ from getopt import getopt, GetoptError
 
 ####################### GLOBALS #########################
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-VERSION = "1.12"
+VERSION = "1.13"
 
 #########################################################
 # Class : FalskApp                                      #

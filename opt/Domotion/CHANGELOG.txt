@@ -1,3 +1,6 @@
+[B]1.3.6[/B]
+- Solved bug on adding new sensor or actuator
+
 [B]1.3.5[/B]
 - Solved bug in adding new script
 - Always update on edge options in scripts

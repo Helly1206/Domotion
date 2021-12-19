@@ -440,7 +440,10 @@ class db_edit(object):
             stypes = dict(self.db.SelectColumnFromTable("actuators", "Id,ActuatorType"))
             types = dict(self.db.SelectColumnFromTable("actuatortypes", "Id,Digital"))
         for key in stypes:
-            digital[key] = types[int(stypes[key])]
+            if int(stypes[key]) == 0:
+                digital[key] = 0
+            else:
+                digital[key] = types[int(stypes[key])]
         return digital
 
     def _PrettyEditData(self, tableid):

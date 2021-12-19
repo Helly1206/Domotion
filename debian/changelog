@@ -1,3 +1,9 @@
+domotion (1.36) stable; urgency=low
+
+  * Solved bug on adding new sensor or actuator
+
+ -- Helly1206 <hellyrulez@hotmail.com>  Sun, 19 Dec 2021 20:52:41 +0100
+
 domotion (1.35) stable; urgency=low
 
   * Solved bug in adding new script
