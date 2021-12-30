@@ -45,5 +45,11 @@ if [ "" == "$PKG_OK" ]; then
     echo "No paho-mqtt. Setting up paho-mqtt."
     sudo -H pip3 install paho-mqtt
 fi
+PKG_OK=$(sudo -H pip3 freeze| grep -i "python-apt==")
+echo Checking for python-apt: $PKG_OK
+if [ "" == "$PKG_OK" ]; then
+    echo "No python-apt. Setting up python-apt."
+    sudo -H pip3 install python-apt
+fi
 
 echo "Ready"

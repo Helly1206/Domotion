@@ -1,4 +1,7 @@
 [B]1.3.7[/B]
+- Added apt module to python install modules
+
+[B]1.3.7[/B]
 - Small update on only put statuslight to set mode on actuator update (prevents lots of flickering on analog sensors)
 
 [B]1.3.6[/B]

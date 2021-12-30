@@ -1,3 +1,9 @@
+domotion (1.38) stable; urgency=low
+
+  * Added apt module to python install modules
+
+ -- Helly1206 <hellyrulez@hotmail.com>  Thu, 30 Dec 2021 16:39:32 +0100
+
 domotion (1.37) stable; urgency=low
 
   * Small update on only put statuslight to set mode on actuator update (prevents lots of flickering on analog sensors)
