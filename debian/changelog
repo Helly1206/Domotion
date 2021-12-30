@@ -1,3 +1,9 @@
+domotion (1.37) stable; urgency=low
+
+  * Small update on only put statuslight to set mode on actuator update (prevents lots of flickering on analog sensors)
+
+ -- Helly1206 <hellyrulez@hotmail.com>  Thu, 30 Dec 2021 16:24:07 +0100
+
 domotion (1.36) stable; urgency=low
 
   * Solved bug on adding new sensor or actuator

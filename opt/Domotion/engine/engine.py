@@ -172,11 +172,11 @@ class engine(fuel):
                 if (self.commandqueue.value(result)):
                     self.process(self.commandqueue.id(result), 0, 0)
             else: # sensor or actuator set
-                if (self.statuslight):
-                    self.statuslight.SetDeviceSet()
                 if self.commandqueue.issensor(result):
                     self.process(0, self.GetSensorId(result), self.commandqueue.value(result))
                 else:
+                    if (self.statuslight):
+                        self.statuslight.SetDeviceSet()
                     self.success = self.SetActuator(self.GetActuatorId(result), self.commandqueue.value(result))
                 #self.logger.info(result)
         else: # No command in queue, process [always] and status
