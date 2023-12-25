@@ -1,3 +1,6 @@
+Domotion is archived and no longer maintained. I'm using Home Assistant right now!
+Feel free to use it.
+
 Domotion v1.3.8
 
 Domotion Home Control and Automation
